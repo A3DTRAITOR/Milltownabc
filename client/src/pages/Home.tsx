@@ -4,7 +4,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
-import { ArrowRight, Briefcase, Users, Award, ChevronRight } from "lucide-react";
+import { ArrowRight, Flower2, Sun, Heart, Leaf, Calendar, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PageContent, SiteSettings } from "@shared/schema";
 
@@ -22,19 +22,19 @@ export default function Home() {
 
   const defaultContent: PageContent = {
     title: "Home",
-    metaTitle: "Welcome to Our Business",
-    metaDescription: "We provide exceptional services tailored to your needs.",
-    heroTitle: "Building Success Together",
-    heroSubtitle: "We help businesses grow with innovative solutions and dedicated support. Partner with us to achieve your goals.",
+    metaTitle: "Find Your Flow - Yoga Classes & Private Sessions",
+    metaDescription: "Discover peace and strength through yoga. Join our welcoming classes for all levels, from gentle restorative to energizing vinyasa flow.",
+    heroTitle: "Find Your Balance, Transform Your Life",
+    heroSubtitle: "Welcome to a nurturing space where you can reconnect with your body, calm your mind, and discover the transformative power of yoga. Whether you're a beginner or experienced practitioner, there's a place for you on the mat.",
     sections: [
       {
-        id: "features",
+        id: "offerings",
         type: "cards",
-        title: "Why Choose Us",
+        title: "Your Yoga Journey Starts Here",
         items: [
-          { title: "Expert Team", description: "Our experienced professionals bring years of industry knowledge to every project.", icon: "users" },
-          { title: "Quality Service", description: "We deliver exceptional results that exceed expectations every time.", icon: "award" },
-          { title: "Proven Results", description: "Track record of success with hundreds of satisfied clients.", icon: "briefcase" },
+          { title: "Vinyasa Flow", description: "Dynamic, breath-synchronized movement to build strength, flexibility, and inner calm. Perfect for those seeking an energizing practice.", icon: "sun" },
+          { title: "Gentle Restorative", description: "Slow, nurturing poses with props to release tension and promote deep relaxation. Ideal for stress relief and recovery.", icon: "flower" },
+          { title: "Private Sessions", description: "One-on-one guidance tailored to your unique needs, goals, and experience level. Personalized attention for deeper growth.", icon: "heart" },
         ],
       },
     ],
@@ -44,10 +44,12 @@ export default function Home() {
 
   const getIcon = (iconName?: string) => {
     switch (iconName) {
-      case "users": return <Users className="h-8 w-8" />;
-      case "award": return <Award className="h-8 w-8" />;
-      case "briefcase": return <Briefcase className="h-8 w-8" />;
-      default: return <Briefcase className="h-8 w-8" />;
+      case "sun": return <Sun className="h-8 w-8" />;
+      case "flower": return <Flower2 className="h-8 w-8" />;
+      case "heart": return <Heart className="h-8 w-8" />;
+      case "leaf": return <Leaf className="h-8 w-8" />;
+      case "calendar": return <Calendar className="h-8 w-8" />;
+      default: return <Flower2 className="h-8 w-8" />;
     }
   };
 
@@ -88,13 +90,13 @@ export default function Home() {
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Button size="lg" asChild data-testid="button-hero-services">
                 <Link href="/services">
-                  Our Services
+                  View Classes
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild data-testid="button-hero-contact">
                 <Link href="/contact">
-                  Contact Us
+                  Book a Session
                 </Link>
               </Button>
             </div>
@@ -131,16 +133,24 @@ export default function Home() {
       <section className="border-t border-border bg-card py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Ready to Get Started?</h2>
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Begin Your Practice Today</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Let's discuss how we can help your business grow.
+              Your first class is complimentary. Experience the difference and find the practice that's right for you.
             </p>
-            <Button size="lg" className="mt-8" asChild data-testid="button-cta-contact">
-              <Link href="/contact">
-                Get in Touch
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+              <Button size="lg" asChild data-testid="button-cta-schedule">
+                <Link href="/services">
+                  View Class Schedule
+                  <Calendar className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild data-testid="button-cta-contact">
+                <Link href="/contact">
+                  Book a Free Intro Session
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

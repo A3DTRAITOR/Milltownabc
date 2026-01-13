@@ -19,20 +19,20 @@ export default function About() {
   const page = pageData?.content;
 
   const defaultContent: PageContent = {
-    title: "About Us",
-    metaTitle: "About Us - Learn Our Story",
-    metaDescription: "Discover our mission, vision, and the team behind our success.",
-    heroTitle: "Our Story",
-    heroSubtitle: "For over a decade, we've been dedicated to helping businesses achieve their full potential through innovative solutions and personalized service.",
+    title: "About",
+    metaTitle: "About - Meet Your Yoga Instructor",
+    metaDescription: "Learn about my yoga journey, teaching philosophy, and how I can guide you toward greater balance and well-being.",
+    heroTitle: "My Yoga Journey",
+    heroSubtitle: "For over 10 years, yoga has been my path to healing, growth, and self-discovery. Now, I'm honored to share this transformative practice with you, creating a safe and nurturing space where everyone is welcome exactly as they are.",
     sections: [
       {
-        id: "values",
+        id: "philosophy",
         type: "cards",
-        title: "Our Core Values",
+        title: "My Teaching Philosophy",
         items: [
-          { title: "Mission", description: "To empower businesses with cutting-edge solutions that drive growth and success in an ever-changing market.", icon: "target" },
-          { title: "Vision", description: "To be the most trusted partner for businesses seeking sustainable growth and innovation.", icon: "eye" },
-          { title: "Values", description: "Integrity, excellence, and customer-first approach guide everything we do.", icon: "heart" },
+          { title: "Mindful Movement", description: "Every pose is an opportunity to connect breath with movement, cultivating awareness and presence on the mat and in daily life.", icon: "target" },
+          { title: "Inclusive Practice", description: "Yoga is for every body. I offer modifications and variations so everyone can experience the benefits of practice, regardless of experience or ability.", icon: "eye" },
+          { title: "Heart-Centered", description: "Beyond the physical postures, yoga is about compassion—for ourselves and others. I create a judgment-free space where you can explore and grow.", icon: "heart" },
         ],
       },
     ],
@@ -122,16 +122,16 @@ export default function About() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-3">
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary">10+</div>
-              <div className="mt-2 text-muted-foreground">Years Experience</div>
-            </div>
-            <div className="text-center">
               <div className="text-4xl font-bold text-primary">500+</div>
-              <div className="mt-2 text-muted-foreground">Clients Served</div>
+              <div className="mt-2 text-muted-foreground">Hours of Training</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary">98%</div>
-              <div className="mt-2 text-muted-foreground">Satisfaction Rate</div>
+              <div className="text-4xl font-bold text-primary">1000+</div>
+              <div className="mt-2 text-muted-foreground">Classes Taught</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-primary">200+</div>
+              <div className="mt-2 text-muted-foreground">Happy Students</div>
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
-import { Lightbulb, BarChart3, Headphones, Rocket, Shield, Zap, ArrowRight } from "lucide-react";
+import { Sun, Moon, Heart, Users, Sparkles, Mountain, ArrowRight } from "lucide-react";
 import type { PageContent, SiteSettings } from "@shared/schema";
 
 export default function Services() {
@@ -21,22 +21,22 @@ export default function Services() {
   const page = pageData?.content;
 
   const defaultContent: PageContent = {
-    title: "Services",
-    metaTitle: "Our Services - What We Offer",
-    metaDescription: "Explore our comprehensive range of services designed to help your business succeed.",
-    heroTitle: "Our Services",
-    heroSubtitle: "We offer a comprehensive range of services designed to help your business succeed in today's competitive landscape.",
+    title: "Classes & Services",
+    metaTitle: "Yoga Classes & Services - Find Your Perfect Practice",
+    metaDescription: "From energizing vinyasa to calming restorative yoga, explore classes for all levels. Private sessions and workshops also available.",
+    heroTitle: "Classes & Offerings",
+    heroSubtitle: "Discover a variety of yoga classes designed to meet you where you are. Whether you seek energy and strength or calm and restoration, there's a practice waiting for you.",
     sections: [
       {
-        id: "services",
+        id: "classes",
         type: "cards",
         items: [
-          { title: "Consulting", description: "Strategic advice and guidance to help you make informed business decisions and achieve your goals.", icon: "lightbulb" },
-          { title: "Analytics", description: "Data-driven insights to understand your market, customers, and business performance.", icon: "chart" },
-          { title: "Support", description: "Dedicated customer support and maintenance to keep your operations running smoothly.", icon: "headphones" },
-          { title: "Development", description: "Custom solutions tailored to your unique business requirements and objectives.", icon: "rocket" },
-          { title: "Security", description: "Comprehensive security solutions to protect your business and customer data.", icon: "shield" },
-          { title: "Optimization", description: "Performance optimization to maximize efficiency and reduce operational costs.", icon: "zap" },
+          { title: "Vinyasa Flow", description: "A dynamic practice linking breath with movement. Build strength, flexibility, and focus through flowing sequences. All levels welcome.", icon: "sun" },
+          { title: "Gentle Yoga", description: "Slow, accessible poses perfect for beginners or those seeking a softer practice. Focus on breath, alignment, and relaxation.", icon: "moon" },
+          { title: "Restorative Yoga", description: "Deep relaxation using props to support the body in restful poses. Release tension and restore your nervous system.", icon: "sparkles" },
+          { title: "Private Sessions", description: "One-on-one instruction tailored to your goals, injuries, or schedule. Perfect for personalized attention and deeper learning.", icon: "heart" },
+          { title: "Group Classes", description: "Join our welcoming community for regularly scheduled classes. Build connections while building your practice.", icon: "users" },
+          { title: "Workshops & Retreats", description: "Immersive experiences to deepen your practice. From weekend workshops to transformative retreats.", icon: "mountain" },
         ],
       },
     ],
@@ -46,13 +46,13 @@ export default function Services() {
 
   const getIcon = (iconName?: string) => {
     switch (iconName) {
-      case "lightbulb": return <Lightbulb className="h-8 w-8" />;
-      case "chart": return <BarChart3 className="h-8 w-8" />;
-      case "headphones": return <Headphones className="h-8 w-8" />;
-      case "rocket": return <Rocket className="h-8 w-8" />;
-      case "shield": return <Shield className="h-8 w-8" />;
-      case "zap": return <Zap className="h-8 w-8" />;
-      default: return <Lightbulb className="h-8 w-8" />;
+      case "sun": return <Sun className="h-8 w-8" />;
+      case "moon": return <Moon className="h-8 w-8" />;
+      case "heart": return <Heart className="h-8 w-8" />;
+      case "users": return <Users className="h-8 w-8" />;
+      case "sparkles": return <Sparkles className="h-8 w-8" />;
+      case "mountain": return <Mountain className="h-8 w-8" />;
+      default: return <Sun className="h-8 w-8" />;
     }
   };
 
@@ -122,13 +122,13 @@ export default function Services() {
       <section className="border-t border-border bg-card py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Need a Custom Solution?</h2>
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Not Sure Where to Start?</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              We're here to help you find the perfect solution for your business needs.
+              Book a free discovery call and let's find the perfect practice for your goals, experience level, and schedule.
             </p>
             <Button size="lg" className="mt-8" asChild data-testid="button-services-contact">
               <Link href="/contact">
-                Get a Free Consultation
+                Schedule a Free Consultation
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>

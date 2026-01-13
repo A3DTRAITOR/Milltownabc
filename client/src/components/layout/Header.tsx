@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/services", label: "Services" },
-  { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
+  { href: "/about", label: "About Me" },
+  { href: "/services", label: "Classes" },
+  { href: "/blog", label: "Wellness Blog" },
+  { href: "/contact", label: "Book a Session" },
 ];
 
 interface HeaderProps {

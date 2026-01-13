@@ -24,7 +24,7 @@ export function Footer({ settings }: FooterProps) {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground">Quick Links</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground">Explore</h4>
             <ul className="mt-4 space-y-2">
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-home">
@@ -33,17 +33,17 @@ export function Footer({ settings }: FooterProps) {
               </li>
               <li>
                 <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-about">
-                  About Us
+                  About Me
                 </Link>
               </li>
               <li>
                 <Link href="/services" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-services">
-                  Services
+                  Class Schedule
                 </Link>
               </li>
               <li>
                 <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-blog">
-                  Blog
+                  Wellness Tips
                 </Link>
               </li>
             </ul>

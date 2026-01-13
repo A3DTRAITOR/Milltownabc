@@ -86,8 +86,8 @@ export default function Contact() {
     );
   }
 
-  const seoTitle = `Contact Us - ${settings?.businessName || "Get in Touch"}`;
-  const seoDescription = "Have a question or want to work together? We'd love to hear from you.";
+  const seoTitle = `Book a Session - ${settings?.businessName || "Get in Touch"}`;
+  const seoDescription = "Ready to begin your yoga journey? Book a class, schedule a private session, or ask any questions. I'd love to hear from you.";
 
   return (
     <PublicLayout settings={settings}>
@@ -96,10 +96,10 @@ export default function Contact() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl" data-testid="text-contact-title">
-              Contact Us
+              Begin Your Journey
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground lg:text-xl" data-testid="text-contact-subtitle">
-              Have a question or want to work together? We'd love to hear from you.
+              Ready to step onto the mat? Whether you're curious about classes, want to book a private session, or have questions about your practice, I'm here to help.
             </p>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function Contact() {
           <div className="grid gap-12 lg:grid-cols-2">
             <div>
               <Card className="p-6 lg:p-8">
-                <h2 className="text-2xl font-semibold text-foreground mb-6">Send us a Message</h2>
+                <h2 className="text-2xl font-semibold text-foreground mb-6">Send Me a Message</h2>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <div className="grid gap-6 sm:grid-cols-2">
@@ -161,7 +161,7 @@ export default function Contact() {
                         <FormItem>
                           <FormLabel>Subject</FormLabel>
                           <FormControl>
-                            <Input placeholder="How can we help?" {...field} data-testid="input-contact-subject" />
+                            <Input placeholder="e.g., Private session inquiry, Class schedule question" {...field} data-testid="input-contact-subject" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -175,7 +175,7 @@ export default function Contact() {
                           <FormLabel>Message</FormLabel>
                           <FormControl>
                             <Textarea 
-                              placeholder="Tell us more about your project or inquiry..." 
+                              placeholder="Tell me about your yoga goals, experience level, or any questions you have..." 
                               className="min-h-[150px] resize-none"
                               {...field} 
                               data-testid="input-contact-message"
@@ -210,7 +210,7 @@ export default function Contact() {
 
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-semibold text-foreground mb-6">Get in Touch</h2>
+                <h2 className="text-2xl font-semibold text-foreground mb-6">Let's Connect</h2>
                 <div className="space-y-6">
                   {settings?.email && (
                     <div className="flex items-start gap-4">
@@ -252,13 +252,11 @@ export default function Contact() {
                 </div>
               </div>
 
-              <Card className="overflow-hidden">
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <MapPin className="mx-auto h-12 w-12 mb-2" />
-                    <p>Map will display here when address is set</p>
-                  </div>
-                </div>
+              <Card className="p-6">
+                <h3 className="font-semibold text-foreground mb-3">First Time Here?</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Your first class is complimentary! I offer a free intro session so you can experience the practice and see if it's right for you. No experience necessary - just bring yourself, comfortable clothes, and an open mind.
+                </p>
               </Card>
             </div>
           </div>
