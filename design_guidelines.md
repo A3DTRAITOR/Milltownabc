@@ -1,18 +1,37 @@
-# Design Guidelines: Small Business CMS Website
+# Design Guidelines: Coral/Peach Wellness Theme
 
 ## Design Approach
 
-**Hybrid Strategy:**
-- **Public Pages:** Reference-based approach inspired by Squarespace, Wix, and professional small business templates
-- **Admin Dashboard:** Material Design system for clean, functional interface
-- **Rationale:** Public pages need visual polish to represent businesses professionally; admin needs efficient, learnable interface for content management
+**Wellness-Inspired Theme:**
+- Warm coral and peach color palette inspired by fitness and wellness brands
+- Clean white backgrounds with soft, inviting accents
+- Modern, approachable typography
+- Emphasis on warmth, energy, and positive vibes
+
+## Color Palette
+
+### Primary Colors
+- **Primary Coral:** `hsl(17 75% 42%)` - Main brand color for CTAs, buttons, and accents (WCAG AA compliant with white text)
+- **Secondary Peach:** `hsl(24 92% 74%)` - Lighter accent for hover states and highlights
+- **Terracotta:** `hsl(12 78% 55%)` - Deep accent for emphasis
+
+### Neutral Colors
+- **Background:** Pure white `hsl(0 0% 100%)`
+- **Charcoal:** `hsl(15 22% 18%)` - Primary text and dark elements
+- **Warm Sand:** `hsl(32 46% 96%)` - Muted backgrounds
+- **Clay:** `hsl(20 40% 70%)` - Dividers and subtle borders
+
+### Supporting Colors
+- **Success Green:** `hsl(150 35% 36%)`
+- **Alert Red:** `hsl(0 70% 55%)`
 
 ## Typography
 
 **Public Pages:**
-- Headings: Inter Bold (Google Fonts) - h1: text-5xl, h2: text-4xl, h3: text-2xl
+- Headings: Inter Bold - h1: text-5xl, h2: text-4xl, h3: text-2xl
 - Body: Inter Regular - text-base (16px) with text-lg for intros
 - Line height: leading-relaxed for readability
+- Letter-spacing: Normal tracking for headlines, relaxed for body
 
 **Admin Dashboard:**
 - System font stack for performance: -apple-system, BlinkMacSystemFont, "Segoe UI"
@@ -29,7 +48,7 @@
 - Content width: max-w-prose for text-heavy sections
 
 **Admin Layout:**
-- Sidebar: Fixed 16rem width on desktop, collapsible on mobile
+- Sidebar: Dark charcoal background matching the wellness theme
 - Content area: Flexible with max-w-6xl
 - Card spacing: gap-6 for grids, p-6 for card interiors
 
@@ -38,28 +57,32 @@
 ### Public Pages
 
 **Hero Section (Homepage):**
-- Full-width background image with overlay
+- Full-width background image with coral gradient overlay
+- Gradient: `linear-gradient(120deg, hsl(17 85% 60% / 0.78), hsl(24 92% 74% / 0.68))`
 - Height: min-h-[600px] lg:min-h-[700px]
-- Centered content: max-w-3xl with heading + subheading + CTA
-- Dual CTA buttons with blur backdrop (backdrop-blur-md bg-white/90)
+- Light text over the warm overlay
+- CTA buttons with white/coral styling
 
 **Navigation:**
-- Sticky header with logo left, links right
+- Clean white header with coral accents
+- Sticky header with subtle shadow
 - Mobile: Hamburger menu, full-screen overlay
 - Height: h-16 lg:h-20
 
-**Page Sections:**
-- About: 2-column split (image + text) on desktop, stack on mobile
-- Services: 3-column grid (grid-cols-1 md:grid-cols-2 lg:grid-cols-3) with icon, title, description cards
-- Blog: Masonry-style grid with featured image, title, excerpt, date
-- Contact: 2-column (form left, map/info right)
-
 **Cards:**
-- White background, rounded-xl, subtle shadow
+- White background, rounded-xl border radius
+- Subtle warm shadow: `0 10px 30px -12px hsl(15 40% 25% / 0.32)`
 - Padding: p-6 lg:p-8
-- Hover: subtle lift with transition
+- Optional coral top border accent for emphasis
+
+**Buttons:**
+- Primary: Coral background with white text
+- Secondary: Peach background with dark text
+- Outline: Charcoal border with coral hover
+- All buttons have subtle shadows for depth
 
 **Footer:**
+- Warm sand or white background
 - 4-column grid on desktop (About, Services, Quick Links, Contact)
 - Stack single column on mobile
 - Newsletter signup, social icons, copyright
@@ -67,44 +90,26 @@
 ### Admin Dashboard
 
 **Sidebar Navigation:**
-- Vertical list with icons (Heroicons) + labels
-- Active state: bg-gray-100 with border-l-4 accent
+- Dark charcoal background matching brand
+- Vertical list with icons (Lucide) + labels
+- Active state: Coral highlight
 - Sections: Dashboard, Pages, Blog, Media, Settings
-
-**Content Editor:**
-- Form layout with labeled sections
-- Input groups: label above, input below with focus:ring
-- Card-based sections with save buttons
-- Preview toggle switch
-
-**Blog Management:**
-- Table view with thumbnail, title, status, date, actions
-- Add New button (top right)
-- Inline editing with htmx updates
-
-**Media Upload:**
-- Drag-and-drop zone: border-dashed border-2 min-h-[200px]
-- Grid gallery below with delete actions
-- Image preview cards: aspect-square with overlay controls
 
 ## Images
 
 **Hero Image (Homepage):**
-- High-quality professional image relevant to business type (office space, service in action, or abstract professional)
+- High-quality wellness/fitness imagery
 - Dimensions: 1920x1080 minimum
-- Placement: Full-width background with dark overlay (opacity-50) for text contrast
-- Buttons on hero: White text with backdrop-blur-md bg-white/10 border border-white/20
+- Apply coral/peach gradient overlay for brand consistency
+- Light text rendered over the overlay
 
 **About Page:**
-- Team or workspace photo: 600x400, placed left column on desktop
-- Professional headshot optional for founder bio
+- Team or wellness-focused photos: 600x400
+- Warm, inviting imagery
 
-**Services Page:**
-- Icon-based (Heroicons), no photos unless service-specific imagery needed
-
-**Blog:**
-- Featured images: 16:9 aspect ratio, 1200x675px
-- Thumbnails in listing: 400x225px
+**Services/Offerings Page:**
+- Icon-based with coral accents
+- Clean, minimal design
 
 ## Responsive Behavior
 
@@ -121,27 +126,20 @@
 
 **Public Contact Form:**
 - Full-width on mobile, max-w-lg on desktop
-- Input styling: border rounded-lg px-4 py-3 focus:ring-2 focus:ring-offset-2
+- Input styling: Warm border colors, coral focus ring
 - Submit button: Full width on mobile, auto on desktop
 
 **Admin Forms:**
-- Two-column grid for related fields on desktop
-- WYSIWYG editor for content (Quill.js recommended)
-- Image upload: Prominent drop zone with file picker fallback
-- Validation: Inline error messages in red below fields
-
-## SEO & Meta
-
-- Each page: Editable title (max-w-prose input), meta description (textarea with 160 char counter)
-- Schema markup: LocalBusiness JSON-LD in footer
-- Semantic HTML: proper heading hierarchy, nav, main, footer tags
+- Clean styling with coral accent on focus
+- Validation: Inline error messages
+- Image upload: Prominent drop zone
 
 ## Accessibility
 
 - ARIA labels on all interactive elements
-- Focus states: focus:ring-2 focus:ring-blue-500
+- Focus states: Coral focus ring for brand consistency
 - Color contrast: WCAG AA minimum (4.5:1 for body text)
 - Keyboard navigation: Tab through all interactive elements
-- Alt text required for all uploaded images in admin
+- Alt text required for all uploaded images
 
-This design balances professional polish for client-facing pages with efficient functionality for content management, ensuring small businesses can maintain an impressive web presence with minimal technical knowledge.
+This design creates a warm, inviting wellness brand aesthetic with coral and peach tones, balanced with clean white spaces and charcoal text for readability.
