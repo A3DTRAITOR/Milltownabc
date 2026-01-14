@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import type { SiteSettings } from "@shared/schema";
+import clubLogo from "@assets/1000014202_1768409791134.png";
 
 interface FooterProps {
   settings?: SiteSettings;
@@ -14,8 +15,8 @@ export function Footer({ settings }: FooterProps) {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h3 className="text-xl font-bold text-white uppercase tracking-tight">{businessName}</h3>
-            <p className="mt-2 text-sm text-gray-400">
+            <img src={clubLogo} alt={businessName} className="h-16 w-auto mb-4" />
+            <p className="text-sm text-gray-400">
               {settings?.tagline || "Train Hard. Fight Smart."}
             </p>
             {settings?.address && (
