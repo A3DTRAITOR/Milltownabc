@@ -7,6 +7,7 @@ import { Link } from "wouter";
 import { ArrowRight, Dumbbell, Users, Trophy, Clock, Calendar, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PageContent, SiteSettings } from "@shared/schema";
+import heroImage from "@assets/stock_images/boxing_gym_training__1b00619a.jpg";
 
 export default function Home() {
   const { data: pageData, isLoading: pageLoading } = useQuery<{ content: PageContent }>({
@@ -77,10 +78,13 @@ export default function Home() {
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
       
-      {/* Hero Section - Dark, Bold */}
-      <section className="relative min-h-[600px] lg:min-h-[700px] bg-foreground overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-foreground to-foreground" />
-        <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M0%2020L20%200L40%2020L20%2040z%22%20fill%3D%22%23fff%22%20fill-opacity%3D%220.1%22%2F%3E%3C%2Fsvg%3E')]" />
+      {/* Hero Section - Dark, Bold with Image */}
+      <section className="relative min-h-[600px] lg:min-h-[700px] overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50" />
         
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
           <div className="max-w-3xl">
