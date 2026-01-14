@@ -10,6 +10,10 @@ import Services from "@/pages/Services";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
 import Contact from "@/pages/Contact";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import Sessions from "@/pages/Sessions";
+import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminPages from "@/pages/admin/Pages";
 import AdminBlogList from "@/pages/admin/BlogList";
@@ -24,9 +28,13 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/services" component={Services} />
+      <Route path="/sessions" component={Sessions} />
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/contact" component={Contact} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/pages" component={AdminPages} />
       <Route path="/admin/blog" component={AdminBlogList} />

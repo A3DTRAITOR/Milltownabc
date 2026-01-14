@@ -1,9 +1,58 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, jsonb, boolean, integer, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export * from "./models/auth";
+
+// Member accounts for boxing club
+export const members = pgTable("members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  phone: varchar("phone", { length: 20 }),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  experienceLevel: varchar("experience_level", { length: 50 }).default("beginner"),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Boxing classes/sessions
+export const boxingClasses = pgTable("boxing_classes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  classType: varchar("class_type", { length: 100 }).notNull(),
+  date: varchar("date", { length: 10 }).notNull(),
+  time: varchar("time", { length: 10 }).notNull(),
+  duration: integer("duration").default(60),
+  capacity: integer("capacity").default(12),
+  bookedCount: integer("booked_count").default(0),
+  price: decimal("price", { precision: 10, scale: 2 }).default("15.00"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Bookings linking members to classes
+export const bookings = pgTable("bookings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  memberId: varchar("member_id").notNull().references(() => members.id),
+  classId: varchar("class_id").notNull().references(() => boxingClasses.id),
+  stripePaymentId: varchar("stripe_payment_id", { length: 255 }),
+  status: varchar("status", { length: 50 }).default("pending"),
+  bookedAt: timestamp("booked_at").defaultNow(),
+});
+
+export const insertMemberSchema = createInsertSchema(members).omit({ id: true, createdAt: true, stripeCustomerId: true });
+export const insertBoxingClassSchema = createInsertSchema(boxingClasses).omit({ id: true, createdAt: true, bookedCount: true });
+export const insertBookingSchema = createInsertSchema(bookings).omit({ id: true, bookedAt: true });
+
+export type InsertMember = z.infer<typeof insertMemberSchema>;
+export type Member = typeof members.$inferSelect;
+export type InsertBoxingClass = z.infer<typeof insertBoxingClassSchema>;
+export type BoxingClass = typeof boxingClasses.$inferSelect;
+export type InsertBooking = z.infer<typeof insertBookingSchema>;
+export type Booking = typeof bookings.$inferSelect;
 
 export const siteContent = pgTable("site_content", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

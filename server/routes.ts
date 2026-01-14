@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
+import { registerMemberRoutes } from "./memberAuth";
 import multer from "multer";
 import sharp from "sharp";
 import path from "path";
@@ -62,6 +63,7 @@ export async function registerRoutes(
 ): Promise<Server> {
   await setupAuth(app);
   registerAuthRoutes(app);
+  registerMemberRoutes(app);
 
   app.get("/api/content/:key", async (req, res) => {
     try {
