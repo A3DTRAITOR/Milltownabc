@@ -25,7 +25,7 @@ export default function Home() {
     title: "Home",
     metaTitle: "Milltown Boxing Club - Train Hard, Fight Smart",
     metaDescription: "Join Milltown Boxing Club for professional boxing training. Classes for all levels from beginners to advanced fighters. £15 per session.",
-    heroTitle: "Train Hard. Fight Smart.",
+    heroTitle: "Train Hard.\nFight Smart.",
     heroSubtitle: "Welcome to Milltown Boxing Club - where champions are made. Whether you're stepping into the ring for the first time or looking to sharpen your skills, our world-class trainers will help you reach your potential.",
     sections: [
       {
@@ -91,7 +91,7 @@ export default function Home() {
             <span className="inline-block px-4 py-1 mb-6 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
               Milltown Boxing Club
             </span>
-            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-7xl uppercase" data-testid="text-hero-title">
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-7xl uppercase whitespace-pre-line" data-testid="text-hero-title">
               {content.heroTitle}
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-gray-300 lg:text-xl" data-testid="text-hero-subtitle">
