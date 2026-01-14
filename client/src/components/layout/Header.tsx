@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import clubLogo from "@assets/logo_trimmed.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -38,7 +37,11 @@ export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderPr
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4 lg:h-20">
           <Link href="/" className="flex items-center gap-3 shrink-0" data-testid="link-home-logo">
-            <img src={clubLogo} alt={businessName} className="h-12 w-auto" />
+            <img 
+              src="/logo.png" 
+              alt={businessName} 
+              className="w-14 h-14 rounded-full object-cover bg-[#F5F5F5] p-1 shadow-md"
+            />
           </Link>
 
           <nav className="hidden lg:flex lg:items-center lg:gap-6">
