@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import type { SiteSettings } from "@shared/schema";
-import clubLogo from "@assets/1000014202_1768409791134.png";
+import clubLogo from "@assets/logo_trimmed.png";
 
 interface FooterProps {
   settings?: SiteSettings;

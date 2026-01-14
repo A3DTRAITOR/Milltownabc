@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import clubLogo from "@assets/1000014202_1768409791134.png";
+import clubLogo from "@assets/logo_trimmed.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
