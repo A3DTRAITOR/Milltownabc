@@ -1,0 +1,69 @@
+text
+Build CMS-style Milltown Boxing Club website using my existing template structure, ADDING full user accounts + advanced booking system with Stripe payments. Keep all current CMS database structure, just enhance with these features:
+
+**PRESERVE EXISTING CMS TEMPLATE** (don't rebuild from scratch):
+- Keep current database schema, pages, styling, admin panel
+- Add to existing user table or create members table
+- Use same color scheme: #000000, #FFFFFF, #F5F5F5, #C8102E, #4A5568
+- Logo: 1000014202.jpg → /public/logo.png
+
+**NEW USER SYSTEM** (build on existing CMS):
+1. **/register** - Create account (name, email, phone, password, experience level)
+2. **/login** - Member login with password reset  
+3. **/dashboard** - Personal area showing "My Bookings", profile, payment history
+4. **/sessions** - Live schedule (available/booked) with "Book Now" buttons
+5. **/book/:id** - Specific session booking → Stripe Checkout → confirmation
+
+**DATABASE STRUCTURE** (add to existing tables):
+members: id, name, email, phone, password_hash, experience_level, created_at
+sessions: id, title, date, time, capacity, booked_count, class_type, price
+bookings: id, member_id, session_id, stripe_payment_id, status, booked_at
+
+text
+
+**CORE FLOW**:
+1. New user → Register/Login → See live session schedule
+2. Click available session → Stripe Checkout (£15) → Booking confirmed  
+3. Dashboard shows all their bookings + "Cancel" (with refund link)
+4. Admin sees all bookings, members, sessions (existing admin enhanced)
+
+**PAGES TO ADD** (match existing template design):
+- /login, /register, /dashboard, /sessions, /profile
+- Keep homepage with "Login to Book" prominent CTA
+
+**RESPONSIVE DESIGN** (CRITICAL):
+- Fully responsive across ALL devices (desktop, tablet, mobile)
+- Mobile-first: Perfect on iPhone/Android (large touch buttons, readable fonts)
+- NO overlap: Elements stack cleanly, nothing blocks other content
+- Clear spacing: 20px+ gaps between sections/buttons
+- Concise layout: No clutter, every element has breathing room
+- Fast scrolling: No fixed/sticky overlaps, smooth mobile experience
+
+**STRIPE INTEGRATION**:
+- Hosted Checkout after session selection
+- Prompt for test/live keys 
+- UK cards + Apple/Google Pay
+- Webhook confirms booking on payment success
+
+**SECURITY & PRODUCTION READY**:
+- Password hashing (bcrypt)
+- Session authentication  
+- CSRF protection on all forms
+- Input sanitization
+- Rate limiting on bookings
+- HTTPS redirect
+- Error pages (404, 500) matching design
+- SEO meta tags + OpenGraph
+- Loading states + success animations
+
+**EMAILS**:
+- Booking confirmation (member + admin)
+- Session reminders (24hrs before)
+- Account registration welcome
+
+**LAUNCH READY**:
+- Create 5 sample sessions for demo (this week + next)
+- Generate README: Stripe setup, admin login (milltown2025), IONOS deploy steps
+- Backup database export for admin
+
+Use existing CMS database connection. Match current styling exactly. PERFECT mobile experience - no overlaps, clear, concise. Production-ready for IONOS export. Build complete system now.
