@@ -16,7 +16,7 @@ export function Footer({ settings }: FooterProps) {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <img src={clubLogo} alt={businessName} className="h-16 w-auto mb-4" />
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 tracking-wide">
               {settings?.tagline || "Train Hard. Fight Smart."}
             </p>
             {settings?.address && (
