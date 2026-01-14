@@ -1,8 +1,8 @@
-# Coral/Peach Wellness CMS
+# Milltown Boxing Club
 
 ## Overview
 
-This is a full-stack content management system (CMS) built for wellness and fitness businesses. It features a public-facing website with pages for Home, About, Services, Blog, and Contact, along with an admin dashboard for managing site content, blog posts, and media files. The application uses a coral/peach color theme designed for warmth and approachability.
+This is a full-stack boxing club website with member authentication and class booking system. It features a public-facing website with pages for Home, About, Training Programs, Class Schedule (Sessions), Blog, and Contact. Members can register, log in, book classes (£15 per session), and manage their bookings through a dashboard. The admin section allows managing site content, blog posts, and media files. The design uses a bold boxing aesthetic with black, white, light gray (#F5F5F5), red (#C8102E), and gray (#4A5568).
 
 ## User Preferences
 

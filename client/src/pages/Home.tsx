@@ -4,7 +4,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
-import { ArrowRight, Flower2, Sun, Heart, Leaf, Calendar, ChevronRight } from "lucide-react";
+import { ArrowRight, Dumbbell, Users, Trophy, Clock, Calendar, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PageContent, SiteSettings } from "@shared/schema";
 
@@ -22,19 +22,19 @@ export default function Home() {
 
   const defaultContent: PageContent = {
     title: "Home",
-    metaTitle: "Find Your Flow - Yoga Classes & Private Sessions",
-    metaDescription: "Discover peace and strength through yoga. Join our welcoming classes for all levels, from gentle restorative to energizing vinyasa flow.",
-    heroTitle: "Find Your Balance, Transform Your Life",
-    heroSubtitle: "Welcome to a nurturing space where you can reconnect with your body, calm your mind, and discover the transformative power of yoga. Whether you're a beginner or experienced practitioner, there's a place for you on the mat.",
+    metaTitle: "Milltown Boxing Club - Train Hard, Fight Smart",
+    metaDescription: "Join Milltown Boxing Club for professional boxing training. Classes for all levels from beginners to advanced fighters. £15 per session.",
+    heroTitle: "Train Hard. Fight Smart.",
+    heroSubtitle: "Welcome to Milltown Boxing Club - where champions are made. Whether you're stepping into the ring for the first time or looking to sharpen your skills, our world-class trainers will help you reach your potential.",
     sections: [
       {
         id: "offerings",
         type: "cards",
-        title: "Your Yoga Journey Starts Here",
+        title: "What We Offer",
         items: [
-          { title: "Vinyasa Flow", description: "Dynamic, breath-synchronized movement to build strength, flexibility, and inner calm. Perfect for those seeking an energizing practice.", icon: "sun" },
-          { title: "Gentle Restorative", description: "Slow, nurturing poses with props to release tension and promote deep relaxation. Ideal for stress relief and recovery.", icon: "flower" },
-          { title: "Private Sessions", description: "One-on-one guidance tailored to your unique needs, goals, and experience level. Personalized attention for deeper growth.", icon: "heart" },
+          { title: "Boxing Fundamentals", description: "Master the basics of stance, footwork, and punching technique. Perfect for beginners looking to build a solid foundation.", icon: "dumbbell" },
+          { title: "Fitness Boxing", description: "High-intensity workouts combining boxing movements with cardio training. Get fit, build strength, and relieve stress.", icon: "users" },
+          { title: "Advanced Training", description: "Technical sparring, combination work, and competition preparation for experienced boxers ready to take it to the next level.", icon: "trophy" },
         ],
       },
     ],
@@ -44,25 +44,25 @@ export default function Home() {
 
   const getIcon = (iconName?: string) => {
     switch (iconName) {
-      case "sun": return <Sun className="h-8 w-8" />;
-      case "flower": return <Flower2 className="h-8 w-8" />;
-      case "heart": return <Heart className="h-8 w-8" />;
-      case "leaf": return <Leaf className="h-8 w-8" />;
+      case "dumbbell": return <Dumbbell className="h-8 w-8" />;
+      case "users": return <Users className="h-8 w-8" />;
+      case "trophy": return <Trophy className="h-8 w-8" />;
+      case "clock": return <Clock className="h-8 w-8" />;
       case "calendar": return <Calendar className="h-8 w-8" />;
-      default: return <Flower2 className="h-8 w-8" />;
+      default: return <Dumbbell className="h-8 w-8" />;
     }
   };
 
   if (pageLoading || settingsLoading) {
     return (
       <PublicLayout settings={settings}>
-        <div className="min-h-[600px] bg-gradient-to-br from-primary/10 via-background to-background">
+        <div className="min-h-[600px] bg-foreground">
           <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
-            <Skeleton className="h-16 w-3/4 mb-6" />
-            <Skeleton className="h-6 w-1/2 mb-8" />
+            <Skeleton className="h-16 w-3/4 mb-6 bg-muted/20" />
+            <Skeleton className="h-6 w-1/2 mb-8 bg-muted/20" />
             <div className="flex gap-4">
-              <Skeleton className="h-12 w-32" />
-              <Skeleton className="h-12 w-32" />
+              <Skeleton className="h-12 w-32 bg-muted/20" />
+              <Skeleton className="h-12 w-32 bg-muted/20" />
             </div>
           </div>
         </div>
@@ -70,33 +70,39 @@ export default function Home() {
     );
   }
 
-  const seoTitle = content.metaTitle || `${settings?.businessName || "Home"} - Welcome`;
-  const seoDescription = content.metaDescription || content.heroSubtitle || "Discover our services and solutions.";
+  const seoTitle = content.metaTitle || `${settings?.businessName || "Milltown Boxing Club"} - Train Hard, Fight Smart`;
+  const seoDescription = content.metaDescription || content.heroSubtitle || "Professional boxing training for all levels.";
 
   return (
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
-      <section className="relative min-h-[600px] lg:min-h-[700px] bg-gradient-to-br from-primary/10 via-background to-background overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%239C92AC%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50" />
+      
+      {/* Hero Section - Dark, Bold */}
+      <section className="relative min-h-[600px] lg:min-h-[700px] bg-foreground overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-foreground to-foreground" />
+        <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M0%2020L20%200L40%2020L20%2040z%22%20fill%3D%22%23fff%22%20fill-opacity%3D%220.1%22%2F%3E%3C%2Fsvg%3E')]" />
         
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
           <div className="max-w-3xl">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl" data-testid="text-hero-title">
+            <span className="inline-block px-4 py-1 mb-6 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
+              Milltown Boxing Club
+            </span>
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-7xl uppercase" data-testid="text-hero-title">
               {content.heroTitle}
             </h1>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground lg:text-xl" data-testid="text-hero-subtitle">
+            <p className="mt-6 text-lg leading-relaxed text-gray-300 lg:text-xl" data-testid="text-hero-subtitle">
               {content.heroSubtitle}
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Button size="lg" asChild data-testid="button-hero-services">
-                <Link href="/services">
+              <Button size="lg" asChild data-testid="button-hero-sessions">
+                <Link href="/sessions">
                   View Classes
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild data-testid="button-hero-contact">
-                <Link href="/contact">
-                  Book a Session
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild data-testid="button-hero-register">
+                <Link href="/register">
+                  Join Now - £15/Session
                 </Link>
               </Button>
             </div>
@@ -104,11 +110,36 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Stats Section */}
+      <section className="py-12 bg-primary text-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+            <div className="text-center">
+              <div className="text-4xl font-black">10+</div>
+              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Years Experience</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-black">500+</div>
+              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Members Trained</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-black">6</div>
+              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Weekly Classes</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-black">£15</div>
+              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Per Session</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
       {content.sections?.map((section) => (
-        <section key={section.id} className="py-16 lg:py-24">
+        <section key={section.id} className="py-16 lg:py-24 bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {section.title && (
-              <h2 className="text-center text-3xl font-bold text-foreground sm:text-4xl" data-testid={`text-section-${section.id}-title`}>
+              <h2 className="text-center text-3xl font-bold text-foreground sm:text-4xl uppercase tracking-tight" data-testid={`text-section-${section.id}-title`}>
                 {section.title}
               </h2>
             )}
@@ -116,11 +147,11 @@ export default function Home() {
             {section.type === "cards" && section.items && (
               <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 {section.items.map((item, index) => (
-                  <Card key={index} className="group p-6 lg:p-8 hover-elevate transition-all duration-300" data-testid={`card-feature-${index}`}>
+                  <Card key={index} className="group p-6 lg:p-8 hover-elevate transition-all duration-300 border-2" data-testid={`card-feature-${index}`}>
                     <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 text-primary">
                       {getIcon(item.icon)}
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+                    <h3 className="text-xl font-bold text-foreground uppercase">{item.title}</h3>
                     <p className="mt-2 text-muted-foreground">{item.description}</p>
                   </Card>
                 ))}
@@ -130,23 +161,26 @@ export default function Home() {
         </section>
       ))}
 
-      <section className="border-t border-border bg-card py-16 lg:py-24">
+      {/* CTA Section */}
+      <section className="bg-foreground py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Begin Your Practice Today</h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Your first class is complimentary. Experience the difference and find the practice that's right for you.
+            <h2 className="text-3xl font-black text-white sm:text-4xl uppercase tracking-tight">
+              Ready to Start Training?
+            </h2>
+            <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
+              Join Milltown Boxing Club today. All experience levels welcome. Your first step to becoming a better fighter starts here.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" asChild data-testid="button-cta-schedule">
-                <Link href="/services">
+                <Link href="/sessions">
                   View Class Schedule
                   <Calendar className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild data-testid="button-cta-contact">
-                <Link href="/contact">
-                  Book a Free Intro Session
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild data-testid="button-cta-register">
+                <Link href="/register">
+                  Create Your Account
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

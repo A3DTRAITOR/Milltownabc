@@ -3,7 +3,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Eye, Heart } from "lucide-react";
+import { Target, Shield, Trophy } from "lucide-react";
 import type { PageContent, SiteSettings } from "@shared/schema";
 
 export default function About() {
@@ -20,19 +20,19 @@ export default function About() {
 
   const defaultContent: PageContent = {
     title: "About",
-    metaTitle: "About - Meet Your Yoga Instructor",
-    metaDescription: "Learn about my yoga journey, teaching philosophy, and how I can guide you toward greater balance and well-being.",
-    heroTitle: "My Yoga Journey",
-    heroSubtitle: "For over 10 years, yoga has been my path to healing, growth, and self-discovery. Now, I'm honored to share this transformative practice with you, creating a safe and nurturing space where everyone is welcome exactly as they are.",
+    metaTitle: "About Us - Milltown Boxing Club",
+    metaDescription: "Learn about Milltown Boxing Club's history, our trainers, and our commitment to developing champions both in and out of the ring.",
+    heroTitle: "Our Story",
+    heroSubtitle: "For over 10 years, Milltown Boxing Club has been the home of champions. From complete beginners to competitive fighters, we've helped hundreds of people discover the discipline, strength, and confidence that boxing brings.",
     sections: [
       {
-        id: "philosophy",
+        id: "values",
         type: "cards",
-        title: "My Teaching Philosophy",
+        title: "What We Stand For",
         items: [
-          { title: "Mindful Movement", description: "Every pose is an opportunity to connect breath with movement, cultivating awareness and presence on the mat and in daily life.", icon: "target" },
-          { title: "Inclusive Practice", description: "Yoga is for every body. I offer modifications and variations so everyone can experience the benefits of practice, regardless of experience or ability.", icon: "eye" },
-          { title: "Heart-Centered", description: "Beyond the physical postures, yoga is about compassion—for ourselves and others. I create a judgment-free space where you can explore and grow.", icon: "heart" },
+          { title: "Discipline", description: "Boxing teaches focus, commitment, and self-control. These skills transfer to every aspect of life, making you stronger both mentally and physically.", icon: "target" },
+          { title: "Respect", description: "We foster a supportive environment where everyone is treated with respect. Our gym is a place where champions are built through encouragement, not intimidation.", icon: "shield" },
+          { title: "Excellence", description: "Whether you're training for fitness or competition, we push you to be your best. Our experienced trainers bring out the champion in everyone.", icon: "trophy" },
         ],
       },
     ],
@@ -43,8 +43,8 @@ export default function About() {
   const getIcon = (iconName?: string) => {
     switch (iconName) {
       case "target": return <Target className="h-8 w-8" />;
-      case "eye": return <Eye className="h-8 w-8" />;
-      case "heart": return <Heart className="h-8 w-8" />;
+      case "shield": return <Shield className="h-8 w-8" />;
+      case "trophy": return <Trophy className="h-8 w-8" />;
       default: return <Target className="h-8 w-8" />;
     }
   };
@@ -67,19 +67,24 @@ export default function About() {
     );
   }
 
-  const seoTitle = content.metaTitle || `About Us - ${settings?.businessName || "Our Story"}`;
+  const seoTitle = content.metaTitle || `About Us - ${settings?.businessName || "Milltown Boxing Club"}`;
   const seoDescription = content.metaDescription || content.heroSubtitle || "Learn about our mission and values.";
 
   return (
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 lg:py-24">
+      
+      {/* Hero - Dark */}
+      <section className="bg-foreground py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl" data-testid="text-about-title">
+            <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
+              About Us
+            </span>
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl uppercase" data-testid="text-about-title">
               {content.heroTitle}
             </h1>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground lg:text-xl" data-testid="text-about-subtitle">
+            <p className="mt-6 text-lg leading-relaxed text-gray-300 lg:text-xl" data-testid="text-about-subtitle">
               {content.heroSubtitle}
             </p>
           </div>
@@ -87,10 +92,10 @@ export default function About() {
       </section>
 
       {content.sections?.map((section) => (
-        <section key={section.id} className="py-16 lg:py-24">
+        <section key={section.id} className="py-16 lg:py-24 bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {section.title && (
-              <h2 className="text-center text-3xl font-bold text-foreground sm:text-4xl mb-12" data-testid={`text-section-${section.id}-title`}>
+              <h2 className="text-center text-3xl font-bold text-foreground sm:text-4xl mb-12 uppercase tracking-tight" data-testid={`text-section-${section.id}-title`}>
                 {section.title}
               </h2>
             )}
@@ -98,11 +103,11 @@ export default function About() {
             {section.type === "cards" && section.items && (
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 {section.items.map((item, index) => (
-                  <Card key={index} className="p-6 lg:p-8 text-center" data-testid={`card-value-${index}`}>
+                  <Card key={index} className="p-6 lg:p-8 text-center border-2" data-testid={`card-value-${index}`}>
                     <div className="mx-auto mb-4 inline-flex rounded-full bg-primary/10 p-4 text-primary">
                       {getIcon(item.icon)}
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+                    <h3 className="text-xl font-bold text-foreground uppercase">{item.title}</h3>
                     <p className="mt-3 text-muted-foreground">{item.description}</p>
                   </Card>
                 ))}
@@ -118,20 +123,25 @@ export default function About() {
         </section>
       ))}
 
-      <section className="border-t border-border bg-card py-16 lg:py-24">
+      {/* Stats */}
+      <section className="bg-primary py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 text-white">
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary">500+</div>
-              <div className="mt-2 text-muted-foreground">Hours of Training</div>
+              <div className="text-5xl font-black">10+</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Years Experience</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary">1000+</div>
-              <div className="mt-2 text-muted-foreground">Classes Taught</div>
+              <div className="text-5xl font-black">500+</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Members Trained</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary">200+</div>
-              <div className="mt-2 text-muted-foreground">Happy Students</div>
+              <div className="text-5xl font-black">25+</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Competition Wins</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-black">4</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Expert Trainers</div>
             </div>
           </div>
         </div>

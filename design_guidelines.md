@@ -1,135 +1,125 @@
-# Design Guidelines: Yoga Instructor Theme
+# Design Guidelines: Milltown Boxing Club
 
 ## Design Approach
 
-**Serene Wellness Aesthetic:**
-- Warm, earthy terracotta and clay tones that evoke grounding and calm
-- Sage green accents representing nature, growth, and balance
-- Soft, creamy backgrounds for a peaceful atmosphere
-- Clean, minimalist design that reflects yoga's emphasis on simplicity
-- Emphasis on tranquility, mindfulness, and natural warmth
+**Bold Boxing Aesthetic:**
+- High-contrast black and white with striking red accents
+- Strong, powerful typography that conveys strength and determination
+- Clean, athletic design that reflects boxing's intensity
+- Dark backgrounds with light text for impact
+- Sharp edges and bold visual elements
 
 ## Color Palette
 
 ### Primary Colors
-- **Terracotta:** `hsl(25 55% 45%)` - Warm, grounding primary color for buttons and CTAs (WCAG AA compliant)
-- **Sage Green:** `hsl(150 25% 40%)` - Natural accent color representing growth and balance
-- **Clay:** `hsl(30 35% 65%)` - Soft supporting color for highlights
+- **Boxing Red:** `hsl(354 75% 44%)` - Bold, powerful primary color (#C8102E equivalent)
+- **Black:** `hsl(0 0% 5%)` - Strong, grounded backgrounds
+- **White:** `hsl(0 0% 96%)` - Clean, crisp text and highlights
 
 ### Neutral Colors
-- **Warm Cream:** `hsl(30 30% 98%)` - Soft, inviting background
-- **Earthy Brown:** `hsl(25 25% 18%)` - Primary text color, grounded and readable
-- **Sand:** `hsl(30 20% 94%)` - Muted background for sections
-- **Warm Gray:** `hsl(25 15% 45%)` - Secondary text color
+- **Light Gray:** `hsl(0 0% 96%)` - (#F5F5F5) Clean backgrounds
+- **Dark Gray:** `hsl(215 14% 34%)` - (#4A5568) Secondary text
+- **Medium Gray:** `hsl(0 0% 50%)` - Borders and dividers
 
 ### Supporting Colors
-- **Balance Green:** `hsl(150 25% 40%)` - Success states and accents
-- **Calm Blue:** `hsl(180 20% 45%)` - Complementary accent
-- **Alert:** `hsl(0 60% 50%)` - Warnings and errors
+- **Success Green:** `hsl(150 50% 40%)` - Booking confirmations
+- **Alert Red:** `hsl(0 60% 50%)` - Warnings and errors
 
 ## Typography
 
 **Public Pages:**
-- Headings: Inter or similar clean sans-serif - h1: text-5xl, h2: text-4xl, h3: text-2xl
-- Body: Inter Regular - text-base (16px) with text-lg for intros
-- Line height: leading-relaxed for readability and breathing room
-- Aesthetic: Clean, open, and calming
+- Headings: Bold, uppercase for impact - h1: text-5xl font-black, h2: text-4xl font-bold
+- Body: Clean sans-serif - text-base (16px)
+- Use uppercase and letter-spacing for headings when emphasizing power
+- Strong visual hierarchy
 
 **Admin Dashboard:**
 - System font stack for performance
 - Headings: font-semibold, Body: font-normal
-- Tighter spacing for efficiency
 
 ## Layout System
 
-**Spacing Primitives:** Generous whitespace using Tailwind units of 6, 8, 12, 16, 20, 24
+**Spacing Primitives:** Athletic, tight spacing - Tailwind units of 4, 6, 8, 12, 16, 20
 
 **Public Page Structure:**
 - Container: max-w-7xl mx-auto px-4 sm:px-6 lg:px-8
-- Section padding: py-16 lg:py-24 (generous breathing room)
-- Content width: max-w-prose for text-heavy sections
-
-**Admin Layout:**
-- Sidebar: Warm, dark earth-toned background
-- Content area: Flexible with max-w-6xl
-- Card spacing: gap-6 for grids, p-6 for card interiors
+- Section padding: py-16 lg:py-24
+- High-contrast section alternation (dark/light)
 
 ## Component Library
 
 ### Public Pages
 
 **Hero Section (Homepage):**
-- Full-width background with yoga/wellness imagery
-- Warm terracotta gradient overlay for brand consistency
+- Full-width dark background with boxing imagery
+- Bold red accents and powerful CTAs
 - Height: min-h-[600px] lg:min-h-[700px]
-- Calming, centered content with clear CTA
+- Impactful, centered messaging
 
 **Navigation:**
-- Clean header with warm cream background
-- Terracotta accents on active/hover states
-- Sticky header with subtle shadow
+- Dark header with white text
+- Red accents on active/hover states
+- Sticky header
 - Height: h-16 lg:h-20
 
 **Cards:**
-- Warm cream background with soft borders
-- Subtle shadows for gentle depth
-- Rounded corners (rounded-xl)
-- Generous padding for breathing room
+- Clean white or dark backgrounds
+- Sharp corners or subtle rounding (rounded-md)
+- Strong borders or shadows
 
 **Buttons:**
-- Primary: Terracotta with white text
-- Secondary: Sand/clay background
-- Accent: Sage green for special actions
-- Soft, inviting hover states
+- Primary: Bold red with white text
+- Secondary: Dark gray background
+- Ghost: Transparent with red text
+- Strong hover states
 
 **Footer:**
-- Warm, grounded design
-- Contact info, class schedules, social links
-- Newsletter signup for yoga tips
+- Dark background with light text
+- Contact info, gym hours, social links
+- Membership signup CTA
 
-### Admin Dashboard
+### Class Schedule
 
-**Sidebar Navigation:**
-- Deep earthy brown background
-- Terracotta accents for active states
-- Clean, organized menu structure
+**Session Cards:**
+- Clear date/time display
+- Capacity indicators
+- Price prominently displayed (£15)
+- Bold "Book Now" CTAs
 
 ## Images
 
 **Hero Image:**
-- Serene yoga poses, studio environments, or nature scenes
-- Calming, peaceful imagery
-- Apply warm gradient overlay for brand consistency
+- Boxing action shots, gym environments
+- Apply dark overlay for text readability
+- High-energy, powerful imagery
 
 **About Page:**
-- Instructor photos in natural settings
-- Warm, approachable imagery
-
-**Services/Classes:**
-- Clean icons with terracotta or sage accents
-- Class type illustrations
+- Trainer/coach photos
+- Gym facility shots
+- Action photos from classes
 
 ## Responsive Behavior
 
 **Breakpoints:** sm (640px), md (768px), lg (1024px), xl (1280px)
 
 **Mobile-First:**
-- Stack layouts to single column on mobile
-- Touch-friendly buttons and navigation
-- Reduced padding while maintaining breathing room
+- Stack layouts on mobile
+- Touch-friendly buttons (min-h-10)
+- Simplified navigation
 
 ## Forms & Inputs
 
-**Contact/Booking Forms:**
-- Warm border colors with terracotta focus ring
-- Generous spacing between fields
-- Clear, calming success messages
+**Registration/Booking Forms:**
+- Dark borders with red focus ring
+- Clear field labels
+- Prominent submit buttons
+- Success confirmations in green
 
 ## Accessibility
 
-- WCAG AA compliant color contrast
-- Focus states with terracotta ring
+- WCAG AA compliant contrast
+- Focus states with red ring
 - Clear, readable typography
 - Keyboard navigation support
 
-This design creates a calm, grounding yoga brand aesthetic with warm earthy tones, balanced by natural sage green accents, perfect for attracting clients seeking mindfulness and wellness.
+This design creates a bold, athletic boxing brand aesthetic with high-contrast black, white, and red colors that convey strength, power, and professionalism.
