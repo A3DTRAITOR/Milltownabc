@@ -26,6 +26,7 @@ interface HeaderProps {
 interface MemberData {
   id: string;
   name: string;
+  isAdmin?: boolean;
 }
 
 export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderProps) {
@@ -67,12 +68,19 @@ export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderPr
 
           <div className="hidden lg:flex lg:items-center lg:gap-3">
             {member ? (
-              <Button asChild variant="default" data-testid="link-dashboard">
-                <Link href="/dashboard">
-                  <User className="mr-2 h-4 w-4" />
-                  My Account
-                </Link>
-              </Button>
+              <>
+                {member.isAdmin && (
+                  <Button asChild variant="outline" data-testid="link-admin">
+                    <Link href="/admin">Admin</Link>
+                  </Button>
+                )}
+                <Button asChild variant="default" data-testid="link-dashboard">
+                  <Link href="/dashboard">
+                    <User className="mr-2 h-4 w-4" />
+                    My Account
+                  </Link>
+                </Button>
+              </>
             ) : (
               <>
                 <Button asChild variant="ghost" data-testid="link-login">
@@ -119,9 +127,16 @@ export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderPr
                 ))}
                 <div className="pt-6 flex flex-col gap-3">
                   {member ? (
-                    <Button asChild size="lg">
-                      <Link href="/dashboard">My Account</Link>
-                    </Button>
+                    <>
+                      {member.isAdmin && (
+                        <Button asChild size="lg" variant="outline" data-testid="link-mobile-admin">
+                          <Link href="/admin">Admin Dashboard</Link>
+                        </Button>
+                      )}
+                      <Button asChild size="lg" data-testid="link-mobile-dashboard">
+                        <Link href="/dashboard">My Account</Link>
+                      </Button>
+                    </>
                   ) : (
                     <>
                       <Button asChild size="lg" variant="outline">
