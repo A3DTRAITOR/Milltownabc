@@ -13,6 +13,7 @@ export const members = pgTable("members", {
   phone: varchar("phone", { length: 20 }),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   experienceLevel: varchar("experience_level", { length: 50 }).default("beginner"),
+  isAdmin: boolean("is_admin").default(false),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
 });

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
-import { registerMemberRoutes } from "./memberAuth";
+import { registerMemberRoutes, isAdmin } from "./memberAuth";
 import multer from "multer";
 import sharp from "sharp";
 import path from "path";
@@ -79,7 +79,7 @@ export async function registerRoutes(
     }
   });
 
-  app.put("/api/content/:key", isAuthenticated, async (req, res) => {
+  app.put("/api/content/:key", isAdmin, async (req, res) => {
     try {
       const { key } = req.params;
       let { content } = req.body;

@@ -5,6 +5,21 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+import Home from "@/pages/Home";
+import About from "@/pages/About";
+import Services from "@/pages/Services";
+import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
+import Contact from "@/pages/Contact";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import Sessions from "@/pages/Sessions";
+import Dashboard from "@/pages/Dashboard";
+import AdminDashboard from "@/pages/admin/Dashboard";
+import AdminCalendar from "@/pages/admin/Calendar";
+import AdminContent from "@/pages/admin/Content";
+import NotFound from "@/pages/not-found";
+
 function ScrollToTop() {
   const [location] = useLocation();
   const prevLocation = useRef(location);
@@ -18,24 +33,6 @@ function ScrollToTop() {
 
   return null;
 }
-
-import Home from "@/pages/Home";
-import About from "@/pages/About";
-import Services from "@/pages/Services";
-import Blog from "@/pages/Blog";
-import BlogPost from "@/pages/BlogPost";
-import Contact from "@/pages/Contact";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import Sessions from "@/pages/Sessions";
-import Dashboard from "@/pages/Dashboard";
-import AdminDashboard from "@/pages/admin/Dashboard";
-import AdminPages from "@/pages/admin/Pages";
-import AdminBlogList from "@/pages/admin/BlogList";
-import AdminBlogEditor from "@/pages/admin/BlogEditor";
-import AdminMedia from "@/pages/admin/Media";
-import AdminSettings from "@/pages/admin/Settings";
-import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
@@ -51,11 +48,8 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/pages" component={AdminPages} />
-      <Route path="/admin/blog" component={AdminBlogList} />
-      <Route path="/admin/blog/:id" component={AdminBlogEditor} />
-      <Route path="/admin/media" component={AdminMedia} />
-      <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/calendar" component={AdminCalendar} />
+      <Route path="/admin/content" component={AdminContent} />
       <Route component={NotFound} />
     </Switch>
   );

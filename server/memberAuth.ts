@@ -31,6 +31,19 @@ export function isMemberAuthenticated(req: Request, res: Response, next: NextFun
   return res.status(401).json({ message: "Not authenticated" });
 }
 
+export async function isAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.session?.memberId) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+  
+  const member = await storage.getMemberById(req.session.memberId);
+  if (!member || !member.isAdmin) {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+  
+  return next();
+}
+
 export function registerMemberRoutes(app: Express) {
   // Register new member
   app.post("/api/members/register", async (req, res) => {
@@ -132,6 +145,7 @@ export function registerMemberRoutes(app: Express) {
         email: member.email,
         phone: member.phone,
         experienceLevel: member.experienceLevel,
+        isAdmin: member.isAdmin || false,
       });
     } catch (error) {
       console.error("Get member error:", error);
@@ -270,7 +284,7 @@ export function registerMemberRoutes(app: Express) {
   });
 
   // Admin: Create a new class (requires admin auth)
-  app.post("/api/admin/classes", async (req, res) => {
+  app.post("/api/admin/classes", isAdmin, async (req, res) => {
     try {
       const { title, description, classType, date, time, duration, capacity, price, isActive } = req.body;
       
@@ -297,8 +311,90 @@ export function registerMemberRoutes(app: Express) {
     }
   });
 
+  // Admin: Update a class
+  app.put("/api/admin/classes/:id", isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, description, classType, date, time, duration, capacity, price, isActive } = req.body;
+      
+      const boxingClass = await storage.updateClass(id, {
+        title,
+        description,
+        classType,
+        date,
+        time,
+        duration,
+        capacity,
+        price,
+        isActive,
+      });
+
+      if (!boxingClass) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+
+      res.json(boxingClass);
+    } catch (error) {
+      console.error("Update class error:", error);
+      res.status(500).json({ message: "Failed to update class" });
+    }
+  });
+
+  // Admin: Delete a class
+  app.delete("/api/admin/classes/:id", isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteClass(id);
+      res.json({ message: "Class deleted" });
+    } catch (error) {
+      console.error("Delete class error:", error);
+      res.status(500).json({ message: "Failed to delete class" });
+    }
+  });
+
+  // Admin: Get all classes (including past)
+  app.get("/api/admin/classes", isAdmin, async (_req, res) => {
+    try {
+      const classes = await storage.getAllClasses();
+      res.json(classes);
+    } catch (error) {
+      console.error("Get all classes error:", error);
+      res.status(500).json({ message: "Failed to get classes" });
+    }
+  });
+
+  // Admin: Get dashboard stats
+  app.get("/api/admin/stats", isAdmin, async (_req, res) => {
+    try {
+      const classes = await storage.getUpcomingClasses();
+      const bookings = await storage.getAllBookings();
+      const members = await storage.getAllMembers();
+      
+      // Classes this week
+      const now = new Date();
+      const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const classesThisWeek = classes.filter(c => {
+        const classDate = new Date(c.date);
+        return classDate >= now && classDate <= weekFromNow;
+      });
+      
+      // Active bookings
+      const activeBookings = bookings.filter(b => b.status === 'confirmed');
+      
+      res.json({
+        totalClasses: classes.length,
+        classesThisWeek: classesThisWeek.length,
+        totalBookings: activeBookings.length,
+        totalMembers: members.length,
+      });
+    } catch (error) {
+      console.error("Get stats error:", error);
+      res.status(500).json({ message: "Failed to get stats" });
+    }
+  });
+
   // Admin: Get all members
-  app.get("/api/admin/members", async (_req, res) => {
+  app.get("/api/admin/members", isAdmin, async (_req, res) => {
     try {
       const members = await storage.getAllMembers();
       res.json(members.map(m => ({
@@ -316,7 +412,7 @@ export function registerMemberRoutes(app: Express) {
   });
 
   // Admin: Get all bookings
-  app.get("/api/admin/bookings", async (_req, res) => {
+  app.get("/api/admin/bookings", isAdmin, async (_req, res) => {
     try {
       const bookings = await storage.getAllBookings();
       res.json(bookings);

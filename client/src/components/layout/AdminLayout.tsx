@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sidebar,
   SidebarContent,
@@ -16,15 +17,15 @@ import {
   SidebarTrigger,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, FileText, Newspaper, Image, Settings, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Calendar, FileText, LogOut, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 const adminNavItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/pages", label: "Pages", icon: FileText },
-  { href: "/admin/blog", label: "Blog Posts", icon: Newspaper },
-  { href: "/admin/media", label: "Media", icon: Image },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/admin/calendar", label: "Calendar", icon: Calendar },
+  { href: "/admin/content", label: "Content", icon: FileText },
 ];
 
 interface AdminLayoutProps {
@@ -32,9 +33,40 @@ interface AdminLayoutProps {
   title?: string;
 }
 
+interface MemberData {
+  id: string;
+  name: string;
+  email: string;
+  isAdmin: boolean;
+}
+
 export function AdminLayout({ children, title }: AdminLayoutProps) {
-  const { user, isLoading, isAuthenticated, logout, isLoggingOut } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const { data: member, isLoading, isError } = useQuery<MemberData>({
+    queryKey: ["/api/members/me"],
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (!isLoading && (isError || !member)) {
+      setLocation("/login");
+    }
+  }, [isLoading, isError, member, setLocation]);
+
+  const isAdminUser = member?.isAdmin === true;
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest("POST", "/api/members/logout");
+      toast({ title: "Logged out", description: "You have been logged out successfully." });
+      setLocation("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast({ title: "Logout failed", variant: "destructive" });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -47,7 +79,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!member) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center space-y-6 p-8 max-w-md">
@@ -56,14 +88,35 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
           </div>
           <h1 className="text-2xl font-bold text-foreground">Admin Access Required</h1>
           <p className="text-muted-foreground">
-            Please log in with your Replit account to access the content management dashboard.
+            Please log in to access the admin dashboard.
           </p>
           <Button size="lg" asChild data-testid="button-admin-login">
-            <a href="/api/login">Log in with Replit</a>
+            <Link href="/login">Log In</Link>
           </Button>
-          <p className="text-sm text-muted-foreground">
-            Only authorized users can manage site content.
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdminUser) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center space-y-6 p-8 max-w-md">
+          <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+            <LayoutDashboard className="w-8 h-8 text-destructive" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
+          <p className="text-muted-foreground">
+            You don't have permission to access the admin dashboard. Please contact an administrator if you believe this is an error.
           </p>
+          <div className="flex gap-3 justify-center">
+            <Button variant="outline" asChild data-testid="button-go-home">
+              <Link href="/">Go Home</Link>
+            </Button>
+            <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
+              Log Out
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -80,9 +133,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
         <Sidebar>
           <SidebarHeader className="border-b border-sidebar-border p-4">
             <Link href="/admin" className="flex items-center gap-2" data-testid="link-admin-home">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
-                CMS
-              </div>
+              <img src="/logo.png" alt="Milltown Boxing" className="w-8 h-8 rounded-full" />
               <span className="font-semibold text-sidebar-foreground">Admin Panel</span>
             </Link>
           </SidebarHeader>
@@ -94,7 +145,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                   {adminNavItems.map((item) => (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton asChild isActive={location === item.href}>
-                        <Link href={item.href} data-testid={`link-admin-nav-${item.label.toLowerCase().replace(" ", "-")}`}>
+                        <Link href={item.href} data-testid={`link-admin-nav-${item.label.toLowerCase()}`}>
                           <item.icon className="h-4 w-4" />
                           <span>{item.label}</span>
                         </Link>
@@ -110,7 +161,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/" target="_blank" data-testid="link-view-site">
+                      <Link href="/" data-testid="link-view-site">
                         <ExternalLink className="h-4 w-4" />
                         <span>View Site</span>
                       </Link>
@@ -123,20 +174,18 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
           <SidebarFooter className="border-t border-sidebar-border p-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} />
-                <AvatarFallback>{user?.firstName?.[0] || user?.email?.[0] || "U"}</AvatarFallback>
+                <AvatarFallback>{member.name?.[0] || "U"}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  {user?.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : user?.email || "User"}
+                  {member.name}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                <p className="text-xs text-muted-foreground truncate">{member.email}</p>
               </div>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => logout()} 
-                disabled={isLoggingOut}
+                onClick={handleLogout}
                 data-testid="button-admin-logout"
                 title="Logout"
               >
