@@ -94,16 +94,16 @@ export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderPr
       </div>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-16 z-40 bg-background lg:hidden">
-          <nav className="flex flex-col p-4">
+        <div className="fixed inset-0 top-16 z-40 bg-white dark:bg-black lg:hidden border-t border-border">
+          <nav className="flex flex-col p-6">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`py-4 text-lg font-medium border-b border-border transition-colors ${
+                className={`py-4 text-lg font-semibold border-b border-gray-200 dark:border-gray-800 transition-colors ${
                   location === link.href
                     ? "text-primary"
-                    : "text-muted-foreground"
+                    : "text-gray-900 dark:text-white"
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
                 data-testid={`link-mobile-nav-${link.label.toLowerCase()}`}
@@ -111,17 +111,17 @@ export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderPr
                 {link.label}
               </Link>
             ))}
-            <div className="pt-4 flex flex-col gap-2">
+            <div className="pt-6 flex flex-col gap-3">
               {member ? (
-                <Button asChild onClick={() => setMobileMenuOpen(false)}>
+                <Button asChild size="lg" onClick={() => setMobileMenuOpen(false)}>
                   <Link href="/dashboard">My Account</Link>
                 </Button>
               ) : (
                 <>
-                  <Button asChild variant="outline" onClick={() => setMobileMenuOpen(false)}>
+                  <Button asChild size="lg" variant="outline" onClick={() => setMobileMenuOpen(false)}>
                     <Link href="/login">Login</Link>
                   </Button>
-                  <Button asChild onClick={() => setMobileMenuOpen(false)}>
+                  <Button asChild size="lg" onClick={() => setMobileMenuOpen(false)}>
                     <Link href="/register">Join Now</Link>
                   </Button>
                 </>
