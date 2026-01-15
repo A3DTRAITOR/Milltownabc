@@ -18,6 +18,8 @@ import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminCalendar from "@/pages/admin/Calendar";
 import AdminContent from "@/pages/admin/Content";
+import AdminMembers from "@/pages/admin/Members";
+import AdminBookings from "@/pages/admin/Bookings";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -50,6 +52,8 @@ function Router() {
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/calendar" component={AdminCalendar} />
       <Route path="/admin/content" component={AdminContent} />
+      <Route path="/admin/members" component={AdminMembers} />
+      <Route path="/admin/bookings" component={AdminBookings} />
       <Route component={NotFound} />
     </Switch>
   );

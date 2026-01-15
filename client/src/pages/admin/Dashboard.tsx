@@ -20,8 +20,8 @@ export default function AdminDashboard() {
 
   const statCards = [
     { label: "Classes This Week", value: stats?.classesThisWeek || 0, icon: Calendar, href: "/admin/calendar" },
-    { label: "Total Bookings", value: stats?.totalBookings || 0, icon: ClipboardList, href: "/admin/calendar" },
-    { label: "Total Members", value: stats?.totalMembers || 0, icon: Users, href: "/admin" },
+    { label: "Total Bookings", value: stats?.totalBookings || 0, icon: ClipboardList, href: "/admin/bookings" },
+    { label: "Total Members", value: stats?.totalMembers || 0, icon: Users, href: "/admin/members" },
   ];
 
   const quickActions = [

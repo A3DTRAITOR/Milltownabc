@@ -17,7 +17,7 @@ import {
   SidebarTrigger,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Calendar, FileText, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Calendar, FileText, LogOut, ExternalLink, Users, ClipboardList } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +25,8 @@ import { useToast } from "@/hooks/use-toast";
 const adminNavItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/calendar", label: "Calendar", icon: Calendar },
+  { href: "/admin/members", label: "Members", icon: Users },
+  { href: "/admin/bookings", label: "Bookings", icon: ClipboardList },
   { href: "/admin/content", label: "Content", icon: FileText },
 ];
 
