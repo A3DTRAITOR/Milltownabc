@@ -1,8 +1,14 @@
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, X, User } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -24,7 +30,6 @@ interface MemberData {
 
 export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderProps) {
   const [location] = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { data: member } = useQuery<MemberData>({
     queryKey: ["/api/members/me"],
@@ -80,56 +85,59 @@ export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderPr
             )}
           </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            className="lg:hidden border-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            data-testid="button-mobile-menu"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          {/* Mobile Menu */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="lg:hidden"
+                data-testid="button-mobile-menu"
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+              <SheetHeader>
+                <SheetTitle className="text-left">Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col mt-6">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`py-4 text-lg font-semibold border-b transition-colors ${
+                      location === link.href
+                        ? "text-primary border-primary/20"
+                        : "text-foreground border-border"
+                    }`}
+                    data-testid={`link-mobile-nav-${link.label.toLowerCase()}`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <div className="pt-6 flex flex-col gap-3">
+                  {member ? (
+                    <Button asChild size="lg">
+                      <Link href="/dashboard">My Account</Link>
+                    </Button>
+                  ) : (
+                    <>
+                      <Button asChild size="lg" variant="outline">
+                        <Link href="/login">Login</Link>
+                      </Button>
+                      <Button asChild size="lg">
+                        <Link href="/register">Join Now</Link>
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-
-      {mobileMenuOpen && (
-        <div className="fixed inset-x-0 top-16 bottom-0 z-[100] bg-white dark:bg-black lg:hidden border-t border-border overflow-y-auto">
-          <nav className="flex flex-col p-6 min-h-full bg-white dark:bg-black">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`py-4 text-lg font-semibold border-b border-gray-200 dark:border-gray-800 transition-colors ${
-                  location === link.href
-                    ? "text-primary"
-                    : "text-gray-900 dark:text-white"
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-                data-testid={`link-mobile-nav-${link.label.toLowerCase()}`}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="pt-6 flex flex-col gap-3">
-              {member ? (
-                <Button asChild size="lg" onClick={() => setMobileMenuOpen(false)}>
-                  <Link href="/dashboard">My Account</Link>
-                </Button>
-              ) : (
-                <>
-                  <Button asChild size="lg" variant="outline" onClick={() => setMobileMenuOpen(false)}>
-                    <Link href="/login">Login</Link>
-                  </Button>
-                  <Button asChild size="lg" onClick={() => setMobileMenuOpen(false)}>
-                    <Link href="/register">Join Now</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   );
 }
