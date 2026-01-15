@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ChevronLeft, ChevronRight, Clock, Users, Loader2, Check } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, isBefore, startOfDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, isBefore, startOfDay } from "date-fns";
 import { Link } from "wouter";
 import type { BoxingClass } from "@shared/schema";
 
@@ -62,12 +62,15 @@ export default function Sessions() {
   const startDayOfWeek = monthStart.getDay();
   const paddingDays = Array(startDayOfWeek).fill(null);
 
-  const datesWithClasses = new Set(
-    classes?.map(c => c.date) || []
-  );
+  // Group classes by date
+  const classesByDate = (classes || []).reduce((acc, c) => {
+    if (!acc[c.date]) acc[c.date] = [];
+    acc[c.date].push(c);
+    return acc;
+  }, {} as Record<string, BoxingClass[]>);
 
   const classesForSelectedDate = selectedDate
-    ? classes?.filter(c => c.date === format(selectedDate, "yyyy-MM-dd")) || []
+    ? classesByDate[format(selectedDate, "yyyy-MM-dd")] || []
     : [];
 
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -75,7 +78,7 @@ export default function Sessions() {
 
   const handleDateClick = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
-    if (datesWithClasses.has(dateStr) && !isBefore(date, startOfDay(new Date()))) {
+    if (classesByDate[dateStr] && !isBefore(date, startOfDay(new Date()))) {
       setSelectedDate(date);
     }
   };
@@ -86,10 +89,7 @@ export default function Sessions() {
         <div className="py-16">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <Skeleton className="h-12 w-1/3 mb-8" />
-            <div className="grid lg:grid-cols-2 gap-8">
-              <Skeleton className="h-96" />
-              <Skeleton className="h-96" />
-            </div>
+            <Skeleton className="h-[600px]" />
           </div>
         </div>
       </PublicLayout>
@@ -103,183 +103,205 @@ export default function Sessions() {
       <section className="bg-foreground py-12 lg:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-black text-white uppercase tracking-tight" data-testid="text-sessions-title">
-            Book a Class
+            Class Schedule
           </h1>
           <p className="mt-2 text-gray-300">
-            Select a date to view available sessions. All classes are £15 per session.
+            View our weekly schedule and book your sessions. All classes are £15 each.
           </p>
         </div>
       </section>
 
       <section className="py-12 lg:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8">
-            
-            {/* Calendar */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-foreground">Select a Date</h2>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon" onClick={prevMonth} data-testid="button-prev-month">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="min-w-[140px] text-center font-medium">
-                    {format(currentMonth, "MMMM yyyy")}
-                  </span>
-                  <Button variant="outline" size="icon" onClick={nextMonth} data-testid="button-next-month">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+          
+          {/* Calendar Header */}
+          <Card className="p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <Button variant="outline" onClick={prevMonth} data-testid="button-prev-month">
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <h2 className="text-xl font-bold text-foreground">
+                {format(currentMonth, "MMMM yyyy")}
+              </h2>
+              <Button variant="outline" onClick={nextMonth} data-testid="button-next-month">
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </Card>
 
-              {/* Day headers */}
-              <div className="grid grid-cols-7 gap-1 mb-2">
-                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
-                  <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
-                    {day}
+          {/* Calendar Grid */}
+          <div className="grid grid-cols-7 gap-2 mb-4">
+            {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map(day => (
+              <div key={day} className="text-center text-sm font-semibold text-muted-foreground py-2 hidden sm:block">
+                {day}
+              </div>
+            ))}
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+              <div key={`short-${day}`} className="text-center text-sm font-semibold text-muted-foreground py-2 sm:hidden">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-2">
+            {paddingDays.map((_, i) => (
+              <div key={`pad-${i}`} className="min-h-[100px] sm:min-h-[120px]" />
+            ))}
+            {daysInMonth.map(day => {
+              const dateStr = format(day, "yyyy-MM-dd");
+              const dayClasses = classesByDate[dateStr] || [];
+              const hasClass = dayClasses.length > 0;
+              const isSelected = selectedDate && isSameDay(day, selectedDate);
+              const isPast = isBefore(day, startOfDay(new Date()));
+              const isCurrentDay = isToday(day);
+
+              return (
+                <button
+                  key={dateStr}
+                  onClick={() => handleDateClick(day)}
+                  disabled={!hasClass || isPast}
+                  className={`
+                    min-h-[100px] sm:min-h-[120px] p-2 rounded-lg border text-left transition-all flex flex-col
+                    ${isSelected ? "bg-primary/10 border-primary ring-2 ring-primary" : "border-border"}
+                    ${!isSelected && hasClass && !isPast ? "hover:border-primary/50 hover:bg-muted/50 cursor-pointer" : ""}
+                    ${isPast ? "opacity-50 cursor-default" : ""}
+                    ${isCurrentDay && !isSelected ? "border-primary/50" : ""}
+                  `}
+                  data-testid={`calendar-day-${dateStr}`}
+                >
+                  <div className={`text-sm font-semibold mb-1 ${isCurrentDay ? "text-primary" : "text-foreground"}`}>
+                    {format(day, "d")}
                   </div>
-                ))}
-              </div>
-
-              {/* Calendar grid */}
-              <div className="grid grid-cols-7 gap-1">
-                {paddingDays.map((_, i) => (
-                  <div key={`pad-${i}`} className="aspect-square" />
-                ))}
-                {daysInMonth.map(day => {
-                  const dateStr = format(day, "yyyy-MM-dd");
-                  const hasClass = datesWithClasses.has(dateStr);
-                  const isSelected = selectedDate && isSameDay(day, selectedDate);
-                  const isPast = isBefore(day, startOfDay(new Date()));
-                  const isCurrentDay = isToday(day);
-
-                  return (
-                    <button
-                      key={dateStr}
-                      onClick={() => handleDateClick(day)}
-                      disabled={!hasClass || isPast}
-                      className={`
-                        aspect-square flex flex-col items-center justify-center rounded-md text-sm transition-colors
-                        ${isSelected ? "bg-primary text-white font-bold" : ""}
-                        ${!isSelected && hasClass && !isPast ? "bg-primary/10 text-primary font-semibold hover:bg-primary/20 cursor-pointer" : ""}
-                        ${!hasClass || isPast ? "text-muted-foreground/50 cursor-default" : ""}
-                        ${isCurrentDay && !isSelected ? "ring-2 ring-primary ring-offset-2" : ""}
-                      `}
-                      data-testid={`calendar-day-${dateStr}`}
-                    >
-                      {format(day, "d")}
-                      {hasClass && !isPast && (
-                        <span className={`w-1.5 h-1.5 rounded-full mt-0.5 ${isSelected ? "bg-white" : "bg-primary"}`} />
+                  
+                  {hasClass && !isPast && (
+                    <div className="flex-1 space-y-1 overflow-hidden">
+                      {dayClasses.slice(0, 3).map(c => (
+                        <div 
+                          key={c.id} 
+                          className="text-xs bg-primary/10 text-primary rounded px-1.5 py-0.5 truncate"
+                        >
+                          <span className="font-medium">{c.time}</span>
+                          <span className="hidden sm:inline"> - {c.title}</span>
+                        </div>
+                      ))}
+                      {dayClasses.length > 3 && (
+                        <div className="text-xs text-muted-foreground">
+                          +{dayClasses.length - 3} more
+                        </div>
                       )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-primary/20" />
-                  <span>Available</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-primary" />
-                  <span>Selected</span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Time slots */}
-            <Card className="p-6">
-              {selectedDate ? (
-                <>
-                  <h2 className="text-lg font-semibold text-foreground mb-2">
-                    {format(selectedDate, "EEEE, MMMM d")}
-                  </h2>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    Select a time slot to book
-                  </p>
-
-                  {classesForSelectedDate.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-8">
-                      No classes available on this date.
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {classesForSelectedDate.map(boxingClass => {
-                        const spotsLeft = (boxingClass.capacity || 12) - (boxingClass.bookedCount || 0);
-                        const isFull = spotsLeft <= 0;
-                        const isBooking = bookingClassId === boxingClass.id;
-
-                        return (
-                          <div
-                            key={boxingClass.id}
-                            className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-                            data-testid={`timeslot-${boxingClass.id}`}
-                          >
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3">
-                                <div className="flex items-center gap-1.5 text-foreground font-semibold">
-                                  <Clock className="h-4 w-4 text-primary" />
-                                  {boxingClass.time}
-                                </div>
-                                <Badge variant="secondary" className="text-xs">
-                                  {boxingClass.duration} min
-                                </Badge>
-                              </div>
-                              <p className="mt-1 font-medium text-foreground">{boxingClass.title}</p>
-                              <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Users className="h-3.5 w-3.5" />
-                                  {spotsLeft} spots left
-                                </span>
-                                <span className="font-semibold text-primary">£{boxingClass.price}</span>
-                              </div>
-                            </div>
-
-                            <div className="ml-4">
-                              {currentMember ? (
-                                <Button
-                                  onClick={() => bookMutation.mutate(boxingClass.id)}
-                                  disabled={isFull || isBooking}
-                                  size="sm"
-                                  data-testid={`button-book-${boxingClass.id}`}
-                                >
-                                  {isBooking ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : isFull ? (
-                                    "Full"
-                                  ) : (
-                                    <>
-                                      <Check className="h-4 w-4 mr-1" />
-                                      Book
-                                    </>
-                                  )}
-                                </Button>
-                              ) : (
-                                <Button asChild size="sm" data-testid={`button-login-${boxingClass.id}`}>
-                                  <Link href="/login">Login</Link>
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
                     </div>
                   )}
-                </>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
-                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Clock className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground">Select a Date</h3>
-                  <p className="mt-2 text-sm text-muted-foreground max-w-xs">
-                    Choose a date from the calendar to see available class times.
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Legend */}
+          <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded border-2 border-primary bg-primary/10" />
+              <span>Selected Date</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="px-2 py-0.5 rounded text-xs bg-primary/10 text-primary font-medium">10:00</div>
+              <span>Available Session</span>
+            </div>
+          </div>
+
+          {/* Selected Date Details */}
+          {selectedDate && (
+            <Card className="mt-8 p-6" data-testid="selected-date-panel">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">
+                    {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {classesForSelectedDate.length} class{classesForSelectedDate.length !== 1 ? "es" : ""} available
                   </p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedDate(null)}>
+                  Close
+                </Button>
+              </div>
+
+              {classesForSelectedDate.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">
+                  No classes available on this date.
+                </p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {classesForSelectedDate.map(boxingClass => {
+                    const spotsLeft = (boxingClass.capacity || 12) - (boxingClass.bookedCount || 0);
+                    const isFull = spotsLeft <= 0;
+                    const isBooking = bookingClassId === boxingClass.id;
+
+                    return (
+                      <Card
+                        key={boxingClass.id}
+                        className="p-4 border-2 hover:border-primary/30 transition-colors"
+                        data-testid={`timeslot-${boxingClass.id}`}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Clock className="h-4 w-4 text-primary" />
+                          <span className="font-bold text-foreground">{boxingClass.time}</span>
+                          <Badge variant="secondary" className="text-xs ml-auto">
+                            {boxingClass.duration} min
+                          </Badge>
+                        </div>
+                        
+                        <h3 className="font-semibold text-foreground mb-2">{boxingClass.title}</h3>
+                        
+                        <div className="flex items-center justify-between text-sm mb-4">
+                          <span className="flex items-center gap-1 text-muted-foreground">
+                            <Users className="h-3.5 w-3.5" />
+                            {spotsLeft} spots left
+                          </span>
+                          <span className="font-bold text-primary">£{boxingClass.price}</span>
+                        </div>
+
+                        {currentMember ? (
+                          <Button
+                            className="w-full"
+                            onClick={() => bookMutation.mutate(boxingClass.id)}
+                            disabled={isFull || isBooking}
+                            data-testid={`button-book-${boxingClass.id}`}
+                          >
+                            {isBooking ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : isFull ? (
+                              "Class Full"
+                            ) : (
+                              <>
+                                <Check className="h-4 w-4 mr-2" />
+                                Book Now
+                              </>
+                            )}
+                          </Button>
+                        ) : (
+                          <Button asChild className="w-full" data-testid={`button-login-${boxingClass.id}`}>
+                            <Link href="/login">Login to Book</Link>
+                          </Button>
+                        )}
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </Card>
-          </div>
+          )}
+
+          {!selectedDate && (
+            <Card className="mt-8 p-8 text-center">
+              <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground">Select a Date</h3>
+              <p className="text-muted-foreground mt-2">
+                Click on a date with available classes to view session times and book.
+              </p>
+            </Card>
+          )}
         </div>
       </section>
     </PublicLayout>
