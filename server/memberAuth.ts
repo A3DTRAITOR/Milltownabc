@@ -403,6 +403,7 @@ export function registerMemberRoutes(app: Express) {
         email: m.email,
         phone: m.phone,
         experienceLevel: m.experienceLevel,
+        isAdmin: m.isAdmin,
         createdAt: m.createdAt,
       })));
     } catch (error) {
@@ -411,11 +412,28 @@ export function registerMemberRoutes(app: Express) {
     }
   });
 
-  // Admin: Get all bookings
+  // Admin: Get all bookings with related class and member data
   app.get("/api/admin/bookings", isAdmin, async (_req, res) => {
     try {
       const bookings = await storage.getAllBookings();
-      res.json(bookings);
+      const classes = await storage.getAllClasses();
+      const members = await storage.getAllMembers();
+      
+      const classMap = new Map(classes.map(c => [c.id, c]));
+      const memberMap = new Map(members.map(m => [m.id, { name: m.name, email: m.email }]));
+      
+      const enrichedBookings = bookings.map(b => ({
+        ...b,
+        class: classMap.get(b.classId) ? {
+          title: classMap.get(b.classId)!.title,
+          date: classMap.get(b.classId)!.date,
+          time: classMap.get(b.classId)!.time,
+          classType: classMap.get(b.classId)!.classType,
+        } : undefined,
+        member: memberMap.get(b.memberId),
+      }));
+      
+      res.json(enrichedBookings);
     } catch (error) {
       console.error("Get all bookings error:", error);
       res.status(500).json({ message: "Failed to get bookings" });
