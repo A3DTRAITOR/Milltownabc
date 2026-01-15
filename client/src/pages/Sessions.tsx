@@ -177,20 +177,29 @@ export default function Sessions() {
                   
                   {hasClass && !isPast && (
                     <div className="flex-1 space-y-1 overflow-hidden">
-                      {dayClasses.slice(0, 3).map(c => (
-                        <div 
-                          key={c.id} 
-                          className="text-xs bg-primary/10 text-primary rounded px-1.5 py-0.5 truncate"
-                        >
-                          <span className="font-medium">{c.time}</span>
-                          <span className="hidden sm:inline"> - {c.title}</span>
+                      {/* Mobile: Show count badge */}
+                      <div className="sm:hidden">
+                        <div className="bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                          {dayClasses.length}
                         </div>
-                      ))}
-                      {dayClasses.length > 3 && (
-                        <div className="text-xs text-muted-foreground">
-                          +{dayClasses.length - 3} more
-                        </div>
-                      )}
+                      </div>
+                      {/* Desktop: Show class times */}
+                      <div className="hidden sm:block space-y-1">
+                        {dayClasses.slice(0, 3).map(c => (
+                          <div 
+                            key={c.id} 
+                            className="text-xs bg-primary/10 text-primary rounded px-1.5 py-0.5 truncate"
+                          >
+                            <span className="font-medium">{c.time}</span>
+                            <span className="hidden lg:inline"> - {c.title}</span>
+                          </div>
+                        ))}
+                        {dayClasses.length > 3 && (
+                          <div className="text-xs text-muted-foreground">
+                            +{dayClasses.length - 3} more
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </button>
@@ -204,9 +213,56 @@ export default function Sessions() {
               <div className="w-4 h-4 rounded border-2 border-primary bg-primary/10" />
               <span>Selected Date</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:hidden">
+              <div className="bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">2</div>
+              <span>Number of classes</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-2">
               <div className="px-2 py-0.5 rounded text-xs bg-primary/10 text-primary font-medium">10:00</div>
               <span>Available Session</span>
+            </div>
+          </div>
+
+          {/* Mobile: Upcoming Sessions List */}
+          <div className="sm:hidden mt-8">
+            <h2 className="text-lg font-bold text-foreground mb-4">Upcoming Sessions</h2>
+            <div className="space-y-3">
+              {(classes || [])
+                .filter(c => !isBefore(new Date(c.date), startOfDay(new Date())))
+                .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+                .slice(0, 10)
+                .map(boxingClass => {
+                  const classDate = new Date(boxingClass.date + "T12:00:00");
+                  const spotsLeft = (boxingClass.capacity || 12) - (boxingClass.bookedCount || 0);
+                  
+                  return (
+                    <Card 
+                      key={boxingClass.id} 
+                      className="p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                      onClick={() => setSelectedDate(classDate)}
+                      data-testid={`mobile-session-${boxingClass.id}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-xs font-semibold">
+                              {format(classDate, "EEE, MMM d")}
+                            </Badge>
+                            <span className="text-sm font-bold text-primary">{boxingClass.time}</span>
+                          </div>
+                          <h3 className="font-semibold text-foreground">{boxingClass.title}</h3>
+                          <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                            <span>{boxingClass.duration} min</span>
+                            <span>{spotsLeft} spots</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-primary">£{boxingClass.price}</div>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
             </div>
           </div>
 
