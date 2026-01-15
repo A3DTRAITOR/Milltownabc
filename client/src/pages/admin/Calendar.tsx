@@ -32,11 +32,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Users, Clock, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Clock, Loader2, Eye, Mail, User } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import type { BoxingClass } from "@shared/schema";
+
+interface Booking {
+  id: string;
+  classId: string;
+  status: string;
+  bookedAt: string;
+  member?: {
+    name: string;
+    email: string;
+  };
+}
 
 interface ClassFormData {
   title: string;
@@ -77,11 +88,20 @@ export default function AdminCalendar() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<BoxingClass | null>(null);
   const [deleteClass, setDeleteClass] = useState<BoxingClass | null>(null);
+  const [attendeesClass, setAttendeesClass] = useState<BoxingClass | null>(null);
   const [formData, setFormData] = useState<ClassFormData>(defaultFormData);
 
   const { data: classes, isLoading } = useQuery<BoxingClass[]>({
     queryKey: ["/api/admin/classes"],
   });
+
+  const { data: allBookings } = useQuery<Booking[]>({
+    queryKey: ["/api/admin/bookings"],
+  });
+
+  const getAttendeesForClass = (classId: string) => {
+    return (allBookings || []).filter(b => b.classId === classId && b.status === "confirmed");
+  };
 
   const createMutation = useMutation({
     mutationFn: async (data: ClassFormData) => {
@@ -347,6 +367,15 @@ export default function AdminCalendar() {
                     )}
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setAttendeesClass(boxingClass)} 
+                      data-testid={`button-attendees-${boxingClass.id}`}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      Attendees
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => openEditDialog(boxingClass)} data-testid={`button-edit-${boxingClass.id}`}>
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -380,6 +409,60 @@ export default function AdminCalendar() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Dialog open={!!attendeesClass} onOpenChange={() => setAttendeesClass(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                Attendees - {attendeesClass?.title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="mt-2">
+              <p className="text-sm text-muted-foreground mb-4">
+                {attendeesClass && format(new Date(attendeesClass.date), "EEEE, MMMM d, yyyy")} at {attendeesClass?.time}
+              </p>
+              {attendeesClass && getAttendeesForClass(attendeesClass.id).length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">No confirmed bookings yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                  {attendeesClass && getAttendeesForClass(attendeesClass.id).map((booking, index) => (
+                    <div 
+                      key={booking.id} 
+                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
+                      data-testid={`attendee-${booking.id}`}
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">
+                          {booking.member?.name || "Unknown"}
+                        </p>
+                        {booking.member?.email && (
+                          <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {booking.member.email}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="mt-4 pt-4 border-t flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">
+                  {attendeesClass && getAttendeesForClass(attendeesClass.id).length} / {attendeesClass?.capacity} spots filled
+                </span>
+                <Button variant="outline" onClick={() => setAttendeesClass(null)} data-testid="button-close-attendees">
+                  Close
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );
