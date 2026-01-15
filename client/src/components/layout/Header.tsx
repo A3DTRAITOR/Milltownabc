@@ -94,8 +94,8 @@ export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderPr
       </div>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-16 z-40 bg-white dark:bg-black lg:hidden border-t border-border">
-          <nav className="flex flex-col p-6">
+        <div className="fixed inset-x-0 top-16 bottom-0 z-[100] bg-white dark:bg-black lg:hidden border-t border-border overflow-y-auto">
+          <nav className="flex flex-col p-6 min-h-full bg-white dark:bg-black">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
