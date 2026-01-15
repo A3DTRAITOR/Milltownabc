@@ -42,7 +42,14 @@ export default function Services() {
     ],
   };
 
-  const content = page || defaultContent;
+  const content: PageContent = {
+    title: page?.title || defaultContent.title,
+    metaTitle: page?.metaTitle || defaultContent.metaTitle,
+    metaDescription: page?.metaDescription || defaultContent.metaDescription,
+    heroTitle: page?.heroTitle || defaultContent.heroTitle,
+    heroSubtitle: page?.heroSubtitle || defaultContent.heroSubtitle,
+    sections: page?.sections?.length ? page.sections : defaultContent.sections,
+  };
 
   const getIcon = (iconName?: string) => {
     switch (iconName) {
