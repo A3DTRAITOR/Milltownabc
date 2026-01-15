@@ -255,7 +255,7 @@ export default function Contact() {
               <Card className="p-6">
                 <h3 className="font-semibold text-foreground mb-3">First Time Here?</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Your first class is complimentary! I offer a free intro session so you can experience the practice and see if it's right for you. No experience necessary - just bring yourself, comfortable clothes, and an open mind.
+                  All classes are £15 per session. No experience necessary - just bring yourself, comfortable clothes, and an open mind. Our trainers welcome beginners and will help you get started.
                 </p>
               </Card>
             </div>
