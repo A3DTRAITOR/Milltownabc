@@ -81,9 +81,9 @@ export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderPr
           </div>
 
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="lg:hidden"
+            className="lg:hidden border-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             data-testid="button-mobile-menu"
             aria-label="Toggle menu"
