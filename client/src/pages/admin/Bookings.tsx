@@ -42,9 +42,9 @@ interface Booking {
   };
 }
 
-const SESSION_PRICE = 15.00;
-const BUSINESS_NAME = "Milltown Boxing Club";
-const BUSINESS_ADDRESS = "Milltown, Ireland";
+const SESSION_PRICE = 5.00;
+const BUSINESS_NAME = "Mill Town ABC";
+const BUSINESS_ADDRESS = "Whitfield Community Centre, Ebenezer Street, Glossop, SK13 8JY";
 const CURRENCY = "GBP";
 
 export default function AdminBookings() {

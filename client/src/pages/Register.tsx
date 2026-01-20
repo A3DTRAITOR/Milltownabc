@@ -70,16 +70,19 @@ export default function Register() {
 
   return (
     <PublicLayout>
-      <SEOHead title="Register - Milltown Boxing Club" description="Join Milltown Boxing Club and start booking classes today." />
+      <SEOHead title="Register - Mill Town ABC" description="Join Mill Town ABC and start booking classes today. First session FREE! All classes just £5." />
       
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-md px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground" data-testid="text-register-title">
-              Join the Club
+              Join Mill Town ABC
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Create your account and start training today
+              Register online, become a member, book sessions and turn up to train
+            </p>
+            <p className="mt-2 text-primary font-semibold">
+              First session FREE!
             </p>
           </div>
 
@@ -139,8 +142,8 @@ export default function Register() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="beginner">Beginner - New to boxing</SelectItem>
-                          <SelectItem value="intermediate">Intermediate - Some experience</SelectItem>
-                          <SelectItem value="advanced">Advanced - Experienced boxer</SelectItem>
+                          <SelectItem value="intermediate">General Training - Some experience</SelectItem>
+                          <SelectItem value="advanced">Carded Boxer - Competitive</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

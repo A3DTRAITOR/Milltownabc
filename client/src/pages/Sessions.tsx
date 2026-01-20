@@ -98,7 +98,7 @@ export default function Sessions() {
 
   return (
     <PublicLayout>
-      <SEOHead title="Book a Class - Milltown Boxing Club" description="Select a date and time to book your boxing class at Milltown Boxing Club." />
+      <SEOHead title="Book a Class - Mill Town ABC" description="Select a date and time to book your boxing class at Mill Town ABC in Glossop. All sessions £5. First session FREE!" />
 
       <section className="bg-foreground py-12 lg:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -106,7 +106,7 @@ export default function Sessions() {
             Class Schedule
           </h1>
           <p className="mt-2 text-gray-300">
-            View our weekly schedule and book your sessions. All classes are £15 each.
+            View our weekly schedule and book your sessions. All classes are £5 each. First session FREE!
           </p>
         </div>
       </section>

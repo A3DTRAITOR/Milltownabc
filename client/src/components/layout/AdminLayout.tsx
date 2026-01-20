@@ -135,7 +135,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
         <Sidebar>
           <SidebarHeader className="border-b border-sidebar-border p-4">
             <Link href="/admin" className="flex items-center gap-2" data-testid="link-admin-home">
-              <img src="/logo.png" alt="Milltown Boxing" className="w-8 h-8 rounded-full" />
+              <img src="/logo.png" alt="Mill Town ABC" className="w-8 h-8 rounded-full" />
               <span className="font-semibold text-sidebar-foreground">Admin Panel</span>
             </Link>
           </SidebarHeader>

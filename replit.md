@@ -1,8 +1,29 @@
-# Milltown Boxing Club
+# Mill Town ABC
 
 ## Overview
 
-This is a full-stack boxing club website with member authentication and class booking system. It features a public-facing website with pages for Home, About, Training Programs, Class Schedule (Sessions), Blog, and Contact. Members can register, log in, book classes (£15 per session), and manage their bookings through a dashboard. The admin section allows managing site content, blog posts, and media files. The design uses a bold boxing aesthetic with black, white, light gray (#F5F5F5), red (#C8102E), and gray (#4A5568).
+This is a full-stack boxing club website for Mill Town ABC, based at Whitfield Community Centre in Glossop. Features member authentication, calendar-based class booking system, and comprehensive admin CMS. 
+
+Key features:
+- Public pages: Home, About, Training Programs, Class Schedule, Safety Policy, Blog, Contact
+- Member accounts: register/login with session management
+- Class booking: £5 per session, first session FREE
+- Member dashboard for viewing and managing bookings
+- Admin panel with role-based access control for managing content, classes, members, and financials
+- UK-compliant financial reporting with CSV export for accountants
+
+Design uses a bold boxing aesthetic with colors: black (#000000), white (#FFFFFF), light gray (#F5F5F5), red (#C8102E), and gray (#4A5568).
+
+### Club Information
+- **Location**: Whitfield Community Centre, Ebenezer Street, Glossop, SK13 8JY
+- **Contact**: Alex: 07565 208193, Mark: 07713 659360
+- **Email**: Milltownabc@gmail.com
+- **Social**: Facebook & Instagram (@mill_town_abc)
+- **Head Coach**: Alex Clegg - 70+ amateur bouts, 8x NW Champion, ABA National Champion
+- **Classes**: Monday (Beginners 17:30-18:30, Seniors 18:45-20:00), Wednesday 17:30-18:30, Saturday 10:00-11:00
+- **Pricing**: £5 per session, first session FREE, no joining fees
+- **Membership types**: Beginner Boxers, General Training, Carded Boxers
+- **Facilities**: 6 boxing bags, 16ft boxing ring, general fitness equipment
 
 ## User Preferences
 
@@ -46,13 +67,16 @@ Database tables:
 - `site_content` - Key-value store for page content (JSON)
 - `blog_posts` - Blog articles with SEO metadata
 - `media_files` - Uploaded image metadata
-- `users` and `sessions` - Authentication (Replit Auth)
+- `members` - Member accounts with authentication
+- `classes` - Class schedule and availability
+- `bookings` - Member class bookings with payment status
+- `sessions` - Session management
 
 ### Authentication
-- **Provider**: Replit OpenID Connect (OIDC) authentication
-- **Implementation**: Passport.js with openid-client strategy
-- **Session Storage**: PostgreSQL-backed sessions
-- **Protected Routes**: Admin routes require authentication via `isAuthenticated` middleware
+- Custom member authentication with email/password
+- bcrypt password hashing
+- Session-based authentication with PostgreSQL store
+- Protected routes for member dashboard and admin panel
 
 ### Build System
 - **Development**: Vite dev server with HMR proxied through Express
@@ -66,10 +90,6 @@ Database tables:
 ### Database
 - PostgreSQL database (provisioned via Replit)
 - Connection via `DATABASE_URL` environment variable
-
-### Authentication Services
-- Replit OIDC provider (`ISSUER_URL` defaults to `https://replit.com/oidc`)
-- Requires `REPL_ID` and `SESSION_SECRET` environment variables
 
 ### Third-Party Libraries
 - **UI**: Radix UI primitives, Lucide icons, class-variance-authority

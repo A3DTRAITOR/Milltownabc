@@ -55,7 +55,7 @@ export default function Login() {
 
   return (
     <PublicLayout>
-      <SEOHead title="Login - Milltown Boxing Club" description="Log in to your Milltown Boxing Club account to book classes and manage your sessions." />
+      <SEOHead title="Login - Mill Town ABC" description="Log in to your Mill Town ABC account to book classes and manage your sessions." />
       
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-md px-4 sm:px-6 lg:px-8">

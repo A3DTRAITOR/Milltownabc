@@ -22,21 +22,21 @@ export default function Services() {
 
   const defaultContent: PageContent = {
     title: "Training Programs",
-    metaTitle: "Training Programs - Milltown Boxing Club",
-    metaDescription: "From beginner fundamentals to advanced competition training, find the perfect boxing program for your goals at Milltown Boxing Club.",
+    metaTitle: "Training Programs - Mill Town ABC",
+    metaDescription: "From beginner fundamentals to carded boxer training, find the perfect boxing program at Mill Town ABC in Glossop. All sessions just £5.",
     heroTitle: "Training Programs",
-    heroSubtitle: "We offer a range of boxing programs designed for all skill levels. Whether you're looking to get fit, learn self-defense, or compete in the ring, we have a program for you.",
+    heroSubtitle: "We offer boxing training for all skill levels. Whether you're looking to get fit, learn the basics, or compete as a carded boxer, we have a session for you.",
     sections: [
       {
         id: "programs",
         type: "cards",
         items: [
-          { title: "Boxing Fundamentals", description: "Master the basics of boxing including stance, footwork, jab, cross, hook, and uppercut. Perfect for complete beginners.", icon: "dumbbell" },
-          { title: "Fitness Boxing", description: "High-intensity workouts that combine boxing techniques with cardio training. Get fit without stepping into the ring.", icon: "zap" },
-          { title: "Technique Classes", description: "Refine your skills with advanced combinations, defensive movements, and ring strategy. For intermediate to advanced boxers.", icon: "target" },
-          { title: "Private Training", description: "One-on-one sessions with our expert trainers. Personalized attention to accelerate your progress.", icon: "user" },
-          { title: "Group Classes", description: "Train with a supportive community. Our group classes build camaraderie while pushing you to improve.", icon: "users" },
-          { title: "Competition Prep", description: "Intensive training for those looking to compete. Includes sparring, conditioning, and fight strategy.", icon: "trophy" },
+          { title: "Beginner Boxers", description: "Perfect for those new to boxing. Learn stance, footwork, and basic punches in a supportive environment. No experience needed.", icon: "dumbbell" },
+          { title: "General Training", description: "Open to all skill levels. Great for fitness, technique work, and building your boxing foundation.", icon: "zap" },
+          { title: "Carded Boxers", description: "Advanced training for registered competitive boxers. Technical sparring, conditioning, and fight preparation.", icon: "trophy" },
+          { title: "16ft Boxing Ring", description: "Train in a proper competition-size boxing ring. Perfect for sparring and ring work.", icon: "target" },
+          { title: "6 Heavy Bags", description: "Dedicated bag work stations for developing power, combinations, and conditioning.", icon: "users" },
+          { title: "Fitness Equipment", description: "General fitness equipment available alongside boxing training for complete conditioning.", icon: "user" },
         ],
       },
     ],
@@ -81,7 +81,7 @@ export default function Services() {
     );
   }
 
-  const seoTitle = content.metaTitle || `Training - ${settings?.businessName || "Milltown Boxing Club"}`;
+  const seoTitle = content.metaTitle || `Training - ${settings?.businessName || "Mill Town ABC"}`;
   const seoDescription = content.metaDescription || content.heroSubtitle || "Explore our training programs.";
 
   return (
@@ -139,14 +139,14 @@ export default function Services() {
               Simple Pricing
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              No complicated memberships. Just pay per session and train when it works for you.
+              No joining fees. No complicated memberships. Just pay per session and train when it works for you.
             </p>
             <div className="mt-8 inline-flex items-baseline gap-2">
-              <span className="text-6xl font-black text-primary">£15</span>
+              <span className="text-6xl font-black text-primary">£5</span>
               <span className="text-xl text-muted-foreground">per session</span>
             </div>
-            <p className="mt-4 text-muted-foreground">
-              All classes included. No hidden fees.
+            <p className="mt-4 text-muted-foreground font-semibold text-primary">
+              First session FREE!
             </p>
           </div>
         </div>

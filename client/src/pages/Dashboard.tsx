@@ -99,7 +99,7 @@ export default function Dashboard() {
 
   return (
     <PublicLayout>
-      <SEOHead title="My Dashboard - Milltown Boxing Club" description="View and manage your boxing class bookings." />
+      <SEOHead title="My Dashboard - Mill Town ABC" description="View and manage your boxing class bookings." />
 
       <section className="bg-gradient-to-b from-primary/5 to-background py-12 lg:py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">

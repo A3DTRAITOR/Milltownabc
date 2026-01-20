@@ -23,19 +23,19 @@ export default function Home() {
 
   const defaultContent: PageContent = {
     title: "Home",
-    metaTitle: "Milltown Boxing Club - Train Hard, Fight Smart",
-    metaDescription: "Join Milltown Boxing Club for professional boxing training. Classes for all levels from beginners to advanced fighters. £15 per session.",
+    metaTitle: "Mill Town ABC - Boxing Club in Glossop",
+    metaDescription: "Join Mill Town ABC for professional boxing training in Glossop. Classes for beginners, seniors, and carded boxers. All sessions just £5. First session FREE!",
     heroTitle: "Train Hard.\nFight Smart.",
-    heroSubtitle: "Welcome to Milltown Boxing Club - where champions are made. Whether you're stepping into the ring for the first time or looking to sharpen your skills, our world-class trainers will help you reach your potential.",
+    heroSubtitle: "Welcome to Mill Town ABC at Whitfield Community Centre, Glossop. Whether you're stepping into the ring for the first time or you're a carded boxer looking to sharpen your skills, our experienced coaches will help you reach your potential.",
     sections: [
       {
         id: "offerings",
         type: "cards",
         title: "What We Offer",
         items: [
-          { title: "Boxing Fundamentals", description: "Master the basics of stance, footwork, and punching technique. Perfect for beginners looking to build a solid foundation.", icon: "dumbbell" },
-          { title: "Fitness Boxing", description: "High-intensity workouts combining boxing movements with cardio training. Get fit, build strength, and relieve stress.", icon: "users" },
-          { title: "Advanced Training", description: "Technical sparring, combination work, and competition preparation for experienced boxers ready to take it to the next level.", icon: "trophy" },
+          { title: "Beginner Classes", description: "Perfect for those new to boxing. Learn stance, footwork, and punching technique in a supportive environment. Mondays 17:30-18:30.", icon: "dumbbell" },
+          { title: "Open Classes", description: "All skill levels welcome. Train alongside fellow boxers in our Wednesday and Saturday open sessions. Great for general fitness and technique.", icon: "users" },
+          { title: "Senior & Carded Boxers", description: "Advanced training for experienced and competitive boxers. Technical sparring, combination work, and competition preparation. Mondays 18:45-20:00.", icon: "trophy" },
         ],
       },
     ],
@@ -78,7 +78,7 @@ export default function Home() {
     );
   }
 
-  const seoTitle = content.metaTitle || `${settings?.businessName || "Milltown Boxing Club"} - Train Hard, Fight Smart`;
+  const seoTitle = content.metaTitle || `${settings?.businessName || "Mill Town ABC"} - Train Hard, Fight Smart`;
   const seoDescription = content.metaDescription || content.heroSubtitle || "Professional boxing training for all levels.";
 
   return (
@@ -96,7 +96,7 @@ export default function Home() {
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
           <div className="max-w-3xl">
             <span className="inline-block px-4 py-1 mb-6 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
-              Milltown Boxing Club
+              Mill Town ABC
             </span>
             <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-7xl uppercase whitespace-pre-line" data-testid="text-hero-title">
               {content.heroTitle}
@@ -113,7 +113,7 @@ export default function Home() {
               </Button>
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild data-testid="button-hero-register">
                 <Link href="/register">
-                  Join Now - £15/Session
+                  Join Now - £5/Session
                 </Link>
               </Button>
             </div>
@@ -126,19 +126,19 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
             <div className="text-center">
-              <div className="text-4xl font-black">10+</div>
-              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Years Experience</div>
+              <div className="text-4xl font-black">70+</div>
+              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Amateur Bouts</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-black">500+</div>
-              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Members Trained</div>
+              <div className="text-4xl font-black">8x</div>
+              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">NW Champion</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-black">6</div>
+              <div className="text-4xl font-black">4</div>
               <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Weekly Classes</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-black">£15</div>
+              <div className="text-4xl font-black">£5</div>
               <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Per Session</div>
             </div>
           </div>
@@ -180,7 +180,7 @@ export default function Home() {
               Ready to Start Training?
             </h2>
             <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
-              Join Milltown Boxing Club today. All experience levels welcome. Your first step to becoming a better fighter starts here.
+              Join Mill Town ABC today. All experience levels welcome. Register online and your first session is FREE!
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" asChild data-testid="button-cta-schedule">

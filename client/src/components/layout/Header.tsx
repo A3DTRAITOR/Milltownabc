@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/about", label: "About" },
   { href: "/services", label: "Training" },
   { href: "/sessions", label: "Classes" },
+  { href: "/safety", label: "Safety" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -29,7 +30,7 @@ interface MemberData {
   isAdmin?: boolean;
 }
 
-export function Header({ businessName = "Milltown Boxing Club", logo }: HeaderProps) {
+export function Header({ businessName = "Mill Town ABC", logo }: HeaderProps) {
   const [location] = useLocation();
 
   const { data: member } = useQuery<MemberData>({

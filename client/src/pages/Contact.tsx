@@ -86,8 +86,8 @@ export default function Contact() {
     );
   }
 
-  const seoTitle = `Book a Session - ${settings?.businessName || "Get in Touch"}`;
-  const seoDescription = "Ready to begin your yoga journey? Book a class, schedule a private session, or ask any questions. I'd love to hear from you.";
+  const seoTitle = `Contact Us - ${settings?.businessName || "Mill Town ABC"}`;
+  const seoDescription = "Get in touch with Mill Town ABC in Glossop. Contact us about classes, membership, or any questions. Located at Whitfield Community Centre.";
 
   return (
     <PublicLayout settings={settings}>
@@ -96,10 +96,10 @@ export default function Contact() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl" data-testid="text-contact-title">
-              Begin Your Journey
+              Get In Touch
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground lg:text-xl" data-testid="text-contact-subtitle">
-              Ready to step onto the mat? Whether you're curious about classes, want to book a private session, or have questions about your practice, I'm here to help.
+              Ready to start boxing? Whether you're curious about classes, want to arrange a trial session, or have any questions, we're here to help.
             </p>
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function Contact() {
                           <FormLabel>Message</FormLabel>
                           <FormControl>
                             <Textarea 
-                              placeholder="Tell me about your yoga goals, experience level, or any questions you have..." 
+                              placeholder="Tell us about your boxing experience, fitness goals, or any questions you have..." 
                               className="min-h-[150px] resize-none"
                               {...field} 
                               data-testid="input-contact-message"
@@ -212,50 +212,65 @@ export default function Contact() {
               <div>
                 <h2 className="text-2xl font-semibold text-foreground mb-6">Let's Connect</h2>
                 <div className="space-y-6">
-                  {settings?.email && (
-                    <div className="flex items-start gap-4">
-                      <div className="rounded-lg bg-primary/10 p-3 text-primary">
-                        <Mail className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-foreground">Email</h3>
-                        <a href={`mailto:${settings.email}`} className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-contact-email">
-                          {settings.email}
-                        </a>
-                      </div>
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-primary/10 p-3 text-primary">
+                      <Mail className="h-5 w-5" />
                     </div>
-                  )}
-                  {settings?.phone && (
-                    <div className="flex items-start gap-4">
-                      <div className="rounded-lg bg-primary/10 p-3 text-primary">
-                        <Phone className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-foreground">Phone</h3>
+                    <div>
+                      <h3 className="font-medium text-foreground">Email</h3>
+                      <a href={`mailto:${settings?.email || "Milltownabc@gmail.com"}`} className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-contact-email">
+                        {settings?.email || "Milltownabc@gmail.com"}
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-primary/10 p-3 text-primary">
+                      <Phone className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-foreground">Phone</h3>
+                      {settings?.phone ? (
                         <a href={`tel:${settings.phone}`} className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-contact-phone">
                           {settings.phone}
                         </a>
-                      </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <a href="tel:07565208193" className="block text-muted-foreground hover:text-primary transition-colors">
+                            Alex: 07565 208193
+                          </a>
+                          <a href="tel:07713659360" className="block text-muted-foreground hover:text-primary transition-colors">
+                            Mark: 07713 659360
+                          </a>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {settings?.address && (
-                    <div className="flex items-start gap-4">
-                      <div className="rounded-lg bg-primary/10 p-3 text-primary">
-                        <MapPin className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-foreground">Address</h3>
-                        <p className="text-muted-foreground">{settings.address}</p>
-                      </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-primary/10 p-3 text-primary">
+                      <MapPin className="h-5 w-5" />
                     </div>
-                  )}
+                    <div>
+                      <h3 className="font-medium text-foreground">Address</h3>
+                      <p className="text-muted-foreground">{settings?.address || "Whitfield Community Centre, Ebenezer Street, Glossop, SK13 8JY"}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <Card className="p-6">
                 <h3 className="font-semibold text-foreground mb-3">First Time Here?</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  All classes are £15 per session. No experience necessary - just bring yourself, comfortable clothes, and an open mind. Our trainers welcome beginners and will help you get started.
+                  Your first session is FREE! All classes are just £5 per session after that. No experience necessary - just bring yourself, comfortable clothes, and an open mind. Our coaches welcome beginners and will help you get started.
+                </p>
+              </Card>
+              
+              <Card className="p-6 mt-4">
+                <h3 className="font-semibold text-foreground mb-3">Find Us</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  <strong>Whitfield Community Centre</strong><br />
+                  Ebenezer Street<br />
+                  Glossop<br />
+                  SK13 8JY
                 </p>
               </Card>
             </div>

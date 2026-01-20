@@ -20,10 +20,10 @@ export default function About() {
 
   const defaultContent: PageContent = {
     title: "About",
-    metaTitle: "About Us - Milltown Boxing Club",
-    metaDescription: "Learn about Milltown Boxing Club's history, our trainers, and our commitment to developing champions both in and out of the ring.",
+    metaTitle: "About Us - Mill Town ABC",
+    metaDescription: "Learn about Mill Town ABC in Glossop. Home to Head Coach Alex Clegg, ABA National Champion with over 70 amateur bouts and 8x North West Champion.",
     heroTitle: "Our Story",
-    heroSubtitle: "For over 10 years, Milltown Boxing Club has been the home of champions. From complete beginners to competitive fighters, we've helped hundreds of people discover the discipline, strength, and confidence that boxing brings.",
+    heroSubtitle: "Mill Town ABC is based at Whitfield Community Centre in Glossop. Led by Head Coach Alex Clegg, an ex-amateur boxer who started at age 8, with over 70 amateur bouts, 8x North West Champion, boxed for the Northwest Regional Team, ABA National Champion, competed in the 3 Nations Championships, and internationally boxed and beat champions from Spain, Poland, Scotland, and Ireland.",
     sections: [
       {
         id: "values",
@@ -32,7 +32,7 @@ export default function About() {
         items: [
           { title: "Discipline", description: "Boxing teaches focus, commitment, and self-control. These skills transfer to every aspect of life, making you stronger both mentally and physically.", icon: "target" },
           { title: "Respect", description: "We foster a supportive environment where everyone is treated with respect. Our gym is a place where champions are built through encouragement, not intimidation.", icon: "shield" },
-          { title: "Excellence", description: "Whether you're training for fitness or competition, we push you to be your best. Our experienced trainers bring out the champion in everyone.", icon: "trophy" },
+          { title: "Excellence", description: "Whether you're training for fitness or competition, we push you to be your best. Learn from a proven champion with real competitive experience.", icon: "trophy" },
         ],
       },
     ],
@@ -74,7 +74,7 @@ export default function About() {
     );
   }
 
-  const seoTitle = content.metaTitle || `About Us - ${settings?.businessName || "Milltown Boxing Club"}`;
+  const seoTitle = content.metaTitle || `About Us - ${settings?.businessName || "Mill Town ABC"}`;
   const seoDescription = content.metaDescription || content.heroSubtitle || "Learn about our mission and values.";
 
   return (
@@ -135,20 +135,20 @@ export default function About() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 text-white">
             <div className="text-center">
-              <div className="text-5xl font-black">10+</div>
-              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Years Experience</div>
+              <div className="text-5xl font-black">70+</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Amateur Bouts</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-black">500+</div>
-              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Members Trained</div>
+              <div className="text-5xl font-black">8x</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">NW Champion</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-black">25+</div>
-              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Competition Wins</div>
+              <div className="text-5xl font-black">1</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">ABA National Title</div>
             </div>
             <div className="text-center">
               <div className="text-5xl font-black">4</div>
-              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Expert Trainers</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Weekly Classes</div>
             </div>
           </div>
         </div>

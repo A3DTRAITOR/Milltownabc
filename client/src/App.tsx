@@ -14,6 +14,7 @@ import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Sessions from "@/pages/Sessions";
+import Safety from "@/pages/Safety";
 import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminCalendar from "@/pages/admin/Calendar";
@@ -43,6 +44,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/services" component={Services} />
       <Route path="/sessions" component={Sessions} />
+      <Route path="/safety" component={Safety} />
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/contact" component={Contact} />
