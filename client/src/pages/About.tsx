@@ -130,25 +130,63 @@ export default function About() {
         </section>
       ))}
 
-      {/* Stats */}
+      {/* Head Coach Section */}
+      <section className="py-16 lg:py-20 bg-card border-t border-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
+              Head Coach
+            </span>
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl uppercase tracking-tight">
+              Alex Clegg
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Alex is an ex-amateur boxer who started training at age 8. With decades of competitive experience, he brings authentic ring knowledge to every session at Mill Town ABC.
+            </p>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="text-center p-6 bg-background rounded-lg">
+              <div className="text-4xl font-black text-primary">70+</div>
+              <div className="mt-2 text-sm text-muted-foreground">Amateur Bouts</div>
+            </div>
+            <div className="text-center p-6 bg-background rounded-lg">
+              <div className="text-4xl font-black text-primary">8x</div>
+              <div className="mt-2 text-sm text-muted-foreground">NW Champion</div>
+            </div>
+            <div className="text-center p-6 bg-background rounded-lg">
+              <div className="text-4xl font-black text-primary">1</div>
+              <div className="mt-2 text-sm text-muted-foreground">ABA National Title</div>
+            </div>
+            <div className="text-center p-6 bg-background rounded-lg">
+              <div className="text-4xl font-black text-primary">3</div>
+              <div className="mt-2 text-sm text-muted-foreground">Nations Championships</div>
+            </div>
+          </div>
+          <div className="mt-8 text-center text-muted-foreground">
+            <p>Also represented the Northwest Regional Team and competed internationally, defeating champions from Spain, Poland, Scotland, and Ireland.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Club Stats */}
       <section className="bg-primary py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 text-white">
             <div className="text-center">
-              <div className="text-5xl font-black">70+</div>
-              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Amateur Bouts</div>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-black">8x</div>
-              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">NW Champion</div>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-black">1</div>
-              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">ABA National Title</div>
-            </div>
-            <div className="text-center">
               <div className="text-5xl font-black">4</div>
               <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Weekly Classes</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-black">£5</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Per Session</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-black">FREE</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">First Session</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-black">£0</div>
+              <div className="mt-2 text-sm uppercase tracking-wider opacity-80">Joining Fee</div>
             </div>
           </div>
         </div>

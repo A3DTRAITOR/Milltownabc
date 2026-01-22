@@ -126,20 +126,20 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
             <div className="text-center">
-              <div className="text-4xl font-black">70+</div>
-              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Amateur Bouts</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-black">8x</div>
-              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">NW Champion</div>
-            </div>
-            <div className="text-center">
               <div className="text-4xl font-black">4</div>
               <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Weekly Classes</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-black">£5</div>
               <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Per Session</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-black">FREE</div>
+              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">First Session</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-black">£0</div>
+              <div className="mt-1 text-sm uppercase tracking-wider opacity-80">Joining Fee</div>
             </div>
           </div>
         </div>
@@ -171,6 +171,69 @@ export default function Home() {
           </div>
         </section>
       ))}
+
+      {/* Meet Your Coach Section */}
+      <section className="py-16 lg:py-24 bg-card border-t border-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-2 items-center">
+            <div>
+              <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
+                Head Coach
+              </span>
+              <h2 className="text-3xl font-black text-foreground sm:text-4xl uppercase tracking-tight">
+                Alex Clegg
+              </h2>
+              <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
+                Alex is an ex-amateur boxer who started training at age 8. With a wealth of competitive experience, he brings real ring knowledge to every session.
+              </p>
+              <div className="mt-8 grid grid-cols-2 gap-6">
+                <div className="text-center p-4 bg-primary/5 rounded-lg">
+                  <div className="text-3xl font-black text-primary">70+</div>
+                  <div className="mt-1 text-sm text-muted-foreground">Amateur Bouts</div>
+                </div>
+                <div className="text-center p-4 bg-primary/5 rounded-lg">
+                  <div className="text-3xl font-black text-primary">8x</div>
+                  <div className="mt-1 text-sm text-muted-foreground">NW Champion</div>
+                </div>
+              </div>
+              <ul className="mt-6 space-y-2 text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-primary" />
+                  ABA National Champion
+                </li>
+                <li className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-primary" />
+                  Northwest Regional Team
+                </li>
+                <li className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-primary" />
+                  3 Nations Championships
+                </li>
+                <li className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-primary" />
+                  International victories vs Spain, Poland, Scotland, Ireland
+                </li>
+              </ul>
+              <div className="mt-8">
+                <Button asChild data-testid="button-learn-more-coach">
+                  <Link href="/about">
+                    Learn More About Us
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="aspect-square bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg flex items-center justify-center">
+                <div className="text-center p-8">
+                  <Users className="h-24 w-24 text-primary/40 mx-auto mb-4" />
+                  <p className="text-muted-foreground">Coach Photo Coming Soon</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="bg-foreground py-16 lg:py-24">
