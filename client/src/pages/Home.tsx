@@ -196,22 +196,22 @@ export default function Home() {
                   <div className="mt-1 text-sm text-muted-foreground">NW Champion</div>
                 </div>
               </div>
-              <ul className="mt-6 space-y-2 text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4 text-primary" />
-                  ABA National Champion
+              <ul className="mt-6 space-y-3 text-muted-foreground">
+                <li className="flex items-start gap-3">
+                  <Trophy className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span>ABA National Champion</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4 text-primary" />
-                  Northwest Regional Team
+                <li className="flex items-start gap-3">
+                  <Trophy className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span>Northwest Regional Team</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4 text-primary" />
-                  3 Nations Championships
+                <li className="flex items-start gap-3">
+                  <Trophy className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span>3 Nations Championships</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4 text-primary" />
-                  International victories vs Spain, Poland, Scotland, Ireland
+                <li className="flex items-start gap-3">
+                  <Trophy className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span>International victories vs Spain, Poland, Scotland, Ireland</span>
                 </li>
               </ul>
               <div className="mt-8">
