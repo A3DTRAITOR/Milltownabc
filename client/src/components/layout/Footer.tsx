@@ -149,6 +149,28 @@ export function Footer({ settings }: FooterProps) {
         </div>
       </div>
 
+      <div className="border-t border-gray-700">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <p className="text-sm text-gray-400">
+              &copy; {currentYear} {businessName}. All rights reserved.
+            </p>
+            <p className="text-sm text-gray-500">
+              Website by{" "}
+              <a 
+                href="https://www.glossopwebforge.co.uk" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-primary transition-colors"
+                data-testid="link-developer-credit"
+              >
+                Glossop Web Forge
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+
       {settings?.localBusiness && (
         <script
           type="application/ld+json"
