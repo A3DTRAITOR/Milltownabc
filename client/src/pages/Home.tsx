@@ -235,6 +235,54 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
+              Testimonials
+            </span>
+            <h2 className="text-3xl font-black text-foreground sm:text-4xl uppercase tracking-tight">
+              What Our Members Say
+            </h2>
+          </div>
+          <div className="grid gap-8 lg:grid-cols-2">
+            <Card className="p-6 lg:p-8">
+              <div className="flex flex-col h-full">
+                <div className="mb-4 text-primary">
+                  <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                  </svg>
+                </div>
+                <p className="text-muted-foreground leading-relaxed flex-grow">
+                  "Training at Milltown has helped me have a goal and something to work towards. Milltown's helped me keep out of trouble and be apart of something that is more than just boxing. Milltown is like a family where I feel welcome and I feel like I could talk to anybody there."
+                </p>
+                <div className="mt-6 pt-6 border-t border-border">
+                  <p className="font-semibold text-foreground">Finley</p>
+                  <p className="text-sm text-muted-foreground">Carded Boxer</p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-6 lg:p-8">
+              <div className="flex flex-col h-full">
+                <div className="mb-4 text-primary">
+                  <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                  </svg>
+                </div>
+                <p className="text-muted-foreground leading-relaxed flex-grow">
+                  "I cannot recommend Milltown Boxing enough! My son absolutely loves going, and the impact it's had on his life is amazing. Since joining, we've seen a massive improvement in his anxiety and his confidence. Mark and Alex are truly brilliant; they go above and beyond for every single child in that gym. It's more than just boxing—it's a supportive community that has helped him in ways I didn't think possible. Thank you, guys!"
+                </p>
+                <div className="mt-6 pt-6 border-t border-border">
+                  <p className="font-semibold text-foreground">Donna</p>
+                  <p className="text-sm text-muted-foreground">Parent</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="bg-foreground py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
