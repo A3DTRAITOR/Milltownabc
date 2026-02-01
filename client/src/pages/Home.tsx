@@ -10,6 +10,8 @@ import type { PageContent, SiteSettings } from "@shared/schema";
 import heroImage from "@assets/stock_images/boxing_gym_training__1b00619a.jpg";
 import coleherneLogo from "@assets/coleherne_ltd_logo_1769975540746.jpeg";
 import highPeakLogo from "@assets/25032764306_-_HpWW_Logo_1769975542310.png";
+import compareAgentsLogo from "@assets/Compare_agents-1_1769975630898.png";
+import tacaoLogo from "@assets/Tacao-1_1769975635963.png";
 
 export default function Home() {
   const { data: pageData, isLoading: pageLoading } = useQuery<{ content: PageContent }>({
@@ -305,7 +307,7 @@ export default function Home() {
               data-testid="link-sponsor-compare-agents"
             >
               <div className="h-16 flex items-center justify-center mb-4">
-                <span className="text-2xl font-black text-primary">Compare Agents</span>
+                <img src={compareAgentsLogo} alt="Compare Agents" className="h-full w-auto object-contain" />
               </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Compare Agents</h3>
               <p className="mt-2 text-sm text-muted-foreground flex-grow">Instantly compare the service and performance of Estate agents near you.</p>
@@ -318,7 +320,7 @@ export default function Home() {
               data-testid="link-sponsor-tacao"
             >
               <div className="h-16 flex items-center justify-center mb-4">
-                <span className="text-2xl font-black text-primary">TACAO</span>
+                <img src={tacaoLogo} alt="Tacao" className="h-full w-auto object-contain" />
               </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Tacao</h3>
               <p className="mt-2 text-sm text-muted-foreground flex-grow">Community and consultancy for entrepreneurs, business owners, and professionals.</p>
