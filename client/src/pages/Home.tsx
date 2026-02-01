@@ -283,6 +283,62 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Sponsors Section */}
+      <section className="py-12 lg:py-16 bg-card border-t border-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-xl font-bold text-foreground uppercase tracking-wider">
+              Our Sponsors
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Thank you to our sponsors for supporting Mill Town ABC
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <a 
+              href="https://www.compare-agents.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all"
+              data-testid="link-sponsor-compare-agents"
+            >
+              <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Compare Agents</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Instantly compare the service and performance of Estate agents near you.</p>
+            </a>
+            <a 
+              href="https://tacao.co.uk" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all"
+              data-testid="link-sponsor-tacao"
+            >
+              <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Tacao</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Community and consultancy for entrepreneurs, business owners, and professionals.</p>
+            </a>
+            <a 
+              href="https://highpeakworkwear.co.uk/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all"
+              data-testid="link-sponsor-high-peak"
+            >
+              <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">High Peak Workwear</h3>
+              <p className="mt-2 text-sm text-muted-foreground">High quality custom embroidered workwear for all trades.</p>
+            </a>
+            <a 
+              href="https://www.coleherne.co.uk/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all"
+              data-testid="link-sponsor-coleherne"
+            >
+              <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Coleherne Group</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Specialist manufacture and repair of precision engineered components for industry.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="bg-foreground py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
