@@ -8,6 +8,8 @@ import { ArrowRight, Dumbbell, Users, Trophy, Clock, Calendar, ChevronRight } fr
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PageContent, SiteSettings } from "@shared/schema";
 import heroImage from "@assets/stock_images/boxing_gym_training__1b00619a.jpg";
+import coleherneLogo from "@assets/coleherne_ltd_logo_1769975540746.jpeg";
+import highPeakLogo from "@assets/25032764306_-_HpWW_Logo_1769975542310.png";
 
 export default function Home() {
   const { data: pageData, isLoading: pageLoading } = useQuery<{ content: PageContent }>({
@@ -299,41 +301,53 @@ export default function Home() {
               href="https://www.compare-agents.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all"
+              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all flex flex-col"
               data-testid="link-sponsor-compare-agents"
             >
+              <div className="h-16 flex items-center justify-center mb-4">
+                <span className="text-2xl font-black text-primary">Compare Agents</span>
+              </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Compare Agents</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Instantly compare the service and performance of Estate agents near you.</p>
+              <p className="mt-2 text-sm text-muted-foreground flex-grow">Instantly compare the service and performance of Estate agents near you.</p>
             </a>
             <a 
               href="https://tacao.co.uk" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all"
+              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all flex flex-col"
               data-testid="link-sponsor-tacao"
             >
+              <div className="h-16 flex items-center justify-center mb-4">
+                <span className="text-2xl font-black text-primary">TACAO</span>
+              </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Tacao</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Community and consultancy for entrepreneurs, business owners, and professionals.</p>
+              <p className="mt-2 text-sm text-muted-foreground flex-grow">Community and consultancy for entrepreneurs, business owners, and professionals.</p>
             </a>
             <a 
               href="https://highpeakworkwear.co.uk/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all"
+              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all flex flex-col"
               data-testid="link-sponsor-high-peak"
             >
+              <div className="h-16 flex items-center justify-center mb-4">
+                <img src={highPeakLogo} alt="High Peak Workwear" className="h-full w-auto object-contain" />
+              </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">High Peak Workwear</h3>
-              <p className="mt-2 text-sm text-muted-foreground">High quality custom embroidered workwear for all trades.</p>
+              <p className="mt-2 text-sm text-muted-foreground flex-grow">High quality custom embroidered workwear for all trades.</p>
             </a>
             <a 
               href="https://www.coleherne.co.uk/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all"
+              className="group p-6 bg-background rounded-lg border border-border hover-elevate transition-all flex flex-col"
               data-testid="link-sponsor-coleherne"
             >
+              <div className="h-16 flex items-center justify-center mb-4">
+                <img src={coleherneLogo} alt="Coleherne Group" className="h-full w-auto object-contain" />
+              </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Coleherne Group</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Specialist manufacture and repair of precision engineered components for industry.</p>
+              <p className="mt-2 text-sm text-muted-foreground flex-grow">Specialist manufacture and repair of precision engineered components for industry.</p>
             </a>
           </div>
         </div>
