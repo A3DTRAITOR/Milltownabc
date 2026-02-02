@@ -123,6 +123,9 @@ export default function Login() {
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-md px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
+            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <LogIn className="h-8 w-8 text-primary" />
+            </div>
             <h1 className="text-3xl font-bold text-foreground" data-testid="text-login-title">
               Member Login
             </h1>
@@ -131,17 +134,17 @@ export default function Login() {
             </p>
           </div>
 
-          <Card className="p-6 lg:p-8">
+          <Card className="p-8 shadow-lg border-0 bg-card/80 backdrop-blur">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className="text-sm font-medium">Email Address</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="your@email.com" {...field} data-testid="input-login-email" />
+                        <Input type="email" placeholder="your@email.com" className="h-11" {...field} data-testid="input-login-email" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -152,9 +155,9 @@ export default function Login() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel className="text-sm font-medium">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Your password" {...field} data-testid="input-login-password" />
+                        <Input type="password" placeholder="Enter your password" className="h-11" {...field} data-testid="input-login-password" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -162,7 +165,7 @@ export default function Login() {
                 />
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full h-11 text-base font-semibold mt-2"
                   disabled={loginMutation.isPending}
                   data-testid="button-login-submit"
                 >

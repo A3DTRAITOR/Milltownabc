@@ -136,29 +136,33 @@ export default function Register() {
           ) : (
             <>
               <div className="text-center mb-8">
+                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <UserPlus className="h-8 w-8 text-primary" />
+                </div>
                 <h1 className="text-3xl font-bold text-foreground" data-testid="text-register-title">
                   Join Mill Town ABC
                 </h1>
                 <p className="mt-2 text-muted-foreground">
                   Register online, become a member, book sessions and turn up to train
                 </p>
-                <p className="mt-2 text-primary font-semibold">
+                <div className="mt-3 inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-2 rounded-full text-sm font-semibold">
+                  <CheckCircle className="h-4 w-4" />
                   First session FREE!
-                </p>
+                </div>
               </div>
 
-              <Card className="p-6">
+              <Card className="p-8 shadow-lg border-0 bg-card/80 backdrop-blur">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full Name</FormLabel>
+                        <FormLabel className="text-sm font-medium">Full Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="John Smith" {...field} data-testid="input-register-name" />
+                          <Input placeholder="John Smith" className="h-11" {...field} data-testid="input-register-name" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -169,9 +173,9 @@ export default function Register() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel className="text-sm font-medium">Email Address</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="your@email.com" {...field} data-testid="input-register-email" />
+                          <Input type="email" placeholder="your@email.com" className="h-11" {...field} data-testid="input-register-email" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -184,11 +188,11 @@ export default function Register() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone</FormLabel>
+                        <FormLabel className="text-sm font-medium">Phone Number</FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder="07XXX XXXXXX" {...field} data-testid="input-register-phone" />
+                          <Input type="tel" placeholder="07XXX XXXXXX" className="h-11" {...field} data-testid="input-register-phone" />
                         </FormControl>
-                        <FormDescription className="text-xs">e.g. 07123456789</FormDescription>
+                        <FormDescription className="text-xs text-muted-foreground">e.g. 07123456789</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -198,11 +202,12 @@ export default function Register() {
                     name="age"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Age</FormLabel>
+                        <FormLabel className="text-sm font-medium">Age</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="Your age" 
+                            placeholder="Your age"
+                            className="h-11"
                             {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                             value={field.value || ""}
@@ -221,17 +226,17 @@ export default function Register() {
                     </p>
                   </div>
                 )}
-                <div className="border-t pt-4">
-                  <p className="text-sm font-medium text-foreground mb-3">Emergency Contact (Required)</p>
+                <div className="border-t border-border/50 pt-5">
+                  <p className="text-sm font-semibold text-foreground mb-4">Emergency Contact</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="emergencyContactName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name</FormLabel>
+                          <FormLabel className="text-sm font-medium">Contact Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Contact's full name" {...field} data-testid="input-register-emergency-name" />
+                            <Input placeholder="Contact's full name" className="h-11" {...field} data-testid="input-register-emergency-name" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -242,11 +247,11 @@ export default function Register() {
                       name="emergencyContactPhone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone</FormLabel>
+                          <FormLabel className="text-sm font-medium">Contact Phone</FormLabel>
                           <FormControl>
-                            <Input type="tel" placeholder="07XXX XXXXXX" {...field} data-testid="input-register-emergency-phone" />
+                            <Input type="tel" placeholder="07XXX XXXXXX" className="h-11" {...field} data-testid="input-register-emergency-phone" />
                           </FormControl>
-                          <FormDescription className="text-xs">e.g. 07123456789</FormDescription>
+                          <FormDescription className="text-xs text-muted-foreground">e.g. 07123456789</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -258,10 +263,10 @@ export default function Register() {
                   name="experienceLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Experience Level</FormLabel>
+                      <FormLabel className="text-sm font-medium">Experience Level</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger data-testid="select-register-experience">
+                          <SelectTrigger className="h-11" data-testid="select-register-experience">
                             <SelectValue placeholder="Select your level" />
                           </SelectTrigger>
                         </FormControl>
@@ -275,33 +280,36 @@ export default function Register() {
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="Min 8 characters" autoComplete="new-password" {...field} data-testid="input-register-password" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="Confirm password" autoComplete="new-password" {...field} data-testid="input-register-confirm" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="border-t border-border/50 pt-5">
+                  <p className="text-sm font-semibold text-foreground mb-4">Create Password</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="Min 8 characters" className="h-11" autoComplete="new-password" {...field} data-testid="input-register-password" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">Confirm Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="Confirm password" className="h-11" autoComplete="new-password" {...field} data-testid="input-register-confirm" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
                 
                 {HCAPTCHA_SITE_KEY && (
@@ -318,7 +326,7 @@ export default function Register() {
 
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full h-11 text-base font-semibold mt-2"
                   disabled={registerMutation.isPending}
                   data-testid="button-register-submit"
                 >
