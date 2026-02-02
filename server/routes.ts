@@ -417,6 +417,8 @@ export async function registerRoutes(
   // Get all upcoming classes
   app.get("/api/classes", async (_req, res) => {
     try {
+      // Cleanup incorrect 17:45 senior classes first
+      await cleanupIncorrectClasses();
       // Regenerate classes to ensure we always have 8 weeks ahead
       await generateWeeklyClasses(8);
       const classes = await storage.getUpcomingClasses();
