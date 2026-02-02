@@ -229,6 +229,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteClass(id: string): Promise<boolean> {
+    // First delete all bookings for this class to avoid foreign key constraint
+    await db.delete(bookings).where(eq(bookings.classId, id));
+    // Then delete the class itself
     const result = await db.delete(boxingClasses).where(eq(boxingClasses.id, id)).returning();
     return result.length > 0;
   }
