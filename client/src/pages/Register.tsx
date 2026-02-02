@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, UserPlus, Mail, CheckCircle } from "lucide-react";
@@ -18,15 +18,15 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "";
 
-const ukPhoneRegex = /^(?:(?:\+44\s?|0)(?:7\d{3}|\d{3,4})[\s.-]?\d{3}[\s.-]?\d{3,4})$/;
+const ukPhoneRegex = /^(?:\+44\s?\d{4}\s?\d{6}|0\d{10})$/;
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email"),
-  phone: z.string().min(1, "Phone number is required").regex(ukPhoneRegex, "Please enter a valid UK phone number"),
+  phone: z.string().min(1, "Phone number is required").regex(ukPhoneRegex, "Format: +44 7902 962577 or 07902962577"),
   age: z.number().min(5, "Age must be at least 5").max(100, "Please enter a valid age"),
   emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string().min(1, "Emergency contact phone is required").regex(ukPhoneRegex, "Please enter a valid UK phone number"),
+  emergencyContactPhone: z.string().min(1, "Emergency contact phone is required").regex(ukPhoneRegex, "Format: +44 7902 962577 or 07902962577"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
@@ -186,8 +186,9 @@ export default function Register() {
                       <FormItem>
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder="07123 456789" {...field} data-testid="input-register-phone" />
+                          <Input type="tel" placeholder="07902962577" {...field} data-testid="input-register-phone" />
                         </FormControl>
+                        <FormDescription className="text-xs">+44 7902 962577 or 07902962577</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -243,8 +244,9 @@ export default function Register() {
                         <FormItem>
                           <FormLabel>Phone</FormLabel>
                           <FormControl>
-                            <Input type="tel" placeholder="07123 456789" {...field} data-testid="input-register-emergency-phone" />
+                            <Input type="tel" placeholder="07902962577" {...field} data-testid="input-register-emergency-phone" />
                           </FormControl>
+                          <FormDescription className="text-xs">+44 7902 962577 or 07902962577</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
