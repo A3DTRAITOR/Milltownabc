@@ -172,6 +172,17 @@ export default function Sessions() {
               </div>
             </Card>
           )}
+
+          {/* Cancellation Policy Notice */}
+          <Card className="p-4 mb-6 bg-muted/50" data-testid="card-cancellation-policy">
+            <div className="text-sm text-muted-foreground">
+              <p className="font-semibold text-foreground mb-1">Cancellation Policy</p>
+              <p>
+                Cancel more than 1 hour before your session and we'll restore your free session or refund your payment. 
+                Cancellations within 1 hour of the session start time will forfeit your free session or payment.
+              </p>
+            </div>
+          </Card>
           
           {/* Calendar Header */}
           <Card className="p-4 mb-6">

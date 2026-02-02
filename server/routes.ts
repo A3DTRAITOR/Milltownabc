@@ -577,15 +577,36 @@ export async function registerRoutes(
         return res.status(403).json({ message: "Not authorized" });
       }
 
+      // Get the class to check the start time
+      const boxingClass = await storage.getClass(booking.classId);
+      
+      // Calculate if cancellation is within 1 hour of class start
+      let isWithinOneHour = false;
+      if (boxingClass) {
+        const classDateTime = new Date(`${boxingClass.date}T${boxingClass.time}:00`);
+        const now = new Date();
+        const oneHourBefore = new Date(classDateTime.getTime() - 60 * 60 * 1000);
+        isWithinOneHour = now >= oneHourBefore;
+      }
+
       await storage.cancelBooking(req.params.id);
       await storage.decrementBookedCount(booking.classId);
 
-      // If this was a free session, restore the member's free session eligibility
+      // If this was a free session, only restore eligibility if cancelled more than 1 hour before
+      let freeSessionRestored = false;
       if (booking.isFreeSession) {
-        await storage.updateMember(memberId, { hasUsedFreeSession: false });
+        if (!isWithinOneHour) {
+          await storage.updateMember(memberId, { hasUsedFreeSession: false });
+          freeSessionRestored = true;
+        }
+        // If within 1 hour, the free session is forfeited
       }
 
-      res.json({ message: "Booking cancelled" });
+      res.json({ 
+        message: "Booking cancelled",
+        freeSessionRestored,
+        freeSessionForfeited: booking.isFreeSession && !freeSessionRestored
+      });
     } catch (error) {
       console.error("Error cancelling booking:", error);
       res.status(500).json({ message: "Failed to cancel booking" });
