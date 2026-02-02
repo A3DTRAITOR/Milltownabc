@@ -564,6 +564,7 @@ export async function registerRoutes(
         
         // Process Square payment
         const amount = 500; // £5.00 in pence
+        console.log(`[Payment] Processing Square payment for member ${memberId}, class ${req.params.id}`);
         paymentResult = await createPayment({
           sourceId: paymentToken,
           amount,
@@ -572,10 +573,12 @@ export async function registerRoutes(
         });
         
         if (!paymentResult.success) {
+          console.error(`[Payment] Failed:`, paymentResult.error);
           return res.status(400).json({ 
             message: paymentResult.error || "Payment failed. Please try again." 
           });
         }
+        console.log(`[Payment] Success! Payment ID: ${paymentResult.paymentId}`);
       }
 
       // Create booking - confirmed if free or if payment succeeded
