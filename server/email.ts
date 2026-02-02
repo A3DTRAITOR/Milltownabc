@@ -53,6 +53,8 @@ interface BookingEmailData {
 }
 
 export async function sendBookingConfirmationEmail(data: BookingEmailData): Promise<boolean> {
+  console.log("[Email] Attempting to send booking confirmation to:", data.memberEmail);
+  
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -115,7 +117,9 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
   `;
 
   try {
+    console.log("[Email] Getting Resend client...");
     const { client, fromEmail } = await getResendClient();
+    console.log("[Email] Got client, sending from:", fromEmail);
     
     const result = await client.emails.send({
       from: fromEmail,
@@ -125,10 +129,11 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
       html: htmlContent,
     });
     
-    console.log(`Confirmation email sent to ${data.memberEmail}`, result);
+    console.log("[Email] Confirmation email sent successfully to:", data.memberEmail, "Result:", JSON.stringify(result));
     return true;
-  } catch (error) {
-    console.error("Failed to send confirmation email:", error);
+  } catch (error: any) {
+    console.error("[Email] Failed to send confirmation email:", error?.message || error);
+    console.error("[Email] Full error:", JSON.stringify(error, null, 2));
     return false;
   }
 }
@@ -141,6 +146,8 @@ interface VerificationEmailData {
 }
 
 export async function sendVerificationEmail(data: VerificationEmailData): Promise<boolean> {
+  console.log("[Email] Attempting to send verification email to:", data.memberEmail);
+  
   const verificationLink = `${data.baseUrl}/verify-email?token=${data.verificationToken}`;
 
   const htmlContent = `
@@ -188,7 +195,9 @@ export async function sendVerificationEmail(data: VerificationEmailData): Promis
   `;
 
   try {
+    console.log("[Email] Getting Resend client for verification email...");
     const { client, fromEmail } = await getResendClient();
+    console.log("[Email] Got client, sending verification from:", fromEmail);
     
     const result = await client.emails.send({
       from: fromEmail,
@@ -198,10 +207,11 @@ export async function sendVerificationEmail(data: VerificationEmailData): Promis
       html: htmlContent,
     });
     
-    console.log(`Verification email sent to ${data.memberEmail}`, result);
+    console.log("[Email] Verification email sent successfully to:", data.memberEmail, "Result:", JSON.stringify(result));
     return true;
-  } catch (error) {
-    console.error("Failed to send verification email:", error);
+  } catch (error: any) {
+    console.error("[Email] Failed to send verification email:", error?.message || error);
+    console.error("[Email] Full error:", JSON.stringify(error, null, 2));
     return false;
   }
 }
