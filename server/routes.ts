@@ -773,11 +773,14 @@ export async function registerRoutes(
 
   // Get Square configuration for frontend
   app.get("/api/square/config", async (req, res) => {
+    const applicationId = getSquareApplicationId();
+    // Detect sandbox mode by checking if Application ID starts with "sandbox-"
+    const isSandbox = applicationId.startsWith("sandbox-");
     res.json({
-      applicationId: getSquareApplicationId(),
+      applicationId,
       locationId: getSquareLocationId(),
       isConfigured: isSquareConfigured(),
-      sandboxMode: process.env.NODE_ENV !== "production",
+      sandboxMode: isSandbox,
     });
   });
 
