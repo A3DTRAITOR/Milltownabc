@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format, startOfDay, startOfWeek, startOfMonth, startOfYear, isAfter, subMonths } from "date-fns";
-import { ClipboardList, CheckCircle, XCircle, PoundSterling, TrendingUp, Calendar, AlertCircle, Download, FileText, Building2 } from "lucide-react";
+import { ClipboardList, CheckCircle, XCircle, PoundSterling, TrendingUp, Calendar, AlertCircle, Download, FileText, Building2, Gift, CreditCard, Banknote } from "lucide-react";
 
 interface Booking {
   id: string;
@@ -30,6 +30,9 @@ interface Booking {
   classId: string;
   status: string;
   bookedAt: string;
+  isFreeSession?: boolean;
+  paymentMethod?: string;
+  price?: string;
   member?: {
     name: string;
     email: string;
@@ -117,6 +120,21 @@ export default function AdminBookings() {
   const financeGross = financeConfirmed.length * SESSION_PRICE;
   const financeRefunds = financeCancelled.length * SESSION_PRICE;
 
+  // Payment type breakdowns
+  const freeSessionBookings = allBookings.filter(b => b.isFreeSession === true);
+  const paidOnlineBookings = allBookings.filter(b => !b.isFreeSession && b.paymentMethod === "card");
+  const cashBookings = allBookings.filter(b => !b.isFreeSession && b.paymentMethod === "cash");
+  
+  // Pending cash (awaiting payment at reception)
+  const pendingCashBookings = cashBookings.filter(b => b.status === "pending_cash");
+  const confirmedCashBookings = cashBookings.filter(b => b.status === "confirmed");
+
+  const getPaymentTypeLabel = (booking: Booking) => {
+    if (booking.isFreeSession) return "Free (1st Session)";
+    if (booking.paymentMethod === "cash") return "Cash";
+    return "Card (Online)";
+  };
+
   const exportToCSV = () => {
     const headers = [
       "Transaction Date",
@@ -194,6 +212,7 @@ export default function AdminBookings() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="bookings" data-testid="tab-bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="payments" data-testid="tab-payments">Payment Types</TabsTrigger>
             <TabsTrigger value="finance" data-testid="tab-finance">Financial Summary</TabsTrigger>
           </TabsList>
 
@@ -328,6 +347,209 @@ export default function AdminBookings() {
                 </Table>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-6 mt-6">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-green-500/10 p-2 text-green-600">
+                    <Gift className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{freeSessionBookings.length}</p>
+                    <p className="text-sm text-muted-foreground">Free Sessions</p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-blue-500/10 p-2 text-blue-600">
+                    <CreditCard className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{paidOnlineBookings.length}</p>
+                    <p className="text-sm text-muted-foreground">Paid Online (Card)</p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-amber-500/10 p-2 text-amber-600">
+                    <Banknote className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{cashBookings.length}</p>
+                    <p className="text-sm text-muted-foreground">Cash Payments</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {pendingCashBookings.length > 0 && (
+              <Card className="p-4 border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-amber-800 dark:text-amber-200">
+                      {pendingCashBookings.length} Pending Cash Payment{pendingCashBookings.length !== 1 ? 's' : ''}
+                    </p>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      These members have booked but need to pay £5 cash at reception before their session.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            <div className="space-y-6">
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Gift className="h-5 w-5 text-green-600" />
+                  Free Sessions (First Session)
+                </h3>
+                {freeSessionBookings.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-4">No free session bookings yet.</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Member</TableHead>
+                        <TableHead>Class</TableHead>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Booked</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {freeSessionBookings.map((booking) => (
+                        <TableRow key={booking.id} data-testid={`row-free-${booking.id}`}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{booking.member?.name || "Unknown"}</p>
+                              <p className="text-xs text-muted-foreground">{booking.member?.email}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>{booking.class?.title || "Unknown"}</TableCell>
+                          <TableCell>
+                            {booking.class?.date && (
+                              <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right text-sm text-muted-foreground">
+                            {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-blue-600" />
+                  Paid Online (Card)
+                </h3>
+                {paidOnlineBookings.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-4">No online card payments yet.</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Member</TableHead>
+                        <TableHead>Class</TableHead>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Booked</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paidOnlineBookings.map((booking) => (
+                        <TableRow key={booking.id} data-testid={`row-card-${booking.id}`}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{booking.member?.name || "Unknown"}</p>
+                              <p className="text-xs text-muted-foreground">{booking.member?.email}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>{booking.class?.title || "Unknown"}</TableCell>
+                          <TableCell>
+                            {booking.class?.date && (
+                              <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium">£{booking.price || "5.00"}</TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right text-sm text-muted-foreground">
+                            {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Banknote className="h-5 w-5 text-amber-600" />
+                  Cash Payments
+                </h3>
+                {cashBookings.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-4">No cash payment bookings yet.</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Member</TableHead>
+                        <TableHead>Class</TableHead>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Booked</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {cashBookings.map((booking) => (
+                        <TableRow key={booking.id} data-testid={`row-cash-${booking.id}`}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{booking.member?.name || "Unknown"}</p>
+                              <p className="text-xs text-muted-foreground">{booking.member?.email}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>{booking.class?.title || "Unknown"}</TableCell>
+                          <TableCell>
+                            {booking.class?.date && (
+                              <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium">£{booking.price || "5.00"}</TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={booking.status === "pending_cash" ? "outline" : getStatusVariant(booking.status)}
+                              className={booking.status === "pending_cash" ? "border-amber-500 text-amber-600" : ""}
+                            >
+                              {booking.status === "pending_cash" ? "Awaiting Payment" : booking.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right text-sm text-muted-foreground">
+                            {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="finance" className="space-y-6 mt-6">

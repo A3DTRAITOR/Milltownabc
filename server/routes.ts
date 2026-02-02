@@ -836,6 +836,36 @@ export async function registerRoutes(
     }
   });
 
+  // Admin: Get all bookings with member/class details and payment info
+  app.get("/api/admin/bookings", isAdmin, async (req, res) => {
+    try {
+      const allBookings = await storage.getAllBookings();
+      
+      // Get member and class details for each booking
+      const bookingsWithDetails = await Promise.all(
+        allBookings.map(async (booking) => {
+          const member = await storage.getMemberById(booking.memberId);
+          const boxingClass = await storage.getClass(booking.classId);
+          return {
+            ...booking,
+            member: member ? { name: member.name, email: member.email } : null,
+            class: boxingClass ? { 
+              title: boxingClass.title, 
+              date: boxingClass.date, 
+              time: boxingClass.time,
+              classType: boxingClass.classType
+            } : null,
+          };
+        })
+      );
+
+      res.json(bookingsWithDetails);
+    } catch (error) {
+      console.error("Error fetching all bookings:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
   // Admin: Get all pending bookings
   app.get("/api/admin/pending-bookings", isAdmin, async (req, res) => {
     try {
