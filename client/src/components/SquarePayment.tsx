@@ -37,7 +37,7 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
         const configRes = await fetch("/api/square/config");
         const config = await configRes.json();
 
-        if (!config.configured) {
+        if (!config.isConfigured) {
           if (mounted) {
             setError("Payment system not configured. Please contact support.");
             setLoading(false);
@@ -47,7 +47,7 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
 
         if (!window.Square) {
           const script = document.createElement("script");
-          script.src = config.environment === "sandbox"
+          script.src = config.sandboxMode
             ? "https://sandbox.web.squarecdn.com/v1/square.js"
             : "https://web.squarecdn.com/v1/square.js";
           script.async = true;
