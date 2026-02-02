@@ -24,6 +24,19 @@ export const members = pgTable("members", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Class templates for recurring weekly sessions
+export const classTemplates = pgTable("class_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  dayOfWeek: integer("day_of_week").notNull(), // 0=Sunday, 1=Monday, etc.
+  time: varchar("time", { length: 10 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  classType: varchar("class_type", { length: 100 }).notNull(),
+  duration: integer("duration").default(60),
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Boxing classes/sessions
 export const boxingClasses = pgTable("boxing_classes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -59,6 +72,7 @@ export const bookings = pgTable("bookings", {
 export const insertMemberSchema = createInsertSchema(members).omit({ id: true, createdAt: true, squareCustomerId: true, emailVerificationToken: true, emailVerified: true });
 export const insertBoxingClassSchema = createInsertSchema(boxingClasses).omit({ id: true, createdAt: true, bookedCount: true });
 export const insertBookingSchema = createInsertSchema(bookings).omit({ id: true, bookedAt: true });
+export const insertClassTemplateSchema = createInsertSchema(classTemplates).omit({ id: true, createdAt: true });
 
 export type InsertMember = z.infer<typeof insertMemberSchema>;
 export type Member = typeof members.$inferSelect;
@@ -66,6 +80,8 @@ export type InsertBoxingClass = z.infer<typeof insertBoxingClassSchema>;
 export type BoxingClass = typeof boxingClasses.$inferSelect;
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
+export type InsertClassTemplate = z.infer<typeof insertClassTemplateSchema>;
+export type ClassTemplate = typeof classTemplates.$inferSelect;
 
 export const siteContent = pgTable("site_content", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

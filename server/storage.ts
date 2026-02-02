@@ -1,11 +1,12 @@
 import { 
-  siteContent, blogPosts, mediaFiles, members, boxingClasses, bookings,
+  siteContent, blogPosts, mediaFiles, members, boxingClasses, bookings, classTemplates,
   type SiteContent, type InsertSiteContent,
   type BlogPost, type InsertBlogPost,
   type MediaFile, type InsertMediaFile,
   type Member, type InsertMember,
   type BoxingClass, type InsertBoxingClass,
-  type Booking, type InsertBooking
+  type Booking, type InsertBooking,
+  type ClassTemplate, type InsertClassTemplate
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, sql, desc } from "drizzle-orm";
@@ -53,6 +54,14 @@ export interface IStorage {
   updateBooking(id: string, data: Partial<InsertBooking>): Promise<Booking | undefined>;
   cancelBooking(id: string): Promise<boolean>;
   getAllBookings(): Promise<Booking[]>;
+
+  // Class template methods
+  getAllClassTemplates(): Promise<ClassTemplate[]>;
+  getActiveClassTemplates(): Promise<ClassTemplate[]>;
+  getClassTemplate(id: string): Promise<ClassTemplate | undefined>;
+  createClassTemplate(data: InsertClassTemplate): Promise<ClassTemplate>;
+  updateClassTemplate(id: string, data: Partial<InsertClassTemplate>): Promise<ClassTemplate | undefined>;
+  deleteClassTemplate(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -261,6 +270,37 @@ export class DatabaseStorage implements IStorage {
 
   async getAllBookings(): Promise<Booking[]> {
     return db.select().from(bookings).orderBy(desc(bookings.bookedAt));
+  }
+
+  // Class template methods
+  async getAllClassTemplates(): Promise<ClassTemplate[]> {
+    return db.select().from(classTemplates).orderBy(classTemplates.dayOfWeek, classTemplates.time);
+  }
+
+  async getActiveClassTemplates(): Promise<ClassTemplate[]> {
+    return db.select().from(classTemplates)
+      .where(eq(classTemplates.isActive, true))
+      .orderBy(classTemplates.dayOfWeek, classTemplates.time);
+  }
+
+  async getClassTemplate(id: string): Promise<ClassTemplate | undefined> {
+    const [template] = await db.select().from(classTemplates).where(eq(classTemplates.id, id));
+    return template || undefined;
+  }
+
+  async createClassTemplate(data: InsertClassTemplate): Promise<ClassTemplate> {
+    const [template] = await db.insert(classTemplates).values(data).returning();
+    return template;
+  }
+
+  async updateClassTemplate(id: string, data: Partial<InsertClassTemplate>): Promise<ClassTemplate | undefined> {
+    const [template] = await db.update(classTemplates).set(data).where(eq(classTemplates.id, id)).returning();
+    return template || undefined;
+  }
+
+  async deleteClassTemplate(id: string): Promise<boolean> {
+    const result = await db.delete(classTemplates).where(eq(classTemplates.id, id)).returning();
+    return result.length > 0;
   }
 }
 

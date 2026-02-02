@@ -17,6 +17,7 @@ import Sessions from "@/pages/Sessions";
 import Safety from "@/pages/Safety";
 import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/admin/Dashboard";
+import AdminSchedule from "@/pages/admin/Schedule";
 import AdminCalendar from "@/pages/admin/Calendar";
 import AdminContent from "@/pages/admin/Content";
 import AdminMembers from "@/pages/admin/Members";
@@ -53,6 +54,7 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/schedule" component={AdminSchedule} />
       <Route path="/admin/calendar" component={AdminCalendar} />
       <Route path="/admin/content" component={AdminContent} />
       <Route path="/admin/members" component={AdminMembers} />

@@ -351,21 +351,35 @@ export async function registerRoutes(
     }
   });
 
-  // Class schedule templates - recurring weekly classes
-  const classTemplates = [
+  // Default class templates - seeded into database on first run
+  const defaultTemplates = [
     { dayOfWeek: 1, time: "17:30", title: "Beginners Class", classType: "beginners", duration: 60, description: "Perfect for those new to boxing. Learn fundamentals, technique, and fitness." },
     { dayOfWeek: 1, time: "18:45", title: "Senior & Carded Boxers", classType: "senior", duration: 135, description: "Advanced training for experienced and carded boxers." },
     { dayOfWeek: 3, time: "17:30", title: "Open Class Training", classType: "open", duration: 60, description: "Open training session for all experience levels." },
     { dayOfWeek: 6, time: "10:00", title: "Open Class Training", classType: "open", duration: 60, description: "Weekend open training session for all experience levels." },
   ];
 
-  // Generate classes for the next N weeks
-  async function generateWeeklyClasses(weeksAhead: number = 8) {
+  // Seed default templates if none exist
+  async function seedClassTemplates() {
+    const existingTemplates = await storage.getAllClassTemplates();
+    if (existingTemplates.length === 0) {
+      for (const template of defaultTemplates) {
+        await storage.createClassTemplate(template);
+      }
+      console.log("[Schedule] Seeded default class templates");
+    }
+  }
+
+  // Generate classes for the next N weeks (default: 2 weeks to reduce clutter)
+  async function generateWeeklyClasses(weeksAhead: number = 2) {
+    const templates = await storage.getActiveClassTemplates();
+    if (templates.length === 0) return;
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
     for (let week = 0; week < weeksAhead; week++) {
-      for (const template of classTemplates) {
+      for (const template of templates) {
         const classDate = new Date(today);
         // Find the next occurrence of this day of week
         const currentDay = classDate.getDay();
@@ -382,11 +396,11 @@ export async function registerRoutes(
         if (!exists) {
           await storage.createClass({
             title: template.title,
-            description: template.description,
+            description: template.description || "",
             classType: template.classType,
             date: dateStr,
             time: template.time,
-            duration: template.duration,
+            duration: template.duration || 60,
             capacity: 12,
             price: "5.00",
             isActive: true,
@@ -411,21 +425,67 @@ export async function registerRoutes(
     }
   }
 
-  // Generate classes on server start (cleanup first)
-  cleanupIncorrectClasses().then(() => generateWeeklyClasses(8)).catch(console.error);
+  // Generate classes on server start (seed templates, cleanup, then generate 2 weeks)
+  seedClassTemplates()
+    .then(() => cleanupIncorrectClasses())
+    .then(() => generateWeeklyClasses(2))
+    .catch(console.error);
 
   // Get all upcoming classes
   app.get("/api/classes", async (_req, res) => {
     try {
-      // Cleanup incorrect 17:45 senior classes first
-      await cleanupIncorrectClasses();
-      // Regenerate classes to ensure we always have 8 weeks ahead
-      await generateWeeklyClasses(8);
+      // Regenerate classes to ensure we always have 2 weeks ahead
+      await generateWeeklyClasses(2);
       const classes = await storage.getUpcomingClasses();
       res.json(classes);
     } catch (error) {
       console.error("Error fetching classes:", error);
       res.status(500).json({ message: "Failed to fetch classes" });
+    }
+  });
+
+  // Admin: Get class templates
+  app.get("/api/admin/class-templates", isAdmin, async (_req, res) => {
+    try {
+      const templates = await storage.getAllClassTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching class templates:", error);
+      res.status(500).json({ message: "Failed to fetch templates" });
+    }
+  });
+
+  // Admin: Toggle class template active status
+  app.patch("/api/admin/class-templates/:id/toggle", isAdmin, async (req, res) => {
+    try {
+      const template = await storage.getClassTemplate(req.params.id);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+      const updated = await storage.updateClassTemplate(req.params.id, {
+        isActive: !template.isActive
+      });
+      res.json(updated);
+    } catch (error) {
+      console.error("Error toggling template:", error);
+      res.status(500).json({ message: "Failed to toggle template" });
+    }
+  });
+
+  // Admin: Update class template
+  app.patch("/api/admin/class-templates/:id", isAdmin, async (req, res) => {
+    try {
+      const { title, time, duration, description, isActive } = req.body;
+      const updated = await storage.updateClassTemplate(req.params.id, {
+        title, time, duration, description, isActive
+      });
+      if (!updated) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating template:", error);
+      res.status(500).json({ message: "Failed to update template" });
     }
   });
 
