@@ -1,10 +1,24 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
-import { User, Mail, Phone, Calendar, AlertTriangle } from "lucide-react";
+import { User, Mail, Phone, Calendar, AlertTriangle, Trash2 } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface Member {
   id: string;
@@ -20,9 +34,44 @@ interface Member {
 }
 
 export default function AdminMembers() {
+  const { toast } = useToast();
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+
   const { data: members, isLoading } = useQuery<Member[]>({
     queryKey: ["/api/admin/members"],
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      return apiRequest("DELETE", `/api/admin/members/${memberId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/members"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      toast({ 
+        title: "Member deleted", 
+        description: "The member has been removed. Payment records have been retained with personal info redacted." 
+      });
+      setMemberToDelete(null);
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Delete failed", 
+        description: error.message || "Failed to delete member", 
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const handleDeleteClick = (member: Member) => {
+    setMemberToDelete(member);
+  };
+
+  const confirmDelete = () => {
+    if (memberToDelete) {
+      deleteMutation.mutate(memberToDelete.id);
+    }
+  };
 
   return (
     <AdminLayout title="Members">
@@ -48,12 +97,12 @@ export default function AdminMembers() {
             {members.map((member) => (
               <Card key={member.id} className="p-4" data-testid={`card-member-${member.id}`}>
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="rounded-full bg-primary/10 p-3 text-primary">
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <div className="rounded-full bg-primary/10 p-3 text-primary shrink-0">
                       <User className="h-5 w-5" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h3 className="font-semibold text-foreground" data-testid={`text-member-name-${member.id}`}>
                           {member.name}
                         </h3>
@@ -96,6 +145,18 @@ export default function AdminMembers() {
                       )}
                     </div>
                   </div>
+                  <div className="shrink-0">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleDeleteClick(member)}
+                      disabled={member.isAdmin}
+                      title={member.isAdmin ? "Cannot delete admin accounts" : "Delete member"}
+                      data-testid={`button-delete-member-${member.id}`}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
               </Card>
             ))}
@@ -106,6 +167,34 @@ export default function AdminMembers() {
           Total: {members?.length || 0} members
         </div>
       </div>
+
+      <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Member</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                Are you sure you want to delete <strong>{memberToDelete?.name}</strong>?
+              </p>
+              <p className="text-sm">
+                This will permanently remove their account and personal information. 
+                Any paid session records will be kept for tax purposes, but with personal details hidden.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete Member"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }

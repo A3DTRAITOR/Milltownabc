@@ -566,6 +566,33 @@ export function registerMemberRoutes(app: Express) {
     }
   });
 
+  // Admin: Delete a member (preserves paid booking records with redacted info)
+  app.delete("/api/admin/members/:id", isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const member = await storage.getMemberById(id);
+      if (!member) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+      
+      // Prevent admin from deleting themselves
+      if (req.session.memberId === id) {
+        return res.status(400).json({ message: "Cannot delete your own account from admin panel" });
+      }
+      
+      const deleted = await storage.deleteMember(id);
+      if (!deleted) {
+        return res.status(500).json({ message: "Failed to delete member" });
+      }
+      
+      res.json({ message: "Member deleted successfully. Paid session records have been retained with personal information redacted." });
+    } catch (error) {
+      console.error("Delete member error:", error);
+      res.status(500).json({ message: "Failed to delete member" });
+    }
+  });
+
   // Admin: Get all bookings with related class and member data
   app.get("/api/admin/bookings", isAdmin, async (_req, res) => {
     try {
@@ -584,7 +611,7 @@ export function registerMemberRoutes(app: Express) {
           time: classMap.get(b.classId)!.time,
           classType: classMap.get(b.classId)!.classType,
         } : undefined,
-        member: memberMap.get(b.memberId),
+        member: b.memberId ? memberMap.get(b.memberId) : undefined,
       }));
       
       res.json(enrichedBookings);
