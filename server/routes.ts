@@ -489,6 +489,49 @@ export async function registerRoutes(
     }
   });
 
+  // Admin: Create class template
+  app.post("/api/admin/class-templates", isAdmin, async (req, res) => {
+    try {
+      const { dayOfWeek, time, title, classType, duration, description, isActive } = req.body;
+      
+      if (dayOfWeek === undefined || !time || !title || !classType || !duration) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      const template = await storage.createClassTemplate({
+        dayOfWeek: parseInt(dayOfWeek),
+        time,
+        title,
+        classType,
+        duration: parseInt(duration),
+        description: description || null,
+        isActive: isActive !== false
+      });
+      
+      // Generate classes for this new template
+      await generateWeeklyClasses(2);
+      
+      res.status(201).json(template);
+    } catch (error) {
+      console.error("Error creating template:", error);
+      res.status(500).json({ message: "Failed to create template" });
+    }
+  });
+
+  // Admin: Delete class template
+  app.delete("/api/admin/class-templates/:id", isAdmin, async (req, res) => {
+    try {
+      const deleted = await storage.deleteClassTemplate(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+      res.json({ message: "Template deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      res.status(500).json({ message: "Failed to delete template" });
+    }
+  });
+
   // Get single class
   app.get("/api/classes/:id", async (req, res) => {
     try {
