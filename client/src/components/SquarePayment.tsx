@@ -53,21 +53,43 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
           script.async = true;
           
           await new Promise<void>((resolve, reject) => {
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error("Failed to load Square"));
+            const timeout = setTimeout(() => reject(new Error("Square script load timeout")), 15000);
+            script.onload = () => {
+              clearTimeout(timeout);
+              resolve();
+            };
+            script.onerror = () => {
+              clearTimeout(timeout);
+              reject(new Error("Failed to load Square SDK"));
+            };
             document.body.appendChild(script);
           });
         }
 
         if (!mounted) return;
 
+        if (!window.Square) {
+          throw new Error("Square SDK not available");
+        }
+
         payments = window.Square.payments(config.applicationId, config.locationId);
+        
+        if (!payments) {
+          throw new Error("Failed to initialize Square payments");
+        }
+
         cardInstance = await payments.card();
+        
+        if (!cardInstance) {
+          throw new Error("Failed to create card instance");
+        }
         
         if (cardContainerRef.current && mounted) {
           await cardInstance.attach(cardContainerRef.current);
           setCard(cardInstance);
           setLoading(false);
+        } else if (mounted) {
+          throw new Error("Card container not available");
         }
       } catch (err: any) {
         console.error("Square initialization error:", err);
@@ -133,19 +155,21 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
         <p className="text-sm text-muted-foreground">Session fee</p>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-8" data-testid="payment-loading">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      {loading && (
+        <div className="flex items-center justify-center py-4" data-testid="payment-loading">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           <span className="ml-2 text-muted-foreground">Loading payment form...</span>
         </div>
-      ) : (
+      )}
+      
+      <div 
+        ref={cardContainerRef} 
+        className={`min-h-[50px] p-3 border rounded-md bg-background ${loading ? 'hidden' : ''}`}
+        data-testid="square-card-container"
+      />
+      
+      {!loading && (
         <>
-          <div 
-            ref={cardContainerRef} 
-            className="min-h-[50px] p-3 border rounded-md bg-background"
-            data-testid="square-card-container"
-          />
-          
           <p className="text-xs text-muted-foreground text-center">
             Secure payment powered by Square. We accept all major cards.
           </p>
