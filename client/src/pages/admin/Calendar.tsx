@@ -32,10 +32,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Users, Clock, Loader2, Eye, Mail, User } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Clock, Loader2, Eye, Mail, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isWithinInterval, parseISO } from "date-fns";
 import type { BoxingClass } from "@shared/schema";
 
 interface Booking {
@@ -83,13 +83,18 @@ const classTypes = [
   "Advanced",
 ];
 
+const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
 export default function AdminCalendar() {
   const { toast } = useToast();
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<BoxingClass | null>(null);
   const [deleteClass, setDeleteClass] = useState<BoxingClass | null>(null);
   const [attendeesClass, setAttendeesClass] = useState<BoxingClass | null>(null);
   const [formData, setFormData] = useState<ClassFormData>(defaultFormData);
+
+  const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn: 1 });
 
   const { data: classes, isLoading } = useQuery<BoxingClass[]>({
     queryKey: ["/api/admin/classes"],
@@ -101,6 +106,18 @@ export default function AdminCalendar() {
 
   const getAttendeesForClass = (classId: string) => {
     return (allBookings || []).filter(b => b.classId === classId && b.status === "confirmed");
+  };
+
+  const goToPreviousWeek = () => {
+    setCurrentWeekStart(subWeeks(currentWeekStart, 1));
+  };
+
+  const goToNextWeek = () => {
+    setCurrentWeekStart(addWeeks(currentWeekStart, 1));
+  };
+
+  const goToCurrentWeek = () => {
+    setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
   };
 
   const createMutation = useMutation({
@@ -185,11 +202,28 @@ export default function AdminCalendar() {
     }
   };
 
-  const sortedClasses = classes?.sort((a, b) => {
+  const weekClasses = (classes || []).filter((boxingClass) => {
+    const classDate = parseISO(boxingClass.date);
+    return isWithinInterval(classDate, { start: currentWeekStart, end: weekEnd });
+  }).sort((a, b) => {
     const dateA = new Date(a.date + "T" + a.time);
     const dateB = new Date(b.date + "T" + b.time);
     return dateA.getTime() - dateB.getTime();
-  }) || [];
+  });
+
+  const groupedByDay = dayNames.map((_, index) => {
+    const dayDate = new Date(currentWeekStart);
+    dayDate.setDate(dayDate.getDate() + index);
+    const dateStr = format(dayDate, "yyyy-MM-dd");
+    return {
+      date: dayDate,
+      dateStr,
+      dayName: dayNames[index],
+      classes: weekClasses.filter(c => c.date === dateStr),
+    };
+  });
+
+  const isCurrentWeek = startOfWeek(new Date(), { weekStartsOn: 1 }).getTime() === currentWeekStart.getTime();
 
   return (
     <AdminLayout title="Calendar">
@@ -325,69 +359,102 @@ export default function AdminCalendar() {
           </Dialog>
         </div>
 
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-24 w-full" />
-            ))}
-          </div>
-        ) : sortedClasses.length === 0 ? (
-          <Card className="p-12 text-center">
-            <p className="text-muted-foreground mb-4">No classes scheduled yet.</p>
-            <Button onClick={() => setIsDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Class
+        <Card className="p-4">
+          <div className="flex items-center justify-between mb-6">
+            <Button variant="outline" size="icon" onClick={goToPreviousWeek} data-testid="button-prev-week">
+              <ChevronLeft className="h-4 w-4" />
             </Button>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {sortedClasses.map((boxingClass) => (
-              <Card key={boxingClass.id} className="p-4" data-testid={`card-class-${boxingClass.id}`}>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-foreground">{boxingClass.title}</h3>
-                      <Badge variant="secondary">{boxingClass.classType}</Badge>
-                      {!boxingClass.isActive && <Badge variant="outline">Inactive</Badge>}
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-foreground">
+                {format(currentWeekStart, "d MMM")} - {format(weekEnd, "d MMM yyyy")}
+              </h3>
+              {!isCurrentWeek && (
+                <Button variant="ghost" size="sm" onClick={goToCurrentWeek} className="text-xs" data-testid="button-today">
+                  Back to this week
+                </Button>
+              )}
+            </div>
+            <Button variant="outline" size="icon" onClick={goToNextWeek} data-testid="button-next-week">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {isLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {groupedByDay.map(({ date, dateStr, dayName, classes: dayClasses }) => {
+                const isToday = format(new Date(), "yyyy-MM-dd") === dateStr;
+                const isPast = new Date(dateStr) < new Date(format(new Date(), "yyyy-MM-dd"));
+                
+                return (
+                  <div key={dateStr} className={`border rounded-lg ${isToday ? "border-primary bg-primary/5" : isPast ? "opacity-60" : ""}`}>
+                    <div className={`px-4 py-2 border-b ${isToday ? "bg-primary/10" : "bg-muted/30"}`}>
+                      <span className="font-semibold text-foreground">{dayName}</span>
+                      <span className="ml-2 text-sm text-muted-foreground">{format(date, "d MMM")}</span>
+                      {isToday && <Badge className="ml-2" variant="default">Today</Badge>}
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{format(new Date(boxingClass.date), "EEE, MMM d, yyyy")}</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        {boxingClass.time} ({boxingClass.duration} min)
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3.5 w-3.5" />
-                        {boxingClass.bookedCount || 0}/{boxingClass.capacity} booked
-                      </span>
-                      <span className="font-medium text-primary">£{boxingClass.price}</span>
-                    </div>
-                    {boxingClass.description && (
-                      <p className="text-sm text-muted-foreground mt-2">{boxingClass.description}</p>
+                    
+                    {dayClasses.length === 0 ? (
+                      <div className="px-4 py-6 text-center text-muted-foreground text-sm">
+                        No classes scheduled
+                      </div>
+                    ) : (
+                      <div className="divide-y">
+                        {dayClasses.map((boxingClass) => (
+                          <div key={boxingClass.id} className="p-4 flex items-start justify-between gap-4" data-testid={`card-class-${boxingClass.id}`}>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <h4 className="font-semibold text-foreground">{boxingClass.title}</h4>
+                                <Badge variant="secondary">{boxingClass.classType}</Badge>
+                                {!boxingClass.isActive && <Badge variant="outline">Inactive</Badge>}
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3.5 w-3.5" />
+                                  {boxingClass.time} ({boxingClass.duration} min)
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Users className="h-3.5 w-3.5" />
+                                  {boxingClass.bookedCount || 0}/{boxingClass.capacity} booked
+                                </span>
+                                <span className="font-medium text-primary">£{boxingClass.price}</span>
+                              </div>
+                              {boxingClass.description && (
+                                <p className="text-sm text-muted-foreground mt-2">{boxingClass.description}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => setAttendeesClass(boxingClass)} 
+                                data-testid={`button-attendees-${boxingClass.id}`}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                Attendees
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => openEditDialog(boxingClass)} data-testid={`button-edit-${boxingClass.id}`}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => setDeleteClass(boxingClass)} data-testid={`button-delete-${boxingClass.id}`}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setAttendeesClass(boxingClass)} 
-                      data-testid={`button-attendees-${boxingClass.id}`}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Attendees
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(boxingClass)} data-testid={`button-edit-${boxingClass.id}`}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setDeleteClass(boxingClass)} data-testid={`button-delete-${boxingClass.id}`}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </Card>
 
         <AlertDialog open={!!deleteClass} onOpenChange={() => setDeleteClass(null)}>
           <AlertDialogContent>
