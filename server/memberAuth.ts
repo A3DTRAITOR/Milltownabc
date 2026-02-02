@@ -194,6 +194,41 @@ export function registerMemberRoutes(app: Express) {
     });
   });
 
+  // Delete member account
+  app.delete("/api/members/me", isMemberAuthenticated, async (req, res) => {
+    try {
+      const { password } = req.body;
+      if (!password) {
+        return res.status(400).json({ message: "Password is required to delete account" });
+      }
+
+      const member = await storage.getMemberById(req.session.memberId!);
+      if (!member) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+
+      const validPassword = await bcrypt.compare(password, member.passwordHash);
+      if (!validPassword) {
+        return res.status(401).json({ message: "Incorrect password" });
+      }
+
+      const deleted = await storage.deleteMember(member.id);
+      if (!deleted) {
+        return res.status(500).json({ message: "Failed to delete account" });
+      }
+
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Session destroy error:", err);
+        }
+        res.json({ message: "Account deleted successfully" });
+      });
+    } catch (error) {
+      console.error("Delete account error:", error);
+      res.status(500).json({ message: "Failed to delete account" });
+    }
+  });
+
   // Get current member
   app.get("/api/members/me", isMemberAuthenticated, async (req, res) => {
     try {

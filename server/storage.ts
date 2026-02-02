@@ -33,6 +33,7 @@ export interface IStorage {
   createMember(data: InsertMember): Promise<Member>;
   updateMember(id: string, data: Partial<Member>): Promise<Member | undefined>;
   getAllMembers(): Promise<Member[]>;
+  deleteMember(id: string): Promise<boolean>;
 
   // Boxing class methods
   getAllClasses(): Promise<BoxingClass[]>;
@@ -161,6 +162,12 @@ export class DatabaseStorage implements IStorage {
 
   async getAllMembers(): Promise<Member[]> {
     return db.select().from(members).orderBy(desc(members.createdAt));
+  }
+
+  async deleteMember(id: string): Promise<boolean> {
+    await db.delete(bookings).where(eq(bookings.memberId, id));
+    const result = await db.delete(members).where(eq(members.id, id)).returning();
+    return result.length > 0;
   }
 
   // Boxing class methods

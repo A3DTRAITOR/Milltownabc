@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -6,9 +7,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Calendar, Clock, User, LogOut, X, Loader2 } from "lucide-react";
+import { Calendar, Clock, User, LogOut, X, Loader2, Trash2, AlertTriangle } from "lucide-react";
 import { format, parseISO, isPast } from "date-fns";
 import type { Booking, BoxingClass } from "@shared/schema";
 
@@ -25,6 +28,8 @@ interface MemberData {
 export default function Dashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
 
   const { data: member, isLoading: memberLoading, isError } = useQuery<MemberData>({
     queryKey: ["/api/members/me"],
@@ -60,6 +65,28 @@ export default function Dashboard() {
       toast({ title: "Error", description: "Failed to cancel booking.", variant: "destructive" });
     },
   });
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: async (password: string) => {
+      await apiRequest("DELETE", "/api/members/me", { password });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/members/me"] });
+      toast({ title: "Account deleted", description: "Your account and all data have been removed." });
+      setLocation("/");
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to delete account.", variant: "destructive" });
+    },
+  });
+
+  const handleDeleteAccount = () => {
+    if (!deletePassword) {
+      toast({ title: "Error", description: "Please enter your password to confirm.", variant: "destructive" });
+      return;
+    }
+    deleteAccountMutation.mutate(deletePassword);
+  };
 
   // Redirect if not logged in
   if (isError) {
@@ -238,6 +265,85 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+
+          {/* Delete Account Section */}
+          <div className="pt-8 border-t">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Account Settings</h2>
+            
+            {!showDeleteConfirm ? (
+              <Card className="p-6 border-destructive/20">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="font-medium text-foreground">Delete Account</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Permanently remove your account and all associated data
+                    </p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    data-testid="button-show-delete"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Account
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-6 border-destructive">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 p-3 bg-destructive/10 rounded-md">
+                    <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-medium text-destructive">This action cannot be undone</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Your account, booking history, and all personal information will be permanently deleted.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="delete-password">Enter your password to confirm</Label>
+                    <Input
+                      id="delete-password"
+                      type="password"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      placeholder="Your password"
+                      data-testid="input-delete-password"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setShowDeleteConfirm(false);
+                        setDeletePassword("");
+                      }}
+                      data-testid="button-cancel-delete"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      onClick={handleDeleteAccount}
+                      disabled={deleteAccountMutation.isPending || !deletePassword}
+                      data-testid="button-confirm-delete"
+                    >
+                      {deleteAccountMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="mr-2 h-4 w-4" />
+                      )}
+                      Delete My Account
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            )}
+          </div>
         </div>
       </section>
     </PublicLayout>
