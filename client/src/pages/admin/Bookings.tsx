@@ -99,12 +99,18 @@ export default function AdminBookings() {
     }
   };
 
-  const todayRevenue = confirmedBookings.filter(b => isAfter(new Date(b.bookedAt), todayStart)).length * SESSION_PRICE;
-  const weekRevenue = confirmedBookings.filter(b => isAfter(new Date(b.bookedAt), weekStart)).length * SESSION_PRICE;
-  const monthRevenue = confirmedBookings.filter(b => isAfter(new Date(b.bookedAt), monthStart)).length * SESSION_PRICE;
-  const yearRevenue = confirmedBookings.filter(b => isAfter(new Date(b.bookedAt), yearStart)).length * SESSION_PRICE;
-  const totalRevenue = confirmedBookings.length * SESSION_PRICE;
-  const refundedAmount = cancelledBookings.length * SESSION_PRICE;
+  // Revenue calculations - exclude free sessions
+  const paidConfirmedBookings = confirmedBookings.filter(b => !b.isFreeSession);
+  const todayRevenue = paidConfirmedBookings.filter(b => isAfter(new Date(b.bookedAt), todayStart)).reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+  const weekRevenue = paidConfirmedBookings.filter(b => isAfter(new Date(b.bookedAt), weekStart)).reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+  const monthRevenue = paidConfirmedBookings.filter(b => isAfter(new Date(b.bookedAt), monthStart)).reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+  const yearRevenue = paidConfirmedBookings.filter(b => isAfter(new Date(b.bookedAt), yearStart)).reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+  const totalRevenue = paidConfirmedBookings.reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+  const refundedAmount = cancelledBookings.filter(b => !b.isFreeSession).reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+  
+  // Free session tracking
+  const confirmedFreeSessionsCount = confirmedBookings.filter(b => b.isFreeSession).length;
+  const freeSessionValue = confirmedFreeSessionsCount * SESSION_PRICE; // Notional value for records
   
   const filteredBookings = allBookings
     .filter(b => statusFilter === "all" || b.status === statusFilter)
@@ -117,8 +123,11 @@ export default function AdminBookings() {
 
   const financeConfirmed = financeBookings.filter(b => b.status === "confirmed");
   const financeCancelled = financeBookings.filter(b => b.status === "cancelled");
-  const financeGross = financeConfirmed.length * SESSION_PRICE;
-  const financeRefunds = financeCancelled.length * SESSION_PRICE;
+  const financePaidConfirmed = financeConfirmed.filter(b => !b.isFreeSession);
+  const financeFreeConfirmed = financeConfirmed.filter(b => b.isFreeSession);
+  const financeGross = financePaidConfirmed.reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+  const financeRefunds = financeCancelled.filter(b => !b.isFreeSession).reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+  const financeFreeValue = financeFreeConfirmed.length * SESSION_PRICE; // Notional value
 
   // Payment type breakdowns
   const freeSessionBookings = allBookings.filter(b => b.isFreeSession === true);
@@ -151,20 +160,24 @@ export default function AdminBookings() {
       "Payment Method"
     ];
 
-    const rows = financeBookings.map(booking => [
-      format(new Date(booking.bookedAt), "dd/MM/yyyy HH:mm:ss"),
-      booking.id,
-      booking.member?.name || "Unknown",
-      booking.member?.email || "",
-      `Boxing class: ${booking.class?.title || "Session"}`,
-      booking.class?.date || "",
-      booking.class?.time || "",
-      booking.status,
-      booking.status === "cancelled" ? `-${SESSION_PRICE.toFixed(2)}` : SESSION_PRICE.toFixed(2),
-      "0.00",
-      booking.status === "cancelled" ? `-${SESSION_PRICE.toFixed(2)}` : SESSION_PRICE.toFixed(2),
-      "Online Card Payment"
-    ]);
+    const rows = financeBookings.map(booking => {
+      const amount = booking.isFreeSession ? 0 : parseFloat(booking.price || "5.00");
+      const paymentMethod = booking.isFreeSession ? "Free First Session" : (booking.paymentMethod === "cash" ? "Cash" : "Card");
+      return [
+        format(new Date(booking.bookedAt), "dd/MM/yyyy HH:mm:ss"),
+        booking.id,
+        booking.member?.name || "Unknown",
+        booking.member?.email || "",
+        `Boxing class: ${booking.class?.title || "Session"}${booking.isFreeSession ? " (FREE)" : ""}`,
+        booking.class?.date || "",
+        booking.class?.time || "",
+        booking.status,
+        booking.status === "cancelled" ? `-${amount.toFixed(2)}` : amount.toFixed(2),
+        "0.00",
+        booking.status === "cancelled" ? `-${amount.toFixed(2)}` : amount.toFixed(2),
+        paymentMethod
+      ];
+    });
 
     const summaryRows = [
       [],
@@ -174,11 +187,16 @@ export default function AdminBookings() {
       ["Generated", format(new Date(), "dd/MM/yyyy HH:mm:ss")],
       [],
       ["Total Confirmed Bookings", financeConfirmed.length.toString()],
-      ["Gross Revenue", `£${financeGross.toFixed(2)}`],
+      ["- Paid Sessions", financePaidConfirmed.length.toString()],
+      ["- Free First Sessions", financeFreeConfirmed.length.toString()],
+      [],
+      ["Gross Revenue (Paid Sessions)", `£${financeGross.toFixed(2)}`],
+      ["Free Sessions Value (Promotional)", `£${financeFreeValue.toFixed(2)}`],
       ["Cancelled/Refunded", `£${financeRefunds.toFixed(2)}`],
       ["VAT (Not Registered)", "£0.00"],
       ["Net Revenue", `£${financeGross.toFixed(2)}`],
       [],
+      ["Note: Free first sessions are promotional - no revenue recorded"],
       ["Note: VAT not charged - turnover below £90,000 threshold"],
       ["Records retained for HMRC compliance (6 years minimum)"]
     ];
@@ -330,13 +348,20 @@ export default function AdminBookings() {
                         </TableCell>
                         <TableCell>
                           <span className={booking.status === "cancelled" ? "line-through text-muted-foreground" : "font-medium"}>
-                            £{SESSION_PRICE.toFixed(2)}
+                            {booking.isFreeSession ? (
+                              <span className="text-green-600">FREE</span>
+                            ) : (
+                              `£${parseFloat(booking.price || "5.00").toFixed(2)}`
+                            )}
                           </span>
                         </TableCell>
                         <TableCell>
                           <Badge variant={getStatusVariant(booking.status)}>
                             {booking.status}
                           </Badge>
+                          {booking.isFreeSession && (
+                            <Badge variant="outline" className="ml-1 text-xs">1st Session</Badge>
+                          )}
                         </TableCell>
                         <TableCell className="text-right text-sm text-muted-foreground">
                           {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
@@ -645,8 +670,20 @@ export default function AdminBookings() {
               </div>
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-muted-foreground">Confirmed Bookings</span>
-                  <span className="font-medium">{financeConfirmed.length} x £{SESSION_PRICE.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Total Bookings</span>
+                  <span className="font-medium">{financeConfirmed.length}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b pl-4">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" /> Paid Sessions
+                  </span>
+                  <span className="font-medium">{financePaidConfirmed.length} @ £{SESSION_PRICE.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b pl-4">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <Gift className="h-4 w-4 text-green-600" /> Free First Sessions
+                  </span>
+                  <span className="font-medium text-green-600">{financeFreeConfirmed.length} (£0.00)</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b">
                   <span className="text-muted-foreground">Gross Revenue</span>
@@ -703,10 +740,11 @@ export default function AdminBookings() {
                     </TableHeader>
                     <TableBody>
                       {financeBookings.map((booking, index) => {
+                        const bookingAmount = booking.isFreeSession ? 0 : parseFloat(booking.price || "5.00");
                         const runningTotal = financeBookings
                           .slice(index)
-                          .filter(b => b.status === "confirmed")
-                          .length * SESSION_PRICE;
+                          .filter(b => b.status === "confirmed" && !b.isFreeSession)
+                          .reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
                         return (
                           <TableRow key={booking.id}>
                             <TableCell className="text-sm whitespace-nowrap">
@@ -723,6 +761,9 @@ export default function AdminBookings() {
                             </TableCell>
                             <TableCell>
                               Boxing class: {booking.class?.title || "Session"}
+                              {booking.isFreeSession && (
+                                <Badge variant="outline" className="ml-2 text-xs text-green-600">FREE</Badge>
+                              )}
                               {booking.class?.date && (
                                 <span className="text-xs text-muted-foreground ml-1">
                                   ({format(new Date(booking.class.date), "dd/MM/yy")})
@@ -735,10 +776,12 @@ export default function AdminBookings() {
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                              {booking.status === "cancelled" ? (
-                                <span className="text-destructive">-£{SESSION_PRICE.toFixed(2)}</span>
+                              {booking.isFreeSession ? (
+                                <span className="text-muted-foreground">£0.00</span>
+                              ) : booking.status === "cancelled" ? (
+                                <span className="text-destructive">-£{bookingAmount.toFixed(2)}</span>
                               ) : (
-                                <span className="text-green-600">+£{SESSION_PRICE.toFixed(2)}</span>
+                                <span className="text-green-600">+£{bookingAmount.toFixed(2)}</span>
                               )}
                             </TableCell>
                             <TableCell className="text-right font-medium">
