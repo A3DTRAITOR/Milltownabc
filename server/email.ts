@@ -190,6 +190,91 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
   }
 }
 
+interface CancellationEmailData {
+  memberName: string;
+  memberEmail: string;
+  sessionTitle: string;
+  sessionDate: string;
+  sessionTime: string;
+  freeSessionRestored: boolean;
+}
+
+export async function sendCancellationEmail(data: CancellationEmailData): Promise<boolean> {
+  console.log("[Email] Attempting to send cancellation email to:", data.memberEmail);
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #6b7280; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f5f5f5; }
+        .details { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+        .info-box { background: #e0f2fe; border: 1px solid #0ea5e9; padding: 15px; border-radius: 8px; margin: 15px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Booking Cancelled</h1>
+          <p>Mill Town ABC</p>
+        </div>
+        <div class="content">
+          <p>Hi ${data.memberName},</p>
+          <p>Your booking has been cancelled as requested.</p>
+          
+          <div class="details">
+            <h3>Cancelled Session</h3>
+            <p><strong>Class:</strong> ${data.sessionTitle}</p>
+            <p><strong>Date:</strong> ${data.sessionDate}</p>
+            <p><strong>Time:</strong> ${data.sessionTime}</p>
+          </div>
+
+          ${data.freeSessionRestored ? `
+          <div class="info-box">
+            <p><strong>Good news!</strong> Your free first session has been restored. You can use it on your next booking.</p>
+          </div>
+          ` : ''}
+
+          <p>If you'd like to book another session, visit our website to view available classes.</p>
+          
+          <p>Hope to see you soon!</p>
+        </div>
+        <div class="footer">
+          <p>Mill Town ABC<br>
+          Contact: Alex 07565 208193 | Mark 07713 659360<br>
+          Email: Milltownabc@gmail.com</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    console.log("[Email] Getting Resend client for cancellation email...");
+    const { client, fromEmail } = await getResendClient();
+    console.log("[Email] Got client, sending cancellation from:", fromEmail);
+    
+    const result = await client.emails.send({
+      from: fromEmail,
+      replyTo: 'Milltownabc@gmail.com',
+      to: data.memberEmail,
+      subject: `Booking Cancelled - ${data.sessionTitle} on ${data.sessionDate}`,
+      html: htmlContent,
+    });
+    
+    console.log("[Email] Cancellation email sent successfully to:", data.memberEmail, "Result:", JSON.stringify(result));
+    return true;
+  } catch (error: any) {
+    console.error("[Email] Failed to send cancellation email:", error?.message || error);
+    console.error("[Email] Full error:", JSON.stringify(error, null, 2));
+    return false;
+  }
+}
+
 interface VerificationEmailData {
   memberName: string;
   memberEmail: string;

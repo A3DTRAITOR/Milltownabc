@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
 import { registerMemberRoutes, isAdmin } from "./memberAuth";
-import { sendBookingConfirmationEmail, sendVerificationEmail } from "./email";
+import { sendBookingConfirmationEmail, sendVerificationEmail, sendCancellationEmail } from "./email";
 import { checkBookingRateLimit, verifyHCaptcha, logSuspiciousActivity, getSuspiciousActivityLog } from "./antiSpam";
 import { createPayment, isSquareConfigured, getSquareApplicationId, getSquareLocationId } from "./square";
 
@@ -674,6 +674,27 @@ export async function registerRoutes(
           freeSessionRestored = true;
         }
         // If within 1 hour, the free session is forfeited
+      }
+
+      // Send cancellation confirmation email
+      const member = await storage.getMember(memberId);
+      if (member && boxingClass) {
+        const sessionDate = new Date(boxingClass.date + 'T00:00:00');
+        const formattedDate = sessionDate.toLocaleDateString('en-GB', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+
+        sendCancellationEmail({
+          memberName: member.name,
+          memberEmail: member.email,
+          sessionTitle: boxingClass.title,
+          sessionDate: formattedDate,
+          sessionTime: boxingClass.startTime,
+          freeSessionRestored
+        }).catch(err => console.error("[Email] Failed to send cancellation email:", err));
       }
 
       res.json({ 
