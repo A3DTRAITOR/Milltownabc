@@ -87,7 +87,11 @@ export default function AdminBookings() {
     }
   };
 
-  const allBookings = bookings || [];
+  const allBookingsRaw = bookings || [];
+  // Apply deleted member filter to all calculations
+  const allBookings = hideDeletedMembers 
+    ? allBookingsRaw.filter(b => !b.memberDeleted) 
+    : allBookingsRaw;
   const confirmedBookings = allBookings.filter(b => b.status === "confirmed");
   const cancelledBookings = allBookings.filter(b => b.status === "cancelled");
   
@@ -133,7 +137,6 @@ export default function AdminBookings() {
   
   const filteredBookings = allBookings
     .filter(b => statusFilter === "all" || b.status === statusFilter)
-    .filter(b => !hideDeletedMembers || !b.memberDeleted)
     .sort((a, b) => new Date(b.bookedAt).getTime() - new Date(a.bookedAt).getTime());
 
   const financeBookings = useMemo(() => {
