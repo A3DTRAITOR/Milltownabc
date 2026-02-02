@@ -93,11 +93,11 @@ export function isSquareConfigured(): boolean {
 }
 
 export function getSquareApplicationId(): string {
-  return process.env.SQUARE_APPLICATION_ID || "";
+  return (process.env.SQUARE_APPLICATION_ID || "").trim();
 }
 
 export function getSquareLocationId(): string {
-  return process.env.SQUARE_LOCATION_ID || "";
+  return (process.env.SQUARE_LOCATION_ID || "").trim();
 }
 
 export { squareClient };
