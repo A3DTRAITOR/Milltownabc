@@ -88,13 +88,13 @@ export default function AdminContent() {
 
   return (
     <AdminLayout title="Content Editor">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Edit Content</h2>
-            <p className="text-muted-foreground">Update the text on your website pages.</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Edit Content</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Update the text on your website pages.</p>
           </div>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
             <Link href="/">
               <Eye className="h-4 w-4 mr-2" />
               Preview Site
@@ -109,9 +109,9 @@ export default function AdminContent() {
           </div>
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
               {contentSections.map((section) => (
-                <TabsTrigger key={section.key} value={section.key} data-testid={`tab-${section.key}`}>
+                <TabsTrigger key={section.key} value={section.key} className="text-xs sm:text-sm py-2" data-testid={`tab-${section.key}`}>
                   {section.label.replace(" Page", "")}
                   {hasChanges[section.key] && <span className="ml-1 text-primary">*</span>}
                 </TabsTrigger>
@@ -122,9 +122,9 @@ export default function AdminContent() {
               const content = getContentForSection(section.key);
               return (
                 <TabsContent key={section.key} value={section.key}>
-                  <Card className="p-6">
-                    <div className="space-y-6">
-                      <h3 className="text-lg font-semibold text-foreground">{section.label}</h3>
+                  <Card className="p-4 sm:p-6">
+                    <div className="space-y-4 sm:space-y-6">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground">{section.label}</h3>
 
                       {section.fields.map((field) => (
                         <div key={field} className="space-y-2">
