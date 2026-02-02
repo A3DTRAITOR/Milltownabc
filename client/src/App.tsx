@@ -21,6 +21,7 @@ import AdminCalendar from "@/pages/admin/Calendar";
 import AdminContent from "@/pages/admin/Content";
 import AdminMembers from "@/pages/admin/Members";
 import AdminBookings from "@/pages/admin/Bookings";
+import VerifyEmail from "@/pages/VerifyEmail";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/admin/content" component={AdminContent} />
       <Route path="/admin/members" component={AdminMembers} />
       <Route path="/admin/bookings" component={AdminBookings} />
+      <Route path="/verify-email" component={VerifyEmail} />
       <Route component={NotFound} />
     </Switch>
   );

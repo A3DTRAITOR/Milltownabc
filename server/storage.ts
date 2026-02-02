@@ -29,8 +29,9 @@ export interface IStorage {
   // Member methods
   getMemberByEmail(email: string): Promise<Member | undefined>;
   getMemberById(id: string): Promise<Member | undefined>;
+  getMemberByVerificationToken(token: string): Promise<Member | undefined>;
   createMember(data: InsertMember): Promise<Member>;
-  updateMember(id: string, data: Partial<InsertMember>): Promise<Member | undefined>;
+  updateMember(id: string, data: Partial<Member>): Promise<Member | undefined>;
   getAllMembers(): Promise<Member[]>;
 
   // Boxing class methods
@@ -140,6 +141,11 @@ export class DatabaseStorage implements IStorage {
     return member || undefined;
   }
 
+  async getMemberByVerificationToken(token: string): Promise<Member | undefined> {
+    const [member] = await db.select().from(members).where(eq(members.emailVerificationToken, token));
+    return member || undefined;
+  }
+
   async createMember(data: InsertMember): Promise<Member> {
     const [member] = await db.insert(members).values({
       ...data,
@@ -148,7 +154,7 @@ export class DatabaseStorage implements IStorage {
     return member;
   }
 
-  async updateMember(id: string, data: Partial<InsertMember>): Promise<Member | undefined> {
+  async updateMember(id: string, data: Partial<Member>): Promise<Member | undefined> {
     const [member] = await db.update(members).set(data).where(eq(members.id, id)).returning();
     return member || undefined;
   }

@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction, Express } from "express";
 import bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
 import { storage } from "./storage";
 import { z } from "zod";
 import { verifyHCaptcha, checkSignupRateLimit, logSuspiciousActivity } from "./antiSpam";
+import { sendVerificationEmail } from "./email";
 
 const SALT_ROUNDS = 12;
 
@@ -96,6 +98,9 @@ export function registerMemberRoutes(app: Express) {
       // Hash password
       const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
+      // Generate email verification token
+      const verificationToken = randomUUID();
+
       // Create member
       const member = await storage.createMember({
         name,
@@ -105,6 +110,24 @@ export function registerMemberRoutes(app: Express) {
         experienceLevel,
       });
 
+      // Update member with verification token
+      await storage.updateMember(member.id, { 
+        emailVerificationToken: verificationToken,
+        emailVerified: false 
+      });
+
+      // Send verification email if SMTP is configured
+      const protocol = req.protocol;
+      const host = req.get('host');
+      const baseUrl = `${protocol}://${host}`;
+      
+      sendVerificationEmail({
+        memberName: name,
+        memberEmail: email,
+        verificationToken,
+        baseUrl,
+      }).catch(err => console.error("Verification email error:", err));
+
       // Set session
       req.session.memberId = member.id;
 
@@ -113,6 +136,7 @@ export function registerMemberRoutes(app: Express) {
         name: member.name,
         email: member.email,
         experienceLevel: member.experienceLevel,
+        emailVerificationSent: !!(process.env.SMTP_USER && process.env.SMTP_PASS),
       });
     } catch (error) {
       console.error("Registration error:", error);

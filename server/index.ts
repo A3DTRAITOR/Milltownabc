@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { startBookingScheduler } from "./scheduler";
 
 const app = express();
 const httpServer = createServer(app);
@@ -93,6 +94,8 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+      // Start the booking scheduler to auto-cancel stale pending bookings after 24h
+      startBookingScheduler();
     },
   );
 })();

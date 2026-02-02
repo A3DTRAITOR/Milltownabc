@@ -15,7 +15,9 @@ export const members = pgTable("members", {
   experienceLevel: varchar("experience_level", { length: 50 }).default("beginner"),
   isAdmin: boolean("is_admin").default(false),
   hasUsedFreeSession: boolean("has_used_free_session").default(false),
-  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  squareCustomerId: varchar("square_customer_id", { length: 255 }),
+  emailVerified: boolean("email_verified").default(false),
+  emailVerificationToken: varchar("email_verification_token", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -40,14 +42,14 @@ export const bookings = pgTable("bookings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   memberId: varchar("member_id").notNull().references(() => members.id),
   classId: varchar("class_id").notNull().references(() => boxingClasses.id),
-  stripePaymentId: varchar("stripe_payment_id", { length: 255 }),
+  squarePaymentId: varchar("square_payment_id", { length: 255 }),
   status: varchar("status", { length: 50 }).default("pending"),
   isFreeSession: boolean("is_free_session").default(false),
   price: decimal("price", { precision: 10, scale: 2 }).default("5.00"),
   bookedAt: timestamp("booked_at").defaultNow(),
 });
 
-export const insertMemberSchema = createInsertSchema(members).omit({ id: true, createdAt: true, stripeCustomerId: true });
+export const insertMemberSchema = createInsertSchema(members).omit({ id: true, createdAt: true, squareCustomerId: true, emailVerificationToken: true, emailVerified: true });
 export const insertBoxingClassSchema = createInsertSchema(boxingClasses).omit({ id: true, createdAt: true, bookedCount: true });
 export const insertBookingSchema = createInsertSchema(bookings).omit({ id: true, bookedAt: true });
 

@@ -106,9 +106,27 @@ Database tables:
 - **Rate Limiting**: 
   - Max 2 bookings per IP per day
   - Max 1 account registration per IP per day
+  - Max 3 future bookings per user
+- **Email Verification**: Required before booking (when SMTP is configured)
+- **Auto-Cancel**: Unconfirmed bookings auto-cancelled after 24 hours
 - **Suspicious Activity Logging**: Captures failed CAPTCHAs, rate limit violations
 - **Admin Security Log**: Available at `/api/admin/security-log` for admins
 
 ### Email Notifications
-- **Nodemailer**: SMTP-based email confirmations for bookings
+- **Nodemailer**: SMTP-based email confirmations for bookings and verification
 - **Required Environment Variables**: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+
+### Payment Processing (Square)
+- **Square SDK**: Replaced Stripe with Square for UK-based payments
+- **Sandbox Mode**: Currently configured for testing (sandbox-sq0... credentials)
+- **Required Environment Variables**:
+  - SQUARE_APPLICATION_ID: Your Square application ID
+  - SQUARE_ACCESS_TOKEN: Your Square access token
+  - SQUARE_LOCATION_ID: Your Square location ID
+- **Get Sandbox Keys**: Visit squareup.com/gb/en → Developer Dashboard → Sandbox environment
+- **TODO**: Replace sandbox keys with live keys for production
+
+### Admin Dashboard Features
+- Pending payments view at `/api/admin/pending-bookings`
+- Manual booking confirmation at `/api/admin/bookings/:id/confirm`
+- Bulk cancel suspicious bookings at `/api/admin/bookings/bulk-cancel`

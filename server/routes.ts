@@ -3,8 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
 import { registerMemberRoutes, isAdmin } from "./memberAuth";
-import { sendBookingConfirmationEmail } from "./email";
+import { sendBookingConfirmationEmail, sendVerificationEmail } from "./email";
 import { checkBookingRateLimit, verifyHCaptcha, logSuspiciousActivity, getSuspiciousActivityLog } from "./antiSpam";
+import { createPayment, isSquareConfigured, getSquareApplicationId, getSquareLocationId } from "./square";
 
 function getClientIP(req: any): string {
   const forwarded = req.headers["x-forwarded-for"];
@@ -462,6 +463,13 @@ export async function registerRoutes(
         return res.status(401).json({ message: "Member not found" });
       }
 
+      // Check email verification (optional - only enforce if SMTP is configured)
+      if (process.env.SMTP_USER && process.env.SMTP_PASS && !member.emailVerified) {
+        return res.status(403).json({ 
+          message: "Please verify your email address before booking. Check your inbox for the verification link." 
+        });
+      }
+
       const boxingClass = await storage.getClass(req.params.id);
       if (!boxingClass) {
         return res.status(404).json({ message: "Class not found" });
@@ -482,6 +490,30 @@ export async function registerRoutes(
       const alreadyBooked = existingBookings.some(b => b.classId === req.params.id && b.status !== "cancelled");
       if (alreadyBooked) {
         return res.status(400).json({ message: "You have already booked this class" });
+      }
+
+      // Check max 3 future bookings per user
+      const today = new Date().toISOString().split('T')[0];
+      const futureBookings = existingBookings.filter(b => {
+        if (b.status === "cancelled") return false;
+        const bookingClass = boxingClass; // We already have current class
+        return b.classId !== req.params.id; // Will check all other bookings
+      });
+      
+      // Get all future non-cancelled bookings count
+      let futureBookingCount = 0;
+      for (const b of existingBookings) {
+        if (b.status === "cancelled") continue;
+        const bClass = await storage.getClass(b.classId);
+        if (bClass && bClass.date >= today) {
+          futureBookingCount++;
+        }
+      }
+      
+      if (futureBookingCount >= 3) {
+        return res.status(400).json({ 
+          message: "Maximum of 3 future bookings allowed. Please cancel an existing booking to book a new class." 
+        });
       }
 
       // Check if member has used their free session (using database flag)
@@ -532,27 +564,22 @@ export async function registerRoutes(
         price,
       }).catch(err => console.error("Email send error:", err));
 
-      // TODO: Complete Stripe integration here
-      // For paid sessions, would create Stripe checkout session:
-      // const stripeSession = await stripe.checkout.sessions.create({
-      //   payment_method_types: ['card'],
-      //   line_items: [{ price_data: { currency: 'gbp', product_data: { name: boxingClass.title }, unit_amount: 500 }, quantity: 1 }],
-      //   mode: 'payment',
-      //   success_url: `${process.env.APP_URL}/dashboard?payment=success`,
-      //   cancel_url: `${process.env.APP_URL}/sessions?payment=cancelled`,
-      //   metadata: { bookingId: booking.id, memberId }
-      // });
-      // return res.json({ booking, checkoutUrl: stripeSession.url, requiresPayment: true });
+      // TODO: Complete Square integration here
+      // For paid sessions, the frontend will collect card details via Square Web Payments SDK
+      // and send the payment token to /api/payments/process endpoint
+      // Note: Using Square sandbox mode for testing - replace with live keys in production
 
       res.json({ 
         booking, 
         isFreeSession,
         price,
         requiresPayment: !isFreeSession,
-        checkoutUrl: isFreeSession ? null : null, // TODO: Replace with Stripe checkout URL when integrated
+        // Square payment is handled client-side via Web Payments SDK
+        squareApplicationId: process.env.SQUARE_APPLICATION_ID || null,
+        squareLocationId: process.env.SQUARE_LOCATION_ID || null,
         message: isFreeSession 
           ? "Your first session is FREE! A confirmation email has been sent." 
-          : "Booking confirmed - £5 payment due at session. A confirmation email has been sent."
+          : "Booking created - complete payment with Square to confirm."
       });
     } catch (error) {
       console.error("Error booking class:", error);
@@ -637,6 +664,198 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching security log:", error);
       res.status(500).json({ message: "Failed to fetch security log" });
+    }
+  });
+
+  // Square payment processing endpoint
+  // TODO: Replace sandbox keys with live keys for production
+  app.post("/api/payments/process", async (req, res) => {
+    try {
+      const memberId = (req.session as any)?.memberId;
+      if (!memberId) {
+        return res.status(401).json({ message: "Please log in" });
+      }
+
+      const { bookingId, sourceId } = req.body;
+      
+      if (!bookingId || !sourceId) {
+        return res.status(400).json({ message: "Missing booking ID or payment token" });
+      }
+
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      if (booking.memberId !== memberId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+
+      if (booking.status === "confirmed") {
+        return res.status(400).json({ message: "Booking already confirmed" });
+      }
+
+      if (!isSquareConfigured()) {
+        return res.status(503).json({ 
+          message: "Payment processing not configured. Please contact the gym to pay in person.",
+          sandboxMode: true 
+        });
+      }
+
+      const amount = Math.round(parseFloat(booking.price || "5.00") * 100); // Convert to pence
+      
+      const paymentResult = await createPayment({
+        sourceId,
+        amount,
+        currency: "GBP",
+        bookingId,
+        note: `Mill Town ABC - Class Booking`,
+      });
+
+      if (paymentResult.success) {
+        await storage.updateBooking(bookingId, { 
+          status: "confirmed",
+          squarePaymentId: paymentResult.paymentId,
+        });
+
+        const member = await storage.getMemberById(memberId);
+        const boxingClass = await storage.getClass(booking.classId);
+        
+        if (member && boxingClass) {
+          const sessionDate = format(parseISO(boxingClass.date), "EEEE, MMMM d, yyyy");
+          sendBookingConfirmationEmail({
+            memberName: member.name,
+            memberEmail: member.email,
+            sessionTitle: boxingClass.title,
+            sessionDate,
+            sessionTime: boxingClass.time,
+            isFreeSession: false,
+            price: booking.price || "5.00",
+          }).catch(err => console.error("Email send error:", err));
+        }
+
+        return res.json({ 
+          success: true, 
+          message: "Payment successful! Your booking is confirmed.",
+          receiptUrl: paymentResult.receiptUrl 
+        });
+      } else {
+        return res.status(400).json({ 
+          success: false, 
+          message: paymentResult.error || "Payment failed. Please try again." 
+        });
+      }
+    } catch (error) {
+      console.error("Payment processing error:", error);
+      res.status(500).json({ message: "Payment processing failed" });
+    }
+  });
+
+  // Get Square configuration for frontend
+  app.get("/api/square/config", async (req, res) => {
+    res.json({
+      applicationId: getSquareApplicationId(),
+      locationId: getSquareLocationId(),
+      isConfigured: isSquareConfigured(),
+      sandboxMode: process.env.NODE_ENV !== "production",
+    });
+  });
+
+  // Email verification endpoint
+  app.get("/api/verify-email", async (req, res) => {
+    try {
+      const { token } = req.query;
+      
+      if (!token || typeof token !== "string") {
+        return res.status(400).json({ message: "Invalid verification token" });
+      }
+
+      const member = await storage.getMemberByVerificationToken(token);
+      if (!member) {
+        return res.status(404).json({ message: "Invalid or expired verification link" });
+      }
+
+      await storage.updateMember(member.id, { 
+        emailVerified: true, 
+        emailVerificationToken: null 
+      });
+
+      res.json({ message: "Email verified successfully! You can now book classes." });
+    } catch (error) {
+      console.error("Email verification error:", error);
+      res.status(500).json({ message: "Verification failed" });
+    }
+  });
+
+  // Admin: Get all pending bookings
+  app.get("/api/admin/pending-bookings", isAdmin, async (req, res) => {
+    try {
+      const allBookings = await storage.getAllBookings();
+      const pendingBookings = allBookings.filter(b => b.status === "pending");
+      
+      // Get member and class details for each booking
+      const bookingsWithDetails = await Promise.all(
+        pendingBookings.map(async (booking) => {
+          const member = await storage.getMemberById(booking.memberId);
+          const boxingClass = await storage.getClass(booking.classId);
+          return {
+            ...booking,
+            memberName: member?.name || "Unknown",
+            memberEmail: member?.email || "Unknown",
+            className: boxingClass?.title || "Unknown",
+            classDate: boxingClass?.date || "Unknown",
+            classTime: boxingClass?.time || "Unknown",
+          };
+        })
+      );
+
+      res.json(bookingsWithDetails);
+    } catch (error) {
+      console.error("Error fetching pending bookings:", error);
+      res.status(500).json({ message: "Failed to fetch pending bookings" });
+    }
+  });
+
+  // Admin: Confirm a pending booking manually
+  app.post("/api/admin/bookings/:id/confirm", isAdmin, async (req, res) => {
+    try {
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      await storage.updateBooking(req.params.id, { status: "confirmed" });
+      
+      res.json({ message: "Booking confirmed successfully" });
+    } catch (error) {
+      console.error("Error confirming booking:", error);
+      res.status(500).json({ message: "Failed to confirm booking" });
+    }
+  });
+
+  // Admin: Cancel multiple bookings (bulk cancel)
+  app.post("/api/admin/bookings/bulk-cancel", isAdmin, async (req, res) => {
+    try {
+      const { bookingIds } = req.body;
+      
+      if (!Array.isArray(bookingIds) || bookingIds.length === 0) {
+        return res.status(400).json({ message: "No bookings specified" });
+      }
+
+      let cancelled = 0;
+      for (const bookingId of bookingIds) {
+        const booking = await storage.getBooking(bookingId);
+        if (booking && booking.status !== "cancelled") {
+          await storage.cancelBooking(bookingId);
+          await storage.decrementBookedCount(booking.classId);
+          cancelled++;
+        }
+      }
+
+      res.json({ message: `${cancelled} booking(s) cancelled successfully` });
+    } catch (error) {
+      console.error("Error bulk cancelling bookings:", error);
+      res.status(500).json({ message: "Failed to cancel bookings" });
     }
   });
 

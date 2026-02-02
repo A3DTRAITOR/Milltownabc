@@ -106,3 +106,78 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
     return false;
   }
 }
+
+interface VerificationEmailData {
+  memberName: string;
+  memberEmail: string;
+  verificationToken: string;
+  baseUrl: string;
+}
+
+export async function sendVerificationEmail(data: VerificationEmailData): Promise<boolean> {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.log("Email not configured - skipping verification email");
+    console.log("Would have sent verification to:", data.memberEmail);
+    return false;
+  }
+
+  const verificationLink = `${data.baseUrl}/verify-email?token=${data.verificationToken}`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #C8102E; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f5f5f5; }
+        .button { display: inline-block; background: #C8102E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Verify Your Email</h1>
+          <p>Mill Town ABC</p>
+        </div>
+        <div class="content">
+          <p>Hi ${data.memberName},</p>
+          <p>Thanks for registering with Mill Town ABC! Please verify your email address by clicking the button below:</p>
+          
+          <p style="text-align: center; margin: 30px 0;">
+            <a href="${verificationLink}" class="button">Verify Email Address</a>
+          </p>
+
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; color: #666;">${verificationLink}</p>
+
+          <p>This link will expire in 24 hours.</p>
+          
+          <p>See you at the gym!</p>
+        </div>
+        <div class="footer">
+          <p>Mill Town ABC<br>
+          Contact: Alex 07565 208193 | Mark 07713 659360<br>
+          Email: Milltownabc@gmail.com</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"Mill Town ABC" <${process.env.SMTP_USER}>`,
+      to: data.memberEmail,
+      subject: "Verify your email - Mill Town ABC",
+      html: htmlContent,
+    });
+    console.log(`Verification email sent to ${data.memberEmail}`);
+    return true;
+  } catch (error) {
+    console.error("Failed to send verification email:", error);
+    return false;
+  }
+}

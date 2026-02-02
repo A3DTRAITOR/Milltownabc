@@ -163,10 +163,10 @@ export default function Sessions() {
                 </Badge>
                 <div>
                   <p className="font-bold text-green-800 dark:text-green-200" data-testid="text-free-session-title">
-                    Your first session is FREE!
+                    Your first session is FREE, then £5 per session
                   </p>
                   <p className="text-sm text-green-700 dark:text-green-300" data-testid="text-free-session-desc">
-                    Book any class below - your first session costs nothing. Then just £5 per session after.
+                    Book any class below - your first session costs £0. All subsequent sessions are just £5.
                   </p>
                 </div>
               </div>
@@ -327,7 +327,11 @@ export default function Sessions() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="font-bold text-primary">£{boxingClass.price}</div>
+                          {currentMember && !currentMember.hasUsedFreeSession ? (
+                            <Badge variant="default" className="bg-green-600">FREE</Badge>
+                          ) : (
+                            <div className="font-bold text-primary">£5</div>
+                          )}
                         </div>
                       </div>
                     </Card>
@@ -414,7 +418,7 @@ export default function Sessions() {
                             ) : (
                               <span data-testid={`text-book-paid-${boxingClass.id}`}>
                                 <Check className="h-4 w-4 mr-2 inline" />
-                                Pay £5 (Stripe coming soon)
+                                Pay £5 with Square
                               </span>
                             )}
                           </Button>

@@ -1,0 +1,65 @@
+I already have a working boxing club website with:  
+- User accounts, calendar, booking system  
+- Logic that makes the first session free and prevents users from using the free session more than once (stored as a database flag)  
+**- Stripe is partially implemented in backend but NOT LIVE**  
+**- NO SQUARE ACCOUNT CREATED YET - need sandbox/testing setup first**
+
+**COMPLETE PROJECT with these EXACT requirements:**
+
+1. **UI - Show free session clearly:**
+   - Calendar/booking page banner for first-time users: "🎉 Your first session is FREE, then £5 per session"  
+   - First session: show "**£0 - First Session FREE**" + button "Book Free First Session"  
+   - Paid sessions: "**£5 per session**" + button "Pay £5 with Square (coming soon)"  
+
+2. **Backend booking logic:**
+   - First session (`free_flag = false`): create booking price: 0, mark as free intro, set free flag = true  
+   - Paid session: Square payment flow (sandbox mode only for now)
+
+3. **REPLACE STRIPE → SQUARE (SANDBOX MODE):**
+npm uninstall stripe
+npm install square
+
+text
+.env (use Square sandbox credentials):
+SQUARE_APPLICATION_ID=sandbox-sq0idb-xxx
+SQUARE_ACCESS_TOKEN=sandbox-sq0atp-xxx
+
+text
+- Remove ALL stripe.* imports/keys  
+- Square Web Elements for frontend card form (sandbox)
+- Square checkoutApi.createPayment() for backend
+- Update webhook `/webhook` for Square `payment.updated`
+- **TEST MODE ONLY** - show "Sandbox testing" notice
+
+4. **Email confirmations (ALL bookings):**
+- After booking created (free OR paid) → send email via Nodemailer
+- Include: user name, session date/time, gym location/address  
+- .env: SMTP_HOST, SMTP_USER, SMTP_PASS
+- Function: `sendBookingConfirmationEmail(user, booking)`
+
+5. **Anti-spam protection (CRITICAL):**
+- Email verification link on signup (block unverified users)
+- hCaptcha v3 on signup + booking forms (free tier)  
+- Rate limits: 1 account/IP/24h, max 2 bookings/IP/day
+- Max 3 future bookings per user
+- Auto-cancel unconfirmed bookings after 24h
+
+6. **Admin dashboard:**
+- Client sees "Pending payments" → click Confirm
+- Booking history with payment status
+- Cancel bulk suspicious bookings
+
+7. **Production ready:**
+- Green "FREE" badges for first sessions  
+- User profile shows booking history
+- **Square Sandbox instructions**: "Client needs to signup at squareup.com/gb/en → Developer → Sandbox keys"
+- Comments: `// TODO: Replace sandbox keys with live keys`
+
+**CRITICAL: Only modify minimum files needed.** Keep existing calendar, auth, database, free-session logic working perfectly. 
+
+**TESTING PRIORITY:**
+1. First session free → email confirmation ✓
+2. Square sandbox £0.01 payment → booking confirmed ✓ 
+3. Anti-spam blocks fake accounts ✓
+
+Get Square sandbox keys from: squareup.com/gb/en → Developer Dashboard → Sandbox environment
