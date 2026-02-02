@@ -397,19 +397,104 @@ export default function Sessions() {
             </div>
           </div>
 
-          {/* Mobile: Select a Date prompt (shown first on mobile) */}
-          {!selectedDate && (
-            <Card className="sm:hidden mt-6 p-6 text-center bg-muted/30" data-testid="mobile-select-date-prompt">
-              <Clock className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <h3 className="text-base font-semibold text-foreground">Select a Date</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Click on a date with available classes to view session times and book.
-              </p>
-            </Card>
-          )}
-
-          {/* Mobile: Upcoming Sessions List */}
+          {/* Mobile: Select a Date prompt OR Selected Date Details */}
           <div className="sm:hidden mt-6">
+            {!selectedDate ? (
+              <Card className="p-6 text-center bg-muted/30" data-testid="mobile-select-date-prompt">
+                <Clock className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                <h3 className="text-base font-semibold text-foreground">Select a Date</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Click on a date with available classes to view session times and book.
+                </p>
+              </Card>
+            ) : (
+              <Card className="p-4" data-testid="mobile-selected-date-panel">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground">
+                      {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {classesForSelectedDate.length} class{classesForSelectedDate.length !== 1 ? "es" : ""} available
+                    </p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedDate(null)}>
+                    Close
+                  </Button>
+                </div>
+
+                {classesForSelectedDate.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-6">
+                    No classes available on this date.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {classesForSelectedDate.map(boxingClass => {
+                      const spotsLeft = (boxingClass.capacity || 12) - (boxingClass.bookedCount || 0);
+                      const isFull = spotsLeft <= 0;
+                      const isBooking = bookingClassId === boxingClass.id;
+                      const isEligibleForFree = currentMember && !currentMember.hasUsedFreeSession;
+
+                      return (
+                        <Card
+                          key={boxingClass.id}
+                          className={`p-4 border-2 ${isEligibleForFree ? 'ring-2 ring-green-500/30' : ''}`}
+                          data-testid={`mobile-timeslot-${boxingClass.id}`}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Clock className="h-4 w-4 text-primary" />
+                            <span className="font-bold text-foreground">{boxingClass.time}</span>
+                            <Badge variant="secondary" className="text-xs ml-auto">
+                              {boxingClass.duration} min
+                            </Badge>
+                          </div>
+                          
+                          <h3 className="font-semibold text-foreground mb-2">{boxingClass.title}</h3>
+                          
+                          <div className="flex items-center justify-between text-sm mb-4">
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <Users className="h-3.5 w-3.5" />
+                              {spotsLeft} spots left
+                            </span>
+                            {isEligibleForFree ? (
+                              <Badge variant="default" className="bg-green-600">FREE</Badge>
+                            ) : (
+                              <span className="font-bold text-primary">£5</span>
+                            )}
+                          </div>
+
+                          {currentMember ? (
+                            <Button
+                              className={`w-full ${isEligibleForFree ? 'bg-green-600' : ''}`}
+                              onClick={() => handleBookClick(boxingClass.id, isEligibleForFree ?? false)}
+                              disabled={isFull || isBooking}
+                            >
+                              {isBooking ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : isFull ? (
+                                "Class Full"
+                              ) : isEligibleForFree ? (
+                                <span><Check className="h-4 w-4 mr-2 inline" />Book Free First Session</span>
+                              ) : (
+                                <span><Check className="h-4 w-4 mr-2 inline" />Pay £5 with Square</span>
+                              )}
+                            </Button>
+                          ) : (
+                            <Button asChild className="w-full">
+                              <Link href="/login">Login to Book</Link>
+                            </Button>
+                          )}
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </Card>
+            )}
+          </div>
+
+          {/* Mobile: Upcoming Sessions List (only show when no date selected) */}
+          <div className={`sm:hidden mt-6 ${selectedDate ? 'hidden' : ''}`}>
             <h2 className="text-lg font-bold text-foreground mb-4">Upcoming Sessions</h2>
             <div className="space-y-3">
               {(classes || [])
@@ -455,9 +540,9 @@ export default function Sessions() {
             </div>
           </div>
 
-          {/* Selected Date Details */}
+          {/* Selected Date Details (Desktop only - mobile has its own panel above) */}
           {selectedDate && (
-            <Card className="mt-8 p-6" data-testid="selected-date-panel">
+            <Card className="hidden sm:block mt-8 p-6" data-testid="selected-date-panel">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-xl font-bold text-foreground">
