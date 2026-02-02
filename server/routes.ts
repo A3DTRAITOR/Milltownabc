@@ -612,6 +612,7 @@ export async function registerRoutes(
         sessionDate,
         sessionTime,
         isFreeSession,
+        paymentType: isFreeSession ? 'free' : (isCashPayment ? 'cash' : 'card'),
         price,
       }).catch(err => console.error("Email send error:", err));
 
@@ -776,6 +777,7 @@ export async function registerRoutes(
             sessionDate,
             sessionTime: boxingClass.time,
             isFreeSession: false,
+            paymentType: 'card',
             price: booking.price || "5.00",
           }).catch(err => console.error("Email send error:", err));
         }

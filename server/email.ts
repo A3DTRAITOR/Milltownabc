@@ -61,12 +61,44 @@ interface BookingEmailData {
   sessionDate: string;
   sessionTime: string;
   isFreeSession: boolean;
+  paymentType: 'card' | 'cash' | 'free';
   price: string;
 }
 
 export async function sendBookingConfirmationEmail(data: BookingEmailData): Promise<boolean> {
   console.log("[Email] Attempting to send booking confirmation to:", data.memberEmail);
   
+  // Different payment info based on payment type
+  let priceDisplay = '';
+  let paymentMessage = '';
+  let headerTitle = 'Booking Confirmed';
+  
+  if (data.paymentType === 'free') {
+    priceDisplay = '<span class="free-badge">FREE</span>';
+    paymentMessage = `
+      <div class="payment-info free">
+        <h3>Your First Session is FREE!</h3>
+        <p>Welcome to Mill Town ABC! As this is your first session, there's no payment required. Just turn up and get ready to train!</p>
+      </div>
+    `;
+  } else if (data.paymentType === 'card') {
+    priceDisplay = `£${data.price} <span class="paid-badge">PAID</span>`;
+    paymentMessage = `
+      <div class="payment-info paid">
+        <h3>Payment Received</h3>
+        <p>Your payment of £${data.price} has been processed successfully. You're all set - just turn up and train!</p>
+      </div>
+    `;
+  } else if (data.paymentType === 'cash') {
+    priceDisplay = `£${data.price} <span class="cash-badge">PAY ON ARRIVAL</span>`;
+    paymentMessage = `
+      <div class="payment-info cash">
+        <h3>Pay Cash on Arrival</h3>
+        <p>Please bring <strong>£${data.price} in cash</strong> to pay at reception when you arrive. Exact change is appreciated!</p>
+      </div>
+    `;
+  }
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -79,12 +111,20 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
         .details { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; }
         .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
         .free-badge { background: #22c55e; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; }
+        .paid-badge { background: #22c55e; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; }
+        .cash-badge { background: #f59e0b; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; }
+        .payment-info { padding: 15px; margin: 15px 0; border-radius: 8px; }
+        .payment-info.free { background: #dcfce7; border: 1px solid #22c55e; }
+        .payment-info.paid { background: #dcfce7; border: 1px solid #22c55e; }
+        .payment-info.cash { background: #fef3c7; border: 1px solid #f59e0b; }
+        .payment-info h3 { margin: 0 0 10px 0; }
+        .payment-info p { margin: 0; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>Booking Confirmed</h1>
+          <h1>${headerTitle}</h1>
           <p>Mill Town ABC</p>
         </div>
         <div class="content">
@@ -96,8 +136,10 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
             <p><strong>Class:</strong> ${data.sessionTitle}</p>
             <p><strong>Date:</strong> ${data.sessionDate}</p>
             <p><strong>Time:</strong> ${data.sessionTime}</p>
-            <p><strong>Price:</strong> ${data.isFreeSession ? '<span class="free-badge">FREE</span>' : `£${data.price}`}</p>
+            <p><strong>Price:</strong> ${priceDisplay}</p>
           </div>
+
+          ${paymentMessage}
 
           <div class="details">
             <h3>Location</h3>
@@ -113,8 +155,6 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
             <li>Towel</li>
             <li>Boxing gloves (if you have them - we have spares!)</li>
           </ul>
-
-          ${data.isFreeSession ? '<p><strong>Note:</strong> This is your FREE first session - no payment required!</p>' : '<p><strong>Payment:</strong> Your £5 payment has been processed successfully.</p>'}
           
           <p>See you at the gym!</p>
         </div>
