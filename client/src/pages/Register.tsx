@@ -18,13 +18,15 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "";
 
+const ukPhoneRegex = /^(?:(?:\+44\s?|0)(?:7\d{3}|\d{3,4})[\s.-]?\d{3}[\s.-]?\d{3,4})$/;
+
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email"),
-  phone: z.string().optional(),
+  phone: z.string().min(1, "Phone number is required").regex(ukPhoneRegex, "Please enter a valid UK phone number"),
   age: z.number().min(5, "Age must be at least 5").max(100, "Please enter a valid age"),
   emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string().min(10, "Please enter a valid emergency contact phone number"),
+  emergencyContactPhone: z.string().min(1, "Emergency contact phone is required").regex(ukPhoneRegex, "Please enter a valid UK phone number"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
@@ -150,7 +152,7 @@ export default function Register() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone (Optional)</FormLabel>
+                        <FormLabel>Phone</FormLabel>
                         <FormControl>
                           <Input type="tel" placeholder="07123 456789" {...field} data-testid="input-register-phone" />
                         </FormControl>
