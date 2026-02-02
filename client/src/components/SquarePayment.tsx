@@ -19,15 +19,23 @@ interface SquarePaymentProps {
 
 export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCancel, isProcessing }: SquarePaymentProps) {
   const [card, setCard] = useState<any>(null);
+  const [applePay, setApplePay] = useState<any>(null);
+  const [googlePay, setGooglePay] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [applePayAvailable, setApplePayAvailable] = useState(false);
+  const [googlePayAvailable, setGooglePayAvailable] = useState(false);
   const cardContainerRef = useRef<HTMLDivElement>(null);
+  const applePayContainerRef = useRef<HTMLDivElement>(null);
+  const googlePayContainerRef = useRef<HTMLDivElement>(null);
   const initializingRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
     let payments: any = null;
     let cardInstance: any = null;
+    let applePayInstance: any = null;
+    let googlePayInstance: any = null;
 
     const loadSquare = async () => {
       if (initializingRef.current) return;
@@ -78,8 +86,8 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
           throw new Error("Failed to initialize Square payments");
         }
 
+        // Initialize Card payment
         cardInstance = await payments.card();
-        
         if (!cardInstance) {
           throw new Error("Failed to create card instance");
         }
@@ -87,9 +95,52 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
         if (cardContainerRef.current && mounted) {
           await cardInstance.attach(cardContainerRef.current);
           setCard(cardInstance);
+        }
+
+        // Initialize Apple Pay (if available)
+        try {
+          const applePayRequest = payments.paymentRequest({
+            countryCode: 'GB',
+            currencyCode: 'GBP',
+            total: {
+              amount: (amount / 100).toFixed(2),
+              label: 'Mill Town ABC - Boxing Session',
+            },
+          });
+          
+          applePayInstance = await payments.applePay(applePayRequest);
+          if (applePayInstance && applePayContainerRef.current && mounted) {
+            await applePayInstance.attach(applePayContainerRef.current);
+            setApplePay(applePayInstance);
+            setApplePayAvailable(true);
+          }
+        } catch (appleErr) {
+          console.log("Apple Pay not available:", appleErr);
+        }
+
+        // Initialize Google Pay (if available)
+        try {
+          const googlePayRequest = payments.paymentRequest({
+            countryCode: 'GB',
+            currencyCode: 'GBP',
+            total: {
+              amount: (amount / 100).toFixed(2),
+              label: 'Mill Town ABC - Boxing Session',
+            },
+          });
+          
+          googlePayInstance = await payments.googlePay(googlePayRequest);
+          if (googlePayInstance && googlePayContainerRef.current && mounted) {
+            await googlePayInstance.attach(googlePayContainerRef.current);
+            setGooglePay(googlePayInstance);
+            setGooglePayAvailable(true);
+          }
+        } catch (googleErr) {
+          console.log("Google Pay not available:", googleErr);
+        }
+
+        if (mounted) {
           setLoading(false);
-        } else if (mounted) {
-          throw new Error("Card container not available");
         }
       } catch (err: any) {
         console.error("Square initialization error:", err);
@@ -105,16 +156,18 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
     return () => {
       mounted = false;
       if (cardInstance) {
-        try {
-          cardInstance.destroy();
-        } catch (e) {
-          // Ignore cleanup errors
-        }
+        try { cardInstance.destroy(); } catch (e) {}
+      }
+      if (applePayInstance) {
+        try { applePayInstance.destroy(); } catch (e) {}
+      }
+      if (googlePayInstance) {
+        try { googlePayInstance.destroy(); } catch (e) {}
       }
     };
-  }, []);
+  }, [amount]);
 
-  const handlePayment = async () => {
+  const handleCardPayment = async () => {
     if (!card) {
       onPaymentError("Payment form not ready");
       return;
@@ -131,6 +184,38 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
       }
     } catch (err: any) {
       onPaymentError(err.message || "Payment processing failed");
+    }
+  };
+
+  const handleApplePay = async () => {
+    if (!applePay) return;
+
+    try {
+      const result = await applePay.tokenize();
+      if (result.status === "OK") {
+        onPaymentSuccess(result.token);
+      } else {
+        const errorMessage = result.errors?.[0]?.message || "Apple Pay failed";
+        onPaymentError(errorMessage);
+      }
+    } catch (err: any) {
+      onPaymentError(err.message || "Apple Pay failed");
+    }
+  };
+
+  const handleGooglePay = async () => {
+    if (!googlePay) return;
+
+    try {
+      const result = await googlePay.tokenize();
+      if (result.status === "OK") {
+        onPaymentSuccess(result.token);
+      } else {
+        const errorMessage = result.errors?.[0]?.message || "Google Pay failed";
+        onPaymentError(errorMessage);
+      }
+    } catch (err: any) {
+      onPaymentError(err.message || "Google Pay failed");
     }
   };
 
@@ -156,12 +241,53 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
       </div>
 
       {loading && (
-        <div className="flex items-center justify-center py-4" data-testid="payment-loading">
+        <div className="flex items-center justify-center py-8" data-testid="payment-loading">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">Loading payment form...</span>
+          <span className="ml-2 text-muted-foreground">Loading payment options...</span>
         </div>
       )}
+
+      {/* Digital Wallets Section */}
+      {!loading && (applePayAvailable || googlePayAvailable) && (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground text-center font-medium">Express checkout</p>
+          
+          {applePayAvailable && (
+            <div 
+              ref={applePayContainerRef}
+              onClick={handleApplePay}
+              className="cursor-pointer"
+              data-testid="apple-pay-button"
+            />
+          )}
+          
+          {googlePayAvailable && (
+            <div 
+              ref={googlePayContainerRef}
+              onClick={handleGooglePay}
+              className="cursor-pointer"
+              data-testid="google-pay-button"
+            />
+          )}
+          
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or pay with card</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden containers for wallet buttons when loading */}
+      <div className={loading ? 'hidden' : ''}>
+        {!applePayAvailable && <div ref={applePayContainerRef} className="hidden" />}
+        {!googlePayAvailable && <div ref={googlePayContainerRef} className="hidden" />}
+      </div>
       
+      {/* Card Payment Section */}
       <div 
         ref={cardContainerRef} 
         className={`min-h-[50px] p-3 border rounded-md bg-background ${loading ? 'hidden' : ''}`}
@@ -185,7 +311,7 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
               Cancel
             </Button>
             <Button
-              onClick={handlePayment}
+              onClick={handleCardPayment}
               disabled={isProcessing || !card}
               className="flex-1"
               data-testid="button-payment-submit"
