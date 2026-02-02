@@ -532,6 +532,81 @@ export async function registerRoutes(
     }
   });
 
+  // Admin: Get all classes (including inactive)
+  app.get("/api/admin/classes", isAdmin, async (_req, res) => {
+    try {
+      const classes = await storage.getAllClasses();
+      res.json(classes);
+    } catch (error) {
+      console.error("Error fetching admin classes:", error);
+      res.status(500).json({ message: "Failed to fetch classes" });
+    }
+  });
+
+  // Admin: Create individual class
+  app.post("/api/admin/classes", isAdmin, async (req, res) => {
+    try {
+      const { title, description, classType, date, time, duration, capacity, price, isActive } = req.body;
+      if (!title || !date || !time) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      const boxingClass = await storage.createClass({
+        title,
+        description: description || "",
+        classType: classType || "open",
+        date,
+        time,
+        duration: duration || 60,
+        capacity: capacity || 12,
+        price: price || "5.00",
+        isActive: isActive !== false
+      });
+      res.status(201).json(boxingClass);
+    } catch (error) {
+      console.error("Error creating class:", error);
+      res.status(500).json({ message: "Failed to create class" });
+    }
+  });
+
+  // Admin: Update individual class
+  app.put("/api/admin/classes/:id", isAdmin, async (req, res) => {
+    try {
+      const { title, description, classType, date, time, duration, capacity, price, isActive } = req.body;
+      const updated = await storage.updateClass(req.params.id, {
+        title,
+        description,
+        classType,
+        date,
+        time,
+        duration,
+        capacity,
+        price,
+        isActive
+      });
+      if (!updated) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating class:", error);
+      res.status(500).json({ message: "Failed to update class" });
+    }
+  });
+
+  // Admin: Delete individual class
+  app.delete("/api/admin/classes/:id", isAdmin, async (req, res) => {
+    try {
+      const deleted = await storage.deleteClass(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+      res.json({ message: "Class deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting class:", error);
+      res.status(500).json({ message: "Failed to delete class" });
+    }
+  });
+
   // Get single class
   app.get("/api/classes/:id", async (req, res) => {
     try {

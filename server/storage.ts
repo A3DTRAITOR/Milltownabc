@@ -9,7 +9,7 @@ import {
   type ClassTemplate, type InsertClassTemplate
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, sql, desc } from "drizzle-orm";
+import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 
 export interface IStorage {
   getContent(key: string): Promise<SiteContent | undefined>;
@@ -198,9 +198,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUpcomingClasses(): Promise<BoxingClass[]> {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const twoWeeksLater = new Date(today);
+    twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
+    const twoWeeksStr = twoWeeksLater.toISOString().split('T')[0];
+    
     return db.select().from(boxingClasses)
-      .where(and(gte(boxingClasses.date, today), eq(boxingClasses.isActive, true)))
+      .where(and(
+        gte(boxingClasses.date, todayStr),
+        lte(boxingClasses.date, twoWeeksStr),
+        eq(boxingClasses.isActive, true)
+      ))
       .orderBy(boxingClasses.date, boxingClasses.time);
   }
 

@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ChevronLeft, ChevronRight, Clock, Users, Loader2, Check, CreditCard, Banknote } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, isBefore, startOfDay } from "date-fns";
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addWeeks, subWeeks, isToday, isBefore, startOfDay, addDays } from "date-fns";
 import { Link } from "wouter";
 import type { BoxingClass } from "@shared/schema";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
@@ -27,7 +27,7 @@ interface MemberData {
 
 export default function Sessions() {
   const { toast } = useToast();
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [bookingClassId, setBookingClassId] = useState<string | null>(null);
   const [captchaDialogOpen, setCaptchaDialogOpen] = useState(false);
@@ -181,12 +181,8 @@ export default function Sessions() {
     },
   });
 
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
-  const startDayOfWeek = monthStart.getDay();
-  const paddingDays = Array(startDayOfWeek).fill(null);
+  const weekEnd = addDays(weekStart, 13);
+  const twoWeeksDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
   // Group classes by date
   const classesByDate = (classes || []).reduce((acc, c) => {
@@ -199,8 +195,20 @@ export default function Sessions() {
     ? classesByDate[format(selectedDate, "yyyy-MM-dd")] || []
     : [];
 
-  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
+  const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const isCurrentWeek = weekStart.getTime() === currentWeekStart.getTime();
+  const maxWeekStart = addWeeks(currentWeekStart, 1);
+
+  const prevWeek = () => {
+    if (weekStart > currentWeekStart) {
+      setWeekStart(subWeeks(weekStart, 1));
+    }
+  };
+  const nextWeek = () => {
+    if (weekStart < maxWeekStart) {
+      setWeekStart(addWeeks(weekStart, 1));
+    }
+  };
 
   const handleDateClick = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
@@ -273,14 +281,27 @@ export default function Sessions() {
           {/* Calendar Header */}
           <Card className="p-4 mb-6">
             <div className="flex items-center justify-between">
-              <Button variant="outline" onClick={prevMonth} data-testid="button-prev-month">
+              <Button 
+                variant="outline" 
+                onClick={prevWeek} 
+                disabled={isCurrentWeek}
+                data-testid="button-prev-week"
+              >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Previous
               </Button>
-              <h2 className="text-xl font-bold text-foreground">
-                {format(currentMonth, "MMMM yyyy")}
-              </h2>
-              <Button variant="outline" onClick={nextMonth} data-testid="button-next-month">
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-foreground">
+                  {format(weekStart, "d MMM")} - {format(weekEnd, "d MMM yyyy")}
+                </h2>
+                <p className="text-sm text-muted-foreground">2 weeks of sessions</p>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={nextWeek} 
+                disabled={weekStart >= maxWeekStart}
+                data-testid="button-next-week"
+              >
                 Next
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
@@ -289,12 +310,12 @@ export default function Sessions() {
 
           {/* Calendar Grid */}
           <div className="grid grid-cols-7 gap-2 mb-4">
-            {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map(day => (
+            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
               <div key={day} className="text-center text-sm font-semibold text-muted-foreground py-2 hidden sm:block">
                 {day}
               </div>
             ))}
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => (
               <div key={`short-${day}`} className="text-center text-sm font-semibold text-muted-foreground py-2 sm:hidden">
                 {day}
               </div>
@@ -302,10 +323,7 @@ export default function Sessions() {
           </div>
 
           <div className="grid grid-cols-7 gap-2">
-            {paddingDays.map((_, i) => (
-              <div key={`pad-${i}`} className="min-h-[100px] sm:min-h-[120px]" />
-            ))}
-            {daysInMonth.map(day => {
+            {twoWeeksDays.map(day => {
               const dateStr = format(day, "yyyy-MM-dd");
               const dayClasses = classesByDate[dateStr] || [];
               const hasClass = dayClasses.length > 0;
@@ -328,7 +346,7 @@ export default function Sessions() {
                   data-testid={`calendar-day-${dateStr}`}
                 >
                   <div className={`text-sm font-semibold mb-1 ${isCurrentDay ? "text-primary" : "text-foreground"}`}>
-                    {format(day, "d")}
+                    {format(day, "d MMM")}
                   </div>
                   
                   {hasClass && !isPast && (
