@@ -99,8 +99,8 @@ export default function Register() {
     <PublicLayout>
       <SEOHead title="Register - Mill Town ABC" description="Join Mill Town ABC and start booking classes today. First session FREE! All classes just £5." />
       
-      <section className="py-16 lg:py-24">
-        <div className="mx-auto max-w-md px-4 sm:px-6 lg:px-8">
+      <section className="py-12 lg:py-16">
+        <div className="mx-auto max-w-lg px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground" data-testid="text-register-title">
               Join Mill Town ABC
@@ -113,84 +113,88 @@ export default function Register() {
             </p>
           </div>
 
-          <Card className="p-6 lg:p-8">
+          <Card className="p-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John Smith" {...field} data-testid="input-register-name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="your@email.com" {...field} data-testid="input-register-email" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone (Optional)</FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder="07123 456789" {...field} data-testid="input-register-phone" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="age"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="Enter your age" 
-                          {...field}
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                          value={field.value || ""}
-                          data-testid="input-register-age" 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      {watchAge && watchAge < 18 && (
-                        <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md" data-testid="warning-under-18">
-                          <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
-                            Guardian must attend first session to sign forms.
-                          </p>
-                        </div>
-                      )}
-                    </FormItem>
-                  )}
-                />
-                <div className="border-t pt-4 mt-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Smith" {...field} data-testid="input-register-name" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="your@email.com" {...field} data-testid="input-register-email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone (Optional)</FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder="07123 456789" {...field} data-testid="input-register-phone" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="age"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Age</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="Your age" 
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            value={field.value || ""}
+                            data-testid="input-register-age" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                {watchAge && watchAge < 18 && (
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md" data-testid="warning-under-18">
+                    <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
+                      Guardian must attend first session to sign forms.
+                    </p>
+                  </div>
+                )}
+                <div className="border-t pt-4">
                   <p className="text-sm font-medium text-foreground mb-3">Emergency Contact (Required)</p>
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="emergencyContactName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Emergency Contact Name</FormLabel>
+                          <FormLabel>Name</FormLabel>
                           <FormControl>
                             <Input placeholder="Contact's full name" {...field} data-testid="input-register-emergency-name" />
                           </FormControl>
@@ -203,7 +207,7 @@ export default function Register() {
                       name="emergencyContactPhone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Emergency Contact Phone</FormLabel>
+                          <FormLabel>Phone</FormLabel>
                           <FormControl>
                             <Input type="tel" placeholder="07123 456789" {...field} data-testid="input-register-emergency-phone" />
                           </FormControl>
@@ -235,32 +239,34 @@ export default function Register() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Minimum 8 characters" {...field} data-testid="input-register-password" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Confirm your password" {...field} data-testid="input-register-confirm" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Min 8 characters" autoComplete="new-password" {...field} data-testid="input-register-password" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Confirm password" autoComplete="new-password" {...field} data-testid="input-register-confirm" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 
                 {HCAPTCHA_SITE_KEY && (
                   <div className="flex justify-center" data-testid="captcha-register">
