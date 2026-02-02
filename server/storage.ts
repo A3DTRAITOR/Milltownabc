@@ -178,12 +178,21 @@ export class DatabaseStorage implements IStorage {
     const member = await this.getMemberById(id);
     const anonymizedName = member ? `Deleted Member (${member.name.split(' ')[0]?.charAt(0) || 'X'}***)` : "Deleted Member";
     
-    // Anonymize bookings instead of deleting them (for tax compliance)
+    // Cancel all confirmed/pending bookings for this member and decrement class counts
+    const memberBookings = await this.getBookingsByMember(id);
+    for (const booking of memberBookings) {
+      if (booking.status === 'confirmed' || booking.status === 'pending' || booking.status === 'pending_cash') {
+        await this.decrementBookedCount(booking.classId);
+      }
+    }
+    
+    // Anonymize bookings and cancel them (for tax compliance - keep payment records)
     await db.update(bookings)
       .set({ 
         memberDeleted: true, 
         deletedMemberName: anonymizedName,
-        memberId: null 
+        memberId: null,
+        status: 'cancelled'  // Cancel all bookings when member is deleted
       })
       .where(eq(bookings.memberId, id));
     

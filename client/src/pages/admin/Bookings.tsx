@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -71,6 +72,7 @@ export default function AdminBookings() {
   const [statusFilter, setStatusFilter] = useState<string>("confirmed");
   const [activeTab, setActiveTab] = useState<string>("bookings");
   const [financePeriod, setFinancePeriod] = useState<string>("all");
+  const [hideDeletedMembers, setHideDeletedMembers] = useState<boolean>(true);
   
   const { data: bookings, isLoading } = useQuery<Booking[]>({
     queryKey: ["/api/admin/bookings"],
@@ -131,6 +133,7 @@ export default function AdminBookings() {
   
   const filteredBookings = allBookings
     .filter(b => statusFilter === "all" || b.status === statusFilter)
+    .filter(b => !hideDeletedMembers || !b.memberDeleted)
     .sort((a, b) => new Date(b.bookedAt).getTime() - new Date(a.bookedAt).getTime());
 
   const financeBookings = useMemo(() => {
@@ -288,7 +291,7 @@ export default function AdminBookings() {
               </Card>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Filter:</span>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -298,9 +301,21 @@ export default function AdminBookings() {
                   <SelectContent>
                     <SelectItem value="confirmed">Confirmed only</SelectItem>
                     <SelectItem value="cancelled">Cancelled only</SelectItem>
+                    <SelectItem value="pending_cash">Pending Cash</SelectItem>
                     <SelectItem value="all">All bookings</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="hide-deleted" 
+                  checked={hideDeletedMembers}
+                  onCheckedChange={(checked) => setHideDeletedMembers(checked === true)}
+                  data-testid="checkbox-hide-deleted"
+                />
+                <label htmlFor="hide-deleted" className="text-sm text-muted-foreground cursor-pointer">
+                  Hide deleted members
+                </label>
               </div>
               <span className="text-sm text-muted-foreground">
                 Showing {filteredBookings.length} of {allBookings.length}
