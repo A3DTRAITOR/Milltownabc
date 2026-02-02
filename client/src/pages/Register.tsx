@@ -135,23 +135,22 @@ export default function Register() {
             </Card>
           ) : (
             <>
-              <div className="text-center mb-8">
-                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <UserPlus className="h-8 w-8 text-primary" />
-                </div>
-                <h1 className="text-3xl font-bold text-foreground" data-testid="text-register-title">
-                  Join Mill Town ABC
-                </h1>
-                <p className="mt-2 text-muted-foreground">
-                  Register online, become a member, book sessions and turn up to train
-                </p>
-                <div className="mt-3 inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-2 rounded-full text-sm font-semibold">
-                  <CheckCircle className="h-4 w-4" />
-                  First session FREE!
-                </div>
-              </div>
-
               <Card className="p-8 shadow-lg border-0 bg-card/80 backdrop-blur">
+                <div className="text-center mb-6">
+                  <div className="mx-auto w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                    <UserPlus className="h-7 w-7 text-primary" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-foreground" data-testid="text-register-title">
+                    Join Mill Town ABC
+                  </h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Register online, become a member, book sessions
+                  </p>
+                  <div className="mt-3 inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1.5 rounded-full text-sm font-semibold">
+                    <CheckCircle className="h-4 w-4" />
+                    First session FREE!
+                  </div>
+                </div>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -345,12 +344,12 @@ export default function Register() {
               </form>
             </Form>
 
-            <div className="mt-6 text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/login" className="font-medium text-primary hover:underline" data-testid="link-login">
-                Sign in
-              </Link>
-            </div>
+                <div className="mt-6 pt-4 border-t border-border/50 text-center text-sm text-muted-foreground">
+                  Already have an account?{" "}
+                  <Link href="/login" className="font-medium text-primary hover:underline" data-testid="link-login">
+                    Sign in
+                  </Link>
+                </div>
               </Card>
             </>
           )}

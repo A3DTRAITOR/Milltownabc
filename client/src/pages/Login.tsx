@@ -122,19 +122,18 @@ export default function Login() {
       
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-md px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <LogIn className="h-8 w-8 text-primary" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground" data-testid="text-login-title">
-              Member Login
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              Sign in to book classes and view your schedule
-            </p>
-          </div>
-
           <Card className="p-8 shadow-lg border-0 bg-card/80 backdrop-blur">
+            <div className="text-center mb-6">
+              <div className="mx-auto w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                <LogIn className="h-7 w-7 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold text-foreground" data-testid="text-login-title">
+                Member Login
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Sign in to book classes and view your schedule
+              </p>
+            </div>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 <FormField
@@ -216,7 +215,7 @@ export default function Login() {
               </div>
             )}
 
-            <div className="mt-6 text-center text-sm text-muted-foreground">
+            <div className="mt-6 pt-4 border-t border-border/50 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
               <Link href="/register" className="font-medium text-primary hover:underline" data-testid="link-register">
                 Register here
