@@ -397,8 +397,19 @@ export default function Sessions() {
             </div>
           </div>
 
+          {/* Mobile: Select a Date prompt (shown first on mobile) */}
+          {!selectedDate && (
+            <Card className="sm:hidden mt-6 p-6 text-center bg-muted/30" data-testid="mobile-select-date-prompt">
+              <Clock className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <h3 className="text-base font-semibold text-foreground">Select a Date</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Click on a date with available classes to view session times and book.
+              </p>
+            </Card>
+          )}
+
           {/* Mobile: Upcoming Sessions List */}
-          <div className="sm:hidden mt-8">
+          <div className="sm:hidden mt-6">
             <h2 className="text-lg font-bold text-foreground mb-4">Upcoming Sessions</h2>
             <div className="space-y-3">
               {(classes || [])
@@ -539,8 +550,9 @@ export default function Sessions() {
             </Card>
           )}
 
+          {/* Desktop: Select a Date prompt */}
           {!selectedDate && (
-            <Card className="mt-8 p-8 text-center">
+            <Card className="hidden sm:block mt-8 p-8 text-center">
               <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground">Select a Date</h3>
               <p className="text-muted-foreground mt-2">
