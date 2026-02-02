@@ -43,7 +43,7 @@ export const boxingClasses = pgTable("boxing_classes", {
 // Bookings linking members to classes
 export const bookings = pgTable("bookings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  memberId: varchar("member_id").notNull().references(() => members.id),
+  memberId: varchar("member_id").references(() => members.id),
   classId: varchar("class_id").notNull().references(() => boxingClasses.id),
   squarePaymentId: varchar("square_payment_id", { length: 255 }),
   paymentMethod: varchar("payment_method", { length: 20 }).default("card"),
@@ -51,6 +51,9 @@ export const bookings = pgTable("bookings", {
   isFreeSession: boolean("is_free_session").default(false),
   price: decimal("price", { precision: 10, scale: 2 }).default("5.00"),
   bookedAt: timestamp("booked_at").defaultNow(),
+  // For preserving financial records when member deletes account
+  memberDeleted: boolean("member_deleted").default(false),
+  deletedMemberName: varchar("deleted_member_name", { length: 100 }),
 });
 
 export const insertMemberSchema = createInsertSchema(members).omit({ id: true, createdAt: true, squareCustomerId: true, emailVerificationToken: true, emailVerified: true });

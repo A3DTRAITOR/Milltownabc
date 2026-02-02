@@ -26,13 +26,15 @@ import { ClipboardList, CheckCircle, XCircle, PoundSterling, TrendingUp, Calenda
 
 interface Booking {
   id: string;
-  memberId: string;
+  memberId: string | null;
   classId: string;
   status: string;
   bookedAt: string;
   isFreeSession?: boolean;
   paymentMethod?: string;
   price?: string;
+  memberDeleted?: boolean;
+  deletedMemberName?: string;
   member?: {
     name: string;
     email: string;
@@ -43,6 +45,21 @@ interface Booking {
     time: string;
     classType: string;
   };
+}
+
+// Helper to get display name for member (handles deleted accounts)
+function getMemberDisplayName(booking: Booking): string {
+  if (booking.memberDeleted) {
+    return booking.deletedMemberName || "Deleted Member";
+  }
+  return booking.member?.name || "Unknown";
+}
+
+function getMemberEmail(booking: Booking): string | null {
+  if (booking.memberDeleted) {
+    return null; // Don't show email for deleted accounts
+  }
+  return booking.member?.email || null;
 }
 
 const SESSION_PRICE = 5.00;
@@ -166,8 +183,8 @@ export default function AdminBookings() {
       return [
         format(new Date(booking.bookedAt), "dd/MM/yyyy HH:mm:ss"),
         booking.id,
-        booking.member?.name || "Unknown",
-        booking.member?.email || "",
+        getMemberDisplayName(booking),
+        getMemberEmail(booking) || "(Account Deleted)",
         `Boxing class: ${booking.class?.title || "Session"}${booking.isFreeSession ? " (FREE)" : ""}`,
         booking.class?.date || "",
         booking.class?.time || "",
@@ -340,9 +357,14 @@ export default function AdminBookings() {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{booking.member?.name || "Unknown"}</p>
-                            {booking.member?.email && (
-                              <p className="text-xs text-muted-foreground">{booking.member.email}</p>
+                            <p className="font-medium">
+                              {getMemberDisplayName(booking)}
+                              {booking.memberDeleted && (
+                                <Badge variant="outline" className="ml-2 text-xs text-muted-foreground">Deleted</Badge>
+                              )}
+                            </p>
+                            {getMemberEmail(booking) && (
+                              <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
                             )}
                           </div>
                         </TableCell>
@@ -451,8 +473,13 @@ export default function AdminBookings() {
                         <TableRow key={booking.id} data-testid={`row-free-${booking.id}`}>
                           <TableCell>
                             <div>
-                              <p className="font-medium">{booking.member?.name || "Unknown"}</p>
-                              <p className="text-xs text-muted-foreground">{booking.member?.email}</p>
+                              <p className="font-medium">
+                                {getMemberDisplayName(booking)}
+                                {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                              </p>
+                              {getMemberEmail(booking) && (
+                                <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>{booking.class?.title || "Unknown"}</TableCell>
@@ -498,8 +525,13 @@ export default function AdminBookings() {
                         <TableRow key={booking.id} data-testid={`row-card-${booking.id}`}>
                           <TableCell>
                             <div>
-                              <p className="font-medium">{booking.member?.name || "Unknown"}</p>
-                              <p className="text-xs text-muted-foreground">{booking.member?.email}</p>
+                              <p className="font-medium">
+                                {getMemberDisplayName(booking)}
+                                {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                              </p>
+                              {getMemberEmail(booking) && (
+                                <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>{booking.class?.title || "Unknown"}</TableCell>
@@ -546,8 +578,13 @@ export default function AdminBookings() {
                         <TableRow key={booking.id} data-testid={`row-cash-${booking.id}`}>
                           <TableCell>
                             <div>
-                              <p className="font-medium">{booking.member?.name || "Unknown"}</p>
-                              <p className="text-xs text-muted-foreground">{booking.member?.email}</p>
+                              <p className="font-medium">
+                                {getMemberDisplayName(booking)}
+                                {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                              </p>
+                              {getMemberEmail(booking) && (
+                                <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>{booking.class?.title || "Unknown"}</TableCell>
@@ -755,8 +792,13 @@ export default function AdminBookings() {
                             </TableCell>
                             <TableCell>
                               <div>
-                                <p className="font-medium">{booking.member?.name || "Unknown"}</p>
-                                <p className="text-xs text-muted-foreground">{booking.member?.email || ""}</p>
+                                <p className="font-medium">
+                                  {getMemberDisplayName(booking)}
+                                  {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                                </p>
+                                {getMemberEmail(booking) && (
+                                  <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell>

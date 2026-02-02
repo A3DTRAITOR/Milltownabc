@@ -165,7 +165,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteMember(id: string): Promise<boolean> {
-    await db.delete(bookings).where(eq(bookings.memberId, id));
+    // Get member name before deletion for financial record keeping
+    const member = await this.getMemberById(id);
+    const anonymizedName = member ? `Deleted Member (${member.name.split(' ')[0]?.charAt(0) || 'X'}***)` : "Deleted Member";
+    
+    // Anonymize bookings instead of deleting them (for tax compliance)
+    await db.update(bookings)
+      .set({ 
+        memberDeleted: true, 
+        deletedMemberName: anonymizedName,
+        memberId: null 
+      })
+      .where(eq(bookings.memberId, id));
+    
+    // Now delete the member
     const result = await db.delete(members).where(eq(members.id, id)).returning();
     return result.length > 0;
   }
