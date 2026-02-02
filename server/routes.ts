@@ -580,6 +580,11 @@ export async function registerRoutes(
       await storage.cancelBooking(req.params.id);
       await storage.decrementBookedCount(booking.classId);
 
+      // If this was a free session, restore the member's free session eligibility
+      if (booking.isFreeSession) {
+        await storage.updateMember(memberId, { hasUsedFreeSession: false });
+      }
+
       res.json({ message: "Booking cancelled" });
     } catch (error) {
       console.error("Error cancelling booking:", error);
