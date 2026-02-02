@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, Mail, CheckCircle } from "lucide-react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "";
@@ -60,6 +60,8 @@ export default function Register() {
 
   const watchAge = form.watch("age");
 
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
       const { confirmPassword, ...submitData } = data;
@@ -69,10 +71,17 @@ export default function Register() {
       });
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/members/me"] });
-      toast({ title: "Welcome to the club!", description: "Your account has been created." });
-      setLocation("/dashboard");
+    onSuccess: (data) => {
+      if (data.requiresVerification) {
+        setRegistrationSuccess(true);
+        toast({ 
+          title: "Check your email!", 
+          description: "We've sent you a verification link. Please verify your email to complete registration." 
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["/api/members/me"] });
+        setLocation("/dashboard");
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -103,19 +112,42 @@ export default function Register() {
       
       <section className="py-12 lg:py-16">
         <div className="mx-auto max-w-lg px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground" data-testid="text-register-title">
-              Join Mill Town ABC
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              Register online, become a member, book sessions and turn up to train
-            </p>
-            <p className="mt-2 text-primary font-semibold">
-              First session FREE!
-            </p>
-          </div>
+          {registrationSuccess ? (
+            <Card className="p-8 text-center" data-testid="card-registration-success">
+              <Mail className="h-16 w-16 text-primary mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-foreground mb-2">Check Your Email!</h1>
+              <p className="text-muted-foreground mb-6">
+                We've sent a verification link to your email address. Please click the link to verify your account before logging in.
+              </p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Account created successfully</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Mail className="h-4 w-4 text-primary" />
+                  <span>Verification email sent</span>
+                </div>
+              </div>
+              <Button asChild className="mt-6" data-testid="button-go-login">
+                <Link href="/login">Go to Login</Link>
+              </Button>
+            </Card>
+          ) : (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-foreground" data-testid="text-register-title">
+                  Join Mill Town ABC
+                </h1>
+                <p className="mt-2 text-muted-foreground">
+                  Register online, become a member, book sessions and turn up to train
+                </p>
+                <p className="mt-2 text-primary font-semibold">
+                  First session FREE!
+                </p>
+              </div>
 
-          <Card className="p-6">
+              <Card className="p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -309,7 +341,9 @@ export default function Register() {
                 Sign in
               </Link>
             </div>
-          </Card>
+              </Card>
+            </>
+          )}
         </div>
       </section>
     </PublicLayout>

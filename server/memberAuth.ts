@@ -134,15 +134,10 @@ export function registerMemberRoutes(app: Express) {
         baseUrl,
       }).catch(err => console.error("Verification email error:", err));
 
-      // Set session
-      req.session.memberId = member.id;
-
+      // Do NOT set session - user must verify email first
       res.status(201).json({
-        id: member.id,
-        name: member.name,
-        email: member.email,
-        experienceLevel: member.experienceLevel,
-        emailVerificationSent: !!(process.env.SMTP_USER && process.env.SMTP_PASS),
+        message: "Registration successful! Please check your email to verify your account before logging in.",
+        requiresVerification: true,
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -168,6 +163,14 @@ export function registerMemberRoutes(app: Express) {
       const isValid = await bcrypt.compare(password, member.passwordHash);
       if (!isValid) {
         return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      // Check if email is verified
+      if (!member.emailVerified) {
+        return res.status(403).json({ 
+          message: "Please verify your email before logging in. Check your inbox for the verification link.",
+          requiresVerification: true
+        });
       }
 
       req.session.memberId = member.id;
