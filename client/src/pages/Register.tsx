@@ -23,10 +23,10 @@ const ukPhoneRegex = /^(?:\+44\s?\d{4}\s?\d{6}|0\d{10})$/;
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email"),
-  phone: z.string().min(1, "Phone number is required").regex(ukPhoneRegex, "Format: +44 7902 962577 or 07902962577"),
+  phone: z.string().min(1, "Phone number is required").regex(ukPhoneRegex, "Enter a valid UK mobile number"),
   age: z.number().min(5, "Age must be at least 5").max(100, "Please enter a valid age"),
   emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string().min(1, "Emergency contact phone is required").regex(ukPhoneRegex, "Format: +44 7902 962577 or 07902962577"),
+  emergencyContactPhone: z.string().min(1, "Emergency contact phone is required").regex(ukPhoneRegex, "Enter a valid UK mobile number"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
@@ -186,9 +186,9 @@ export default function Register() {
                       <FormItem>
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder="07902962577" {...field} data-testid="input-register-phone" />
+                          <Input type="tel" placeholder="07XXX XXXXXX" {...field} data-testid="input-register-phone" />
                         </FormControl>
-                        <FormDescription className="text-xs">+44 7902 962577 or 07902962577</FormDescription>
+                        <FormDescription className="text-xs">e.g. 07123456789</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -244,9 +244,9 @@ export default function Register() {
                         <FormItem>
                           <FormLabel>Phone</FormLabel>
                           <FormControl>
-                            <Input type="tel" placeholder="07902962577" {...field} data-testid="input-register-emergency-phone" />
+                            <Input type="tel" placeholder="07XXX XXXXXX" {...field} data-testid="input-register-emergency-phone" />
                           </FormControl>
-                          <FormDescription className="text-xs">+44 7902 962577 or 07902962577</FormDescription>
+                          <FormDescription className="text-xs">e.g. 07123456789</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
