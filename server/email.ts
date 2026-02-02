@@ -1,14 +1,46 @@
-import nodemailer from "nodemailer";
+// Resend email integration for Mill Town ABC
+import { Resend } from 'resend';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+let connectionSettings: any;
+
+async function getCredentials() {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY 
+    ? 'repl ' + process.env.REPL_IDENTITY 
+    : process.env.WEB_REPL_RENEWAL 
+    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+    : null;
+
+  if (!xReplitToken) {
+    throw new Error('Resend credentials not available');
+  }
+
+  connectionSettings = await fetch(
+    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
+    {
+      headers: {
+        'Accept': 'application/json',
+        'X_REPLIT_TOKEN': xReplitToken
+      }
+    }
+  ).then(res => res.json()).then(data => data.items?.[0]);
+
+  if (!connectionSettings || (!connectionSettings.settings.api_key)) {
+    throw new Error('Resend not connected');
+  }
+  return {
+    apiKey: connectionSettings.settings.api_key, 
+    fromEmail: connectionSettings.settings.from_email || 'Mill Town ABC <onboarding@resend.dev>'
+  };
+}
+
+async function getResendClient() {
+  const { apiKey, fromEmail } = await getCredentials();
+  return {
+    client: new Resend(apiKey),
+    fromEmail
+  };
+}
 
 interface BookingEmailData {
   memberName: string;
@@ -21,16 +53,6 @@ interface BookingEmailData {
 }
 
 export async function sendBookingConfirmationEmail(data: BookingEmailData): Promise<boolean> {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.log("Email not configured - skipping confirmation email");
-    console.log("Would have sent:", data);
-    return false;
-  }
-
-  const priceText = data.isFreeSession 
-    ? "FREE (First Session)" 
-    : `£${data.price}`;
-
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -78,7 +100,7 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
             <li>Boxing gloves (if you have them - we have spares!)</li>
           </ul>
 
-          ${!data.isFreeSession ? '<p><strong>Payment:</strong> £5 is payable at the session. (Online payment coming soon!)</p>' : ''}
+          ${data.isFreeSession ? '<p><strong>Note:</strong> This is your FREE first session - no payment required!</p>' : '<p><strong>Payment:</strong> Your £5 payment has been processed successfully.</p>'}
           
           <p>See you at the gym!</p>
         </div>
@@ -93,13 +115,16 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
   `;
 
   try {
-    await transporter.sendMail({
-      from: `"Mill Town ABC" <${process.env.SMTP_USER}>`,
+    const { client, fromEmail } = await getResendClient();
+    
+    const result = await client.emails.send({
+      from: fromEmail,
       to: data.memberEmail,
       subject: `Booking Confirmed - ${data.sessionTitle} on ${data.sessionDate}`,
       html: htmlContent,
     });
-    console.log(`Confirmation email sent to ${data.memberEmail}`);
+    
+    console.log(`Confirmation email sent to ${data.memberEmail}`, result);
     return true;
   } catch (error) {
     console.error("Failed to send confirmation email:", error);
@@ -115,12 +140,6 @@ interface VerificationEmailData {
 }
 
 export async function sendVerificationEmail(data: VerificationEmailData): Promise<boolean> {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.log("Email not configured - skipping verification email");
-    console.log("Would have sent verification to:", data.memberEmail);
-    return false;
-  }
-
   const verificationLink = `${data.baseUrl}/verify-email?token=${data.verificationToken}`;
 
   const htmlContent = `
@@ -168,13 +187,16 @@ export async function sendVerificationEmail(data: VerificationEmailData): Promis
   `;
 
   try {
-    await transporter.sendMail({
-      from: `"Mill Town ABC" <${process.env.SMTP_USER}>`,
+    const { client, fromEmail } = await getResendClient();
+    
+    const result = await client.emails.send({
+      from: fromEmail,
       to: data.memberEmail,
       subject: "Verify your email - Mill Town ABC",
       html: htmlContent,
     });
-    console.log(`Verification email sent to ${data.memberEmail}`);
+    
+    console.log(`Verification email sent to ${data.memberEmail}`, result);
     return true;
   } catch (error) {
     console.error("Failed to send verification email:", error);
