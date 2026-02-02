@@ -23,6 +23,8 @@ const registerSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   phone: z.string().optional(),
   age: z.number().min(5, "Age must be at least 5").max(100, "Please enter a valid age"),
+  emergencyContactName: z.string().min(2, "Emergency contact name is required"),
+  emergencyContactPhone: z.string().min(10, "Please enter a valid emergency contact phone number"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
@@ -46,6 +48,8 @@ export default function Register() {
       email: "",
       phone: "",
       age: undefined as unknown as number,
+      emergencyContactName: "",
+      emergencyContactPhone: "",
       password: "",
       confirmPassword: "",
       experienceLevel: "beginner",
@@ -178,6 +182,37 @@ export default function Register() {
                     </FormItem>
                   )}
                 />
+                <div className="border-t pt-4 mt-4">
+                  <p className="text-sm font-medium text-foreground mb-3">Emergency Contact (Required)</p>
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="emergencyContactName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Emergency Contact Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Contact's full name" {...field} data-testid="input-register-emergency-name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="emergencyContactPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Emergency Contact Phone</FormLabel>
+                          <FormControl>
+                            <Input type="tel" placeholder="07123 456789" {...field} data-testid="input-register-emergency-phone" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
                 <FormField
                   control={form.control}
                   name="experienceLevel"

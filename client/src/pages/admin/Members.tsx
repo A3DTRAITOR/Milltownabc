@@ -4,13 +4,16 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { User, Mail, Phone, Calendar } from "lucide-react";
+import { User, Mail, Phone, Calendar, AlertTriangle } from "lucide-react";
 
 interface Member {
   id: string;
   name: string;
   email: string;
   phone?: string;
+  age?: number;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
   experienceLevel?: string;
   isAdmin?: boolean;
   createdAt?: string;
@@ -70,6 +73,11 @@ export default function AdminMembers() {
                             {member.phone}
                           </span>
                         )}
+                        {member.age && (
+                          <span className="text-muted-foreground">
+                            Age: {member.age}
+                          </span>
+                        )}
                         {member.createdAt && (
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5" />
@@ -77,6 +85,15 @@ export default function AdminMembers() {
                           </span>
                         )}
                       </div>
+                      {(member.emergencyContactName || member.emergencyContactPhone) && (
+                        <div className="mt-2 flex items-center gap-2 text-sm">
+                          <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                          <span className="text-muted-foreground">
+                            Emergency: {member.emergencyContactName}
+                            {member.emergencyContactPhone && ` - ${member.emergencyContactPhone}`}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

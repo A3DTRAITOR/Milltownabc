@@ -12,6 +12,8 @@ export const members = pgTable("members", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   phone: varchar("phone", { length: 20 }),
   age: integer("age"),
+  emergencyContactName: varchar("emergency_contact_name", { length: 255 }),
+  emergencyContactPhone: varchar("emergency_contact_phone", { length: 20 }),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   experienceLevel: varchar("experience_level", { length: 50 }).default("beginner"),
   isAdmin: boolean("is_admin").default(false),
