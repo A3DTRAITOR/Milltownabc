@@ -354,7 +354,7 @@ export async function registerRoutes(
   // Class schedule templates - recurring weekly classes
   const classTemplates = [
     { dayOfWeek: 1, time: "17:30", title: "Beginners Class", classType: "beginners", duration: 60, description: "Perfect for those new to boxing. Learn fundamentals, technique, and fitness." },
-    { dayOfWeek: 1, time: "17:45", title: "Senior & Carded Boxers", classType: "senior", duration: 135, description: "Advanced training for experienced and carded boxers." },
+    { dayOfWeek: 1, time: "18:45", title: "Senior & Carded Boxers", classType: "senior", duration: 135, description: "Advanced training for experienced and carded boxers." },
     { dayOfWeek: 3, time: "17:30", title: "Open Class Training", classType: "open", duration: 60, description: "Open training session for all experience levels." },
     { dayOfWeek: 6, time: "10:00", title: "Open Class Training", classType: "open", duration: 60, description: "Weekend open training session for all experience levels." },
   ];
