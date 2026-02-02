@@ -339,5 +339,178 @@ export async function registerRoutes(
     }
   });
 
+  // Class schedule templates - recurring weekly classes
+  const classTemplates = [
+    { dayOfWeek: 1, time: "17:30", title: "Beginners Class", classType: "beginners", duration: 60, description: "Perfect for those new to boxing. Learn fundamentals, technique, and fitness." },
+    { dayOfWeek: 1, time: "17:45", title: "Senior & Carded Boxers", classType: "senior", duration: 135, description: "Advanced training for experienced and carded boxers." },
+    { dayOfWeek: 3, time: "17:30", title: "Open Class Training", classType: "open", duration: 60, description: "Open training session for all experience levels." },
+    { dayOfWeek: 6, time: "10:00", title: "Open Class Training", classType: "open", duration: 60, description: "Weekend open training session for all experience levels." },
+  ];
+
+  // Generate classes for the next N weeks
+  async function generateWeeklyClasses(weeksAhead: number = 8) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let week = 0; week < weeksAhead; week++) {
+      for (const template of classTemplates) {
+        const classDate = new Date(today);
+        // Find the next occurrence of this day of week
+        const currentDay = classDate.getDay();
+        let daysUntil = template.dayOfWeek - currentDay;
+        if (daysUntil < 0) daysUntil += 7;
+        classDate.setDate(classDate.getDate() + daysUntil + (week * 7));
+        
+        const dateStr = classDate.toISOString().split('T')[0];
+        
+        // Check if class already exists for this date and time
+        const existingClasses = await storage.getUpcomingClasses();
+        const exists = existingClasses.some(c => c.date === dateStr && c.time === template.time);
+        
+        if (!exists) {
+          await storage.createClass({
+            title: template.title,
+            description: template.description,
+            classType: template.classType,
+            date: dateStr,
+            time: template.time,
+            duration: template.duration,
+            capacity: 12,
+            price: "5.00",
+            isActive: true,
+          });
+        }
+      }
+    }
+  }
+
+  // Generate classes on server start
+  generateWeeklyClasses(8).catch(console.error);
+
+  // Get all upcoming classes
+  app.get("/api/classes", async (_req, res) => {
+    try {
+      // Regenerate classes to ensure we always have 8 weeks ahead
+      await generateWeeklyClasses(8);
+      const classes = await storage.getUpcomingClasses();
+      res.json(classes);
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+      res.status(500).json({ message: "Failed to fetch classes" });
+    }
+  });
+
+  // Get single class
+  app.get("/api/classes/:id", async (req, res) => {
+    try {
+      const boxingClass = await storage.getClass(req.params.id);
+      if (!boxingClass) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+      res.json(boxingClass);
+    } catch (error) {
+      console.error("Error fetching class:", error);
+      res.status(500).json({ message: "Failed to fetch class" });
+    }
+  });
+
+  // Book a class (requires member authentication)
+  app.post("/api/classes/:id/book", async (req, res) => {
+    try {
+      // Check if member is logged in via session
+      const memberId = (req.session as any)?.memberId;
+      if (!memberId) {
+        return res.status(401).json({ message: "Please log in to book a class" });
+      }
+
+      const boxingClass = await storage.getClass(req.params.id);
+      if (!boxingClass) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+
+      if (!boxingClass.isActive) {
+        return res.status(400).json({ message: "This class is not available for booking" });
+      }
+
+      const capacity = boxingClass.capacity || 12;
+      const bookedCount = boxingClass.bookedCount || 0;
+      if (bookedCount >= capacity) {
+        return res.status(400).json({ message: "This class is fully booked" });
+      }
+
+      // Check if already booked
+      const existingBookings = await storage.getBookingsByMember(memberId);
+      const alreadyBooked = existingBookings.some(b => b.classId === req.params.id && b.status !== "cancelled");
+      if (alreadyBooked) {
+        return res.status(400).json({ message: "You have already booked this class" });
+      }
+
+      // Check if this is member's first booking (FREE first session)
+      const memberBookings = existingBookings.filter(b => b.status === "confirmed");
+      const isFirstSession = memberBookings.length === 0;
+
+      // Create booking
+      const booking = await storage.createBooking({
+        memberId,
+        classId: req.params.id,
+        status: isFirstSession ? "confirmed" : "pending",
+      });
+
+      await storage.incrementBookedCount(req.params.id);
+
+      res.json({ 
+        booking, 
+        isFirstSession,
+        message: isFirstSession ? "Your first session is FREE!" : "Booking confirmed - £5 payment due at session"
+      });
+    } catch (error) {
+      console.error("Error booking class:", error);
+      res.status(500).json({ message: "Failed to book class" });
+    }
+  });
+
+  // Cancel booking
+  app.delete("/api/bookings/:id", async (req, res) => {
+    try {
+      const memberId = (req.session as any)?.memberId;
+      if (!memberId) {
+        return res.status(401).json({ message: "Please log in" });
+      }
+
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      if (booking.memberId !== memberId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+
+      await storage.cancelBooking(req.params.id);
+      await storage.decrementBookedCount(booking.classId);
+
+      res.json({ message: "Booking cancelled" });
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      res.status(500).json({ message: "Failed to cancel booking" });
+    }
+  });
+
+  // Get member's bookings
+  app.get("/api/members/me/bookings", async (req, res) => {
+    try {
+      const memberId = (req.session as any)?.memberId;
+      if (!memberId) {
+        return res.status(401).json({ message: "Please log in" });
+      }
+
+      const bookings = await storage.getBookingsByMember(memberId);
+      res.json(bookings);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
   return httpServer;
 }
