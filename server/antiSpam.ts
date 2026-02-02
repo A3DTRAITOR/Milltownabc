@@ -14,8 +14,8 @@ const suspiciousActivityLog: Array<{
 }> = [];
 
 // Constants
-const MAX_BOOKINGS_PER_IP_PER_DAY = 2;
-const MAX_SIGNUPS_PER_IP = 1;
+const MAX_BOOKINGS_PER_IP_PER_DAY = 5;
+const MAX_SIGNUPS_PER_IP = 5;
 
 function getClientIP(req: Request): string {
   const forwarded = req.headers["x-forwarded-for"];
