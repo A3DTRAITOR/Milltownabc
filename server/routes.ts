@@ -457,9 +457,10 @@ export async function registerRoutes(
       }
       
       // Verify hCaptcha if provided and configured
-      const { hcaptchaToken, paymentToken } = req.body;
+      const { hcaptchaToken, paymentToken, paymentMethod } = req.body;
+      const isCashPayment = paymentMethod === "cash";
       // Only require captcha for free sessions (paid sessions go through payment instead)
-      if (!paymentToken) {
+      if (!paymentToken && !isCashPayment) {
         if (hcaptchaToken) {
           const captchaValid = await verifyHCaptcha(hcaptchaToken);
           if (!captchaValid) {
@@ -553,9 +554,9 @@ export async function registerRoutes(
       
       const price = isFreeSession ? "0.00" : "5.00";
 
-      // For paid sessions, process payment first if paymentToken is provided
+      // For paid sessions, process payment first if paymentToken is provided (or skip for cash)
       let paymentResult = null;
-      if (!isFreeSession) {
+      if (!isFreeSession && !isCashPayment) {
         if (!paymentToken) {
           return res.status(400).json({ 
             message: "Payment required for this session. Please complete the payment form." 
@@ -581,14 +582,16 @@ export async function registerRoutes(
         console.log(`[Payment] Success! Payment ID: ${paymentResult.paymentId}`);
       }
 
-      // Create booking - confirmed if free or if payment succeeded
+      // Create booking - confirmed if free or card payment succeeded, pending if cash
+      const bookingStatus = isCashPayment ? "pending_cash" : "confirmed";
       const booking = await storage.createBooking({
         memberId,
         classId: req.params.id,
-        status: "confirmed",
+        status: bookingStatus,
         isFreeSession,
         price,
         squarePaymentId: paymentResult?.paymentId || null,
+        paymentMethod: isCashPayment ? "cash" : "card",
       });
 
       // Mark member as having used free session
@@ -617,9 +620,12 @@ export async function registerRoutes(
         isFreeSession,
         price,
         paymentId: paymentResult?.paymentId || null,
+        paymentMethod: isCashPayment ? "cash" : "card",
         message: isFreeSession 
           ? "Your first session is FREE! A confirmation email has been sent." 
-          : "Payment successful! Your booking is confirmed."
+          : isCashPayment
+            ? "Booking confirmed! Please pay £5 cash at reception before your session."
+            : "Payment successful! Your booking is confirmed."
       });
     } catch (error) {
       console.error("Error booking class:", error);
@@ -834,7 +840,7 @@ export async function registerRoutes(
   app.get("/api/admin/pending-bookings", isAdmin, async (req, res) => {
     try {
       const allBookings = await storage.getAllBookings();
-      const pendingBookings = allBookings.filter(b => b.status === "pending");
+      const pendingBookings = allBookings.filter(b => b.status === "pending" || b.status === "pending_cash");
       
       // Get member and class details for each booking
       const bookingsWithDetails = await Promise.all(

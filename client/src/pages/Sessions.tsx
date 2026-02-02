@@ -9,7 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ChevronLeft, ChevronRight, Clock, Users, Loader2, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Users, Loader2, Check, CreditCard, Banknote } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, isBefore, startOfDay } from "date-fns";
 import { Link } from "wouter";
 import type { BoxingClass } from "@shared/schema";
@@ -36,6 +37,7 @@ export default function Sessions() {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [paymentClassId, setPaymentClassId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "cash">("card");
 
   const { data: classes, isLoading } = useQuery<BoxingClass[]>({
     queryKey: ["/api/classes"],
@@ -99,6 +101,40 @@ export default function Sessions() {
       description: error,
       variant: "destructive",
     });
+  };
+
+  const handleCashBooking = async () => {
+    if (!paymentClassId) return;
+    
+    setIsProcessingPayment(true);
+    try {
+      const res = await apiRequest("POST", `/api/classes/${paymentClassId}/book`, {
+        paymentMethod: "cash",
+        hcaptchaToken: null,
+      });
+      const data = await res.json();
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/members/me/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/members/me"] });
+      
+      toast({ 
+        title: "Session booked!", 
+        description: "Pay £5 cash when you arrive at reception."
+      });
+      
+      setPaymentDialogOpen(false);
+      setPaymentClassId(null);
+      setPaymentMethod("card");
+    } catch (error: any) {
+      toast({
+        title: "Booking failed",
+        description: error.message || "Unable to book session",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const handleCaptchaVerify = (token: string) => {
@@ -554,25 +590,107 @@ export default function Sessions() {
         if (!open && !isProcessingPayment) {
           setPaymentDialogOpen(false);
           setPaymentClassId(null);
+          setPaymentMethod("card");
         }
       }}>
         <DialogContent className="sm:max-w-md" data-testid="dialog-payment">
           <DialogHeader>
-            <DialogTitle>Complete Payment</DialogTitle>
+            <DialogTitle>Book Session - £5</DialogTitle>
             <DialogDescription>
-              Enter your card details to book this session.
+              Choose how you'd like to pay for this session.
             </DialogDescription>
           </DialogHeader>
-          <SquarePayment
-            amount={500}
-            onPaymentSuccess={handlePaymentSuccess}
-            onPaymentError={handlePaymentError}
-            onCancel={() => {
-              setPaymentDialogOpen(false);
-              setPaymentClassId(null);
-            }}
-            isProcessing={isProcessingPayment}
-          />
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Payment Method</label>
+              <Select 
+                value={paymentMethod} 
+                onValueChange={(value: "card" | "cash") => setPaymentMethod(value)}
+                disabled={isProcessingPayment}
+              >
+                <SelectTrigger data-testid="select-payment-method">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="card">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Card (Pay now)</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="cash">
+                    <div className="flex items-center gap-2">
+                      <Banknote className="h-4 w-4" />
+                      <span>Cash at reception</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {paymentMethod === "card" ? (
+              <SquarePayment
+                amount={500}
+                onPaymentSuccess={handlePaymentSuccess}
+                onPaymentError={handlePaymentError}
+                onCancel={() => {
+                  setPaymentDialogOpen(false);
+                  setPaymentClassId(null);
+                  setPaymentMethod("card");
+                }}
+                isProcessing={isProcessingPayment}
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md" data-testid="cash-payment-note">
+                  <div className="flex items-start gap-3">
+                    <Banknote className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-amber-800 dark:text-amber-200">Pay cash when you arrive</p>
+                      <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                        Bring £5 cash and pay at reception before your session.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setPaymentDialogOpen(false);
+                      setPaymentClassId(null);
+                      setPaymentMethod("card");
+                    }}
+                    disabled={isProcessingPayment}
+                    className="flex-1"
+                    data-testid="button-cash-cancel"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleCashBooking}
+                    disabled={isProcessingPayment}
+                    className="flex-1"
+                    data-testid="button-cash-confirm"
+                  >
+                    {isProcessingPayment ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Booking...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Confirm Booking
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </PublicLayout>

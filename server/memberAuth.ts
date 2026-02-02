@@ -20,6 +20,7 @@ const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().optional().nullable(),
+  age: z.number().min(5).max(100).optional().nullable(),
   password: z.string().min(8, "Password must be at least 8 characters"),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
   hcaptchaToken: z.string().optional().nullable(),
@@ -74,7 +75,7 @@ export function registerMemberRoutes(app: Express) {
         return res.status(400).json({ message: result.error.errors[0].message });
       }
 
-      const { name, email, phone, password, experienceLevel, hcaptchaToken } = result.data;
+      const { name, email, phone, age, password, experienceLevel, hcaptchaToken } = result.data;
 
       // Verify hCaptcha
       if (hcaptchaToken) {
@@ -106,6 +107,7 @@ export function registerMemberRoutes(app: Express) {
         name,
         email,
         phone: phone || null,
+        age: age || null,
         passwordHash,
         experienceLevel,
       });

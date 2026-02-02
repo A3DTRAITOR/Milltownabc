@@ -22,6 +22,7 @@ const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email"),
   phone: z.string().optional(),
+  age: z.number().min(5, "Age must be at least 5").max(100, "Please enter a valid age"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
@@ -44,11 +45,14 @@ export default function Register() {
       name: "",
       email: "",
       phone: "",
+      age: undefined as unknown as number,
       password: "",
       confirmPassword: "",
       experienceLevel: "beginner",
     },
   });
+
+  const watchAge = form.watch("age");
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
@@ -144,6 +148,33 @@ export default function Register() {
                         <Input type="tel" placeholder="07123 456789" {...field} data-testid="input-register-phone" />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Age</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="Enter your age" 
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          value={field.value || ""}
+                          data-testid="input-register-age" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      {watchAge && watchAge < 18 && (
+                        <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md" data-testid="warning-under-18">
+                          <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
+                            Guardian must attend first session to sign forms.
+                          </p>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
