@@ -396,8 +396,23 @@ export async function registerRoutes(
     }
   }
 
-  // Generate classes on server start
-  generateWeeklyClasses(8).catch(console.error);
+  // Cleanup: Remove incorrect 17:45 Senior classes (should be 18:45)
+  async function cleanupIncorrectClasses() {
+    try {
+      const allClasses = await storage.getUpcomingClasses();
+      for (const cls of allClasses) {
+        if (cls.classType === 'senior' && cls.time === '17:45') {
+          await storage.deleteClass(cls.id);
+          console.log(`[Cleanup] Removed incorrect 17:45 Senior class on ${cls.date}`);
+        }
+      }
+    } catch (error) {
+      console.error('[Cleanup] Error cleaning up classes:', error);
+    }
+  }
+
+  // Generate classes on server start (cleanup first)
+  cleanupIncorrectClasses().then(() => generateWeeklyClasses(8)).catch(console.error);
 
   // Get all upcoming classes
   app.get("/api/classes", async (_req, res) => {
