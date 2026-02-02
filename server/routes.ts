@@ -4,6 +4,15 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
 import { registerMemberRoutes, isAdmin } from "./memberAuth";
 import { sendBookingConfirmationEmail } from "./email";
+import { checkBookingRateLimit, verifyHCaptcha, logSuspiciousActivity, getSuspiciousActivityLog } from "./antiSpam";
+
+function getClientIP(req: any): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string") {
+    return forwarded.split(",")[0].trim();
+  }
+  return req.ip || req.socket.remoteAddress || "unknown";
+}
 import multer from "multer";
 import sharp from "sharp";
 import path from "path";
@@ -419,6 +428,29 @@ export async function registerRoutes(
   // Book a class (requires member authentication)
   app.post("/api/classes/:id/book", async (req, res) => {
     try {
+      const ip = getClientIP(req);
+      
+      // Check booking rate limit (max 2 bookings per IP per day)
+      const rateLimitResult = checkBookingRateLimit(req);
+      if (!rateLimitResult.allowed) {
+        return res.status(429).json({ 
+          message: "Maximum booking limit reached for today. Please try again tomorrow." 
+        });
+      }
+      
+      // Verify hCaptcha if provided and configured
+      const { hcaptchaToken } = req.body;
+      if (hcaptchaToken) {
+        const captchaValid = await verifyHCaptcha(hcaptchaToken);
+        if (!captchaValid) {
+          logSuspiciousActivity(ip, "FAILED_CAPTCHA_BOOKING", `Failed captcha for class: ${req.params.id}`);
+          return res.status(400).json({ message: "Captcha verification failed. Please try again." });
+        }
+      } else if (process.env.HCAPTCHA_SECRET_KEY) {
+        logSuspiciousActivity(ip, "MISSING_CAPTCHA_BOOKING", `No captcha token for class: ${req.params.id}`);
+        return res.status(400).json({ message: "Please complete the captcha verification" });
+      }
+      
       // Check if member is logged in via session
       const memberId = (req.session as any)?.memberId;
       if (!memberId) {
@@ -568,6 +600,17 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching bookings:", error);
       res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  // Admin: Get suspicious activity log
+  app.get("/api/admin/security-log", isAdmin, async (req, res) => {
+    try {
+      const logs = getSuspiciousActivityLog();
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching security log:", error);
+      res.status(500).json({ message: "Failed to fetch security log" });
     }
   });
 

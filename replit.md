@@ -100,3 +100,15 @@ Database tables:
 ### File Storage
 - Local filesystem storage in `./uploads/` directory
 - Images served via static file middleware
+
+### Anti-Spam Protection
+- **hCaptcha**: Integrated on signup and booking forms (requires HCAPTCHA_SECRET_KEY and VITE_HCAPTCHA_SITE_KEY)
+- **Rate Limiting**: 
+  - Max 2 bookings per IP per day
+  - Max 1 account registration per IP per day
+- **Suspicious Activity Logging**: Captures failed CAPTCHAs, rate limit violations
+- **Admin Security Log**: Available at `/api/admin/security-log` for admins
+
+### Email Notifications
+- **Nodemailer**: SMTP-based email confirmations for bookings
+- **Required Environment Variables**: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS

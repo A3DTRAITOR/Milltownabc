@@ -2,8 +2,17 @@ import { Request, Response, NextFunction, Express } from "express";
 import bcrypt from "bcrypt";
 import { storage } from "./storage";
 import { z } from "zod";
+import { verifyHCaptcha, checkSignupRateLimit, logSuspiciousActivity } from "./antiSpam";
 
 const SALT_ROUNDS = 12;
+
+function getClientIP(req: Request): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string") {
+    return forwarded.split(",")[0].trim();
+  }
+  return req.ip || req.socket.remoteAddress || "unknown";
+}
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -11,6 +20,7 @@ const registerSchema = z.object({
   phone: z.string().optional(),
   password: z.string().min(8, "Password must be at least 8 characters"),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
+  hcaptchaToken: z.string().optional(),
 });
 
 const loginSchema = z.object({
@@ -48,12 +58,34 @@ export function registerMemberRoutes(app: Express) {
   // Register new member
   app.post("/api/members/register", async (req, res) => {
     try {
+      const ip = getClientIP(req);
+      
+      // Check signup rate limit (max 1 account per IP per day)
+      if (!checkSignupRateLimit(req)) {
+        return res.status(429).json({ 
+          message: "Too many signup attempts from this location. Please try again tomorrow." 
+        });
+      }
+      
       const result = registerSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ message: result.error.errors[0].message });
       }
 
-      const { name, email, phone, password, experienceLevel } = result.data;
+      const { name, email, phone, password, experienceLevel, hcaptchaToken } = result.data;
+
+      // Verify hCaptcha
+      if (hcaptchaToken) {
+        const captchaValid = await verifyHCaptcha(hcaptchaToken);
+        if (!captchaValid) {
+          logSuspiciousActivity(ip, "FAILED_CAPTCHA_SIGNUP", `Failed captcha for email: ${email}`);
+          return res.status(400).json({ message: "Captcha verification failed. Please try again." });
+        }
+      } else if (process.env.HCAPTCHA_SECRET_KEY) {
+        // Only require captcha if secret key is configured
+        logSuspiciousActivity(ip, "MISSING_CAPTCHA_SIGNUP", `No captcha token for email: ${email}`);
+        return res.status(400).json({ message: "Please complete the captcha verification" });
+      }
 
       // Check if email already exists
       const existingMember = await storage.getMemberByEmail(email);
@@ -204,44 +236,7 @@ export function registerMemberRoutes(app: Express) {
     }
   });
 
-  // Book a class (without payment for now - payment integration can be added)
-  app.post("/api/classes/:id/book", isMemberAuthenticated, async (req, res) => {
-    try {
-      const classId = req.params.id;
-      const memberId = req.session.memberId!;
-
-      const boxingClass = await storage.getClass(classId);
-      if (!boxingClass) {
-        return res.status(404).json({ message: "Class not found" });
-      }
-
-      if ((boxingClass.bookedCount || 0) >= (boxingClass.capacity || 12)) {
-        return res.status(400).json({ message: "Class is fully booked" });
-      }
-
-      // Check if already booked
-      const existingBookings = await storage.getBookingsByClass(classId);
-      const alreadyBooked = existingBookings.find(
-        b => b.memberId === memberId && b.status !== 'cancelled'
-      );
-      if (alreadyBooked) {
-        return res.status(400).json({ message: "You've already booked this class" });
-      }
-
-      const booking = await storage.createBooking({
-        memberId,
-        classId,
-        status: "confirmed", // Would be 'pending' until Stripe payment completes
-      });
-
-      await storage.incrementBookedCount(classId);
-
-      res.status(201).json(booking);
-    } catch (error) {
-      console.error("Book class error:", error);
-      res.status(500).json({ message: "Failed to book class" });
-    }
-  });
+  // NOTE: Booking route is now in routes.ts with anti-spam protection (hCaptcha + rate limiting)
 
   // Get member's bookings
   app.get("/api/members/me/bookings", isMemberAuthenticated, async (req, res) => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
@@ -6,12 +6,16 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ChevronLeft, ChevronRight, Clock, Users, Loader2, Check } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, isBefore, startOfDay } from "date-fns";
 import { Link } from "wouter";
 import type { BoxingClass } from "@shared/schema";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+
+const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "";
 
 interface MemberData {
   id: string;
@@ -24,6 +28,10 @@ export default function Sessions() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [bookingClassId, setBookingClassId] = useState<string | null>(null);
+  const [captchaDialogOpen, setCaptchaDialogOpen] = useState(false);
+  const [pendingBookingClassId, setPendingBookingClassId] = useState<string | null>(null);
+  const [hcaptchaToken, setHcaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha>(null);
 
   const { data: classes, isLoading } = useQuery<BoxingClass[]>({
     queryKey: ["/api/classes"],
@@ -34,10 +42,34 @@ export default function Sessions() {
     retry: false,
   });
 
+  const handleBookClick = (classId: string) => {
+    if (HCAPTCHA_SITE_KEY) {
+      setPendingBookingClassId(classId);
+      setCaptchaDialogOpen(true);
+    } else {
+      bookMutation.mutate(classId);
+    }
+  };
+
+  const handleCaptchaVerify = (token: string) => {
+    setHcaptchaToken(token);
+  };
+
+  const confirmBookingWithCaptcha = () => {
+    if (pendingBookingClassId && hcaptchaToken) {
+      bookMutation.mutate(pendingBookingClassId);
+      setCaptchaDialogOpen(false);
+      setHcaptchaToken(null);
+      captchaRef.current?.resetCaptcha();
+    }
+  };
+
   const bookMutation = useMutation({
     mutationFn: async (classId: string) => {
       setBookingClassId(classId);
-      const res = await apiRequest("POST", `/api/classes/${classId}/book`);
+      const res = await apiRequest("POST", `/api/classes/${classId}/book`, {
+        hcaptchaToken,
+      });
       return res.json();
     },
     onSuccess: (data) => {
@@ -57,6 +89,9 @@ export default function Sessions() {
         variant: "destructive",
       });
       setBookingClassId(null);
+      setPendingBookingClassId(null);
+      setHcaptchaToken(null);
+      captchaRef.current?.resetCaptcha();
     },
   });
 
@@ -352,7 +387,7 @@ export default function Sessions() {
                         {currentMember ? (
                           <Button
                             className={`w-full ${isEligibleForFree ? 'bg-green-600' : ''}`}
-                            onClick={() => bookMutation.mutate(boxingClass.id)}
+                            onClick={() => handleBookClick(boxingClass.id)}
                             disabled={isFull || isBooking}
                             data-testid={`button-book-${boxingClass.id}`}
                           >
@@ -396,6 +431,58 @@ export default function Sessions() {
           )}
         </div>
       </section>
+
+      {/* hCaptcha Dialog for Booking */}
+      <Dialog open={captchaDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          setCaptchaDialogOpen(false);
+          setPendingBookingClassId(null);
+          setHcaptchaToken(null);
+          captchaRef.current?.resetCaptcha();
+        }
+      }}>
+        <DialogContent className="sm:max-w-md" data-testid="dialog-captcha-booking">
+          <DialogHeader>
+            <DialogTitle>Confirm Booking</DialogTitle>
+            <DialogDescription>
+              Please verify you're human to complete your booking.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center py-4">
+            <HCaptcha
+              ref={captchaRef}
+              sitekey={HCAPTCHA_SITE_KEY}
+              onVerify={handleCaptchaVerify}
+              onExpire={() => setHcaptchaToken(null)}
+              onError={() => setHcaptchaToken(null)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCaptchaDialogOpen(false);
+                setPendingBookingClassId(null);
+                setHcaptchaToken(null);
+                captchaRef.current?.resetCaptcha();
+              }}
+              data-testid="button-captcha-cancel"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmBookingWithCaptcha}
+              disabled={!hcaptchaToken || bookMutation.isPending}
+              data-testid="button-captcha-confirm"
+            >
+              {bookMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              Confirm Booking
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PublicLayout>
   );
 }

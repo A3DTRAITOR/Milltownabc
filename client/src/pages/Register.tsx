@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,6 +14,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, UserPlus } from "lucide-react";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+
+const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -31,6 +35,8 @@ type RegisterData = z.infer<typeof registerSchema>;
 export default function Register() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [hcaptchaToken, setHcaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha>(null);
 
   const form = useForm<RegisterData>({
     resolver: zodResolver(registerSchema),
@@ -47,7 +53,10 @@ export default function Register() {
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
       const { confirmPassword, ...submitData } = data;
-      const res = await apiRequest("POST", "/api/members/register", submitData);
+      const res = await apiRequest("POST", "/api/members/register", {
+        ...submitData,
+        hcaptchaToken,
+      });
       return res.json();
     },
     onSuccess: () => {
@@ -61,10 +70,20 @@ export default function Register() {
         description: error.message || "Something went wrong",
         variant: "destructive",
       });
+      captchaRef.current?.resetCaptcha();
+      setHcaptchaToken(null);
     },
   });
 
   const onSubmit = (data: RegisterData) => {
+    if (HCAPTCHA_SITE_KEY && !hcaptchaToken) {
+      toast({
+        title: "Please complete the captcha",
+        description: "Verify you're human before registering",
+        variant: "destructive",
+      });
+      return;
+    }
     registerMutation.mutate(data);
   };
 
@@ -176,6 +195,19 @@ export default function Register() {
                     </FormItem>
                   )}
                 />
+                
+                {HCAPTCHA_SITE_KEY && (
+                  <div className="flex justify-center" data-testid="captcha-register">
+                    <HCaptcha
+                      ref={captchaRef}
+                      sitekey={HCAPTCHA_SITE_KEY}
+                      onVerify={(token) => setHcaptchaToken(token)}
+                      onExpire={() => setHcaptchaToken(null)}
+                      onError={() => setHcaptchaToken(null)}
+                    />
+                  </div>
+                )}
+
                 <Button
                   type="submit"
                   className="w-full"
