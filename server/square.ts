@@ -4,11 +4,14 @@ import crypto from "crypto";
 // TODO: Replace sandbox keys with live keys for production
 // Get Square sandbox keys from: squareup.com/gb/en → Developer Dashboard → Sandbox environment
 
+// Detect sandbox mode by checking if Application ID starts with "sandbox-"
+const isSandboxMode = (process.env.SQUARE_APPLICATION_ID || "").trim().startsWith("sandbox-");
+
 const squareClient = new SquareClient({
-  token: process.env.SQUARE_ACCESS_TOKEN || "",
-  environment: process.env.NODE_ENV === "production" 
-    ? SquareEnvironment.Production 
-    : SquareEnvironment.Sandbox,
+  token: (process.env.SQUARE_ACCESS_TOKEN || "").trim(),
+  environment: isSandboxMode 
+    ? SquareEnvironment.Sandbox 
+    : SquareEnvironment.Production,
 });
 
 export interface CreatePaymentParams {
