@@ -406,44 +406,44 @@ export default function AdminCalendar() {
                     ) : (
                       <div className="divide-y">
                         {dayClasses.map((boxingClass) => (
-                          <div key={boxingClass.id} className="p-4 flex items-start justify-between gap-4" data-testid={`card-class-${boxingClass.id}`}>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <h4 className="font-semibold text-foreground">{boxingClass.title}</h4>
-                                <Badge variant="secondary">{boxingClass.classType}</Badge>
-                                {!boxingClass.isActive && <Badge variant="outline">Inactive</Badge>}
+                          <div key={boxingClass.id} className="p-3 sm:p-4" data-testid={`card-class-${boxingClass.id}`}>
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                  <h4 className="font-semibold text-foreground text-sm sm:text-base">{boxingClass.title}</h4>
+                                  <Badge variant="secondary" className="text-xs">{boxingClass.classType}</Badge>
+                                  {!boxingClass.isActive && <Badge variant="outline" className="text-xs">Inactive</Badge>}
+                                </div>
+                                <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground flex-wrap">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                    {boxingClass.time} ({boxingClass.duration} min)
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                    {boxingClass.bookedCount || 0}/{boxingClass.capacity}
+                                  </span>
+                                  <span className="font-medium text-primary">£{boxingClass.price}</span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3.5 w-3.5" />
-                                  {boxingClass.time} ({boxingClass.duration} min)
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Users className="h-3.5 w-3.5" />
-                                  {boxingClass.bookedCount || 0}/{boxingClass.capacity} booked
-                                </span>
-                                <span className="font-medium text-primary">£{boxingClass.price}</span>
+                              <div className="flex items-center gap-1 justify-end shrink-0">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => setAttendeesClass(boxingClass)} 
+                                  className="text-xs h-8 px-2 sm:px-3"
+                                  data-testid={`button-attendees-${boxingClass.id}`}
+                                >
+                                  <Eye className="h-3.5 w-3.5 sm:mr-1" />
+                                  <span className="hidden sm:inline">Attendees</span>
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(boxingClass)} data-testid={`button-edit-${boxingClass.id}`}>
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteClass(boxingClass)} data-testid={`button-delete-${boxingClass.id}`}>
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </Button>
                               </div>
-                              {boxingClass.description && (
-                                <p className="text-sm text-muted-foreground mt-2">{boxingClass.description}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => setAttendeesClass(boxingClass)} 
-                                data-testid={`button-attendees-${boxingClass.id}`}
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                Attendees
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => openEditDialog(boxingClass)} data-testid={`button-edit-${boxingClass.id}`}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => setDeleteClass(boxingClass)} data-testid={`button-delete-${boxingClass.id}`}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
                             </div>
                           </div>
                         ))}

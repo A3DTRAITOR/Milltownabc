@@ -326,73 +326,122 @@ export default function AdminBookings() {
                 )}
               </Card>
             ) : (
-              <Card>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Class</TableHead>
-                      <TableHead>Date & Time</TableHead>
-                      <TableHead>Member</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Booked</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredBookings.map((booking) => (
-                      <TableRow key={booking.id} data-testid={`row-booking-${booking.id}`}>
-                        <TableCell className="font-medium">
-                          {booking.class?.title || "Unknown Class"}
-                        </TableCell>
-                        <TableCell>
-                          {booking.class ? (
-                            <div className="flex items-center gap-1 text-sm">
-                              <span>{format(new Date(booking.class.date), "MMM d")}</span>
-                              <span className="text-muted-foreground">at</span>
-                              <span>{booking.class.time}</span>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">
-                              {getMemberDisplayName(booking)}
-                              {booking.memberDeleted && (
-                                <Badge variant="outline" className="ml-2 text-xs text-muted-foreground">Deleted</Badge>
-                              )}
-                            </p>
-                            {getMemberEmail(booking) && (
-                              <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className={booking.status === "cancelled" ? "line-through text-muted-foreground" : "font-medium"}>
+              <>
+                {/* Mobile card view */}
+                <div className="space-y-3 md:hidden">
+                  {filteredBookings.map((booking) => (
+                    <Card key={booking.id} className="p-4" data-testid={`card-booking-${booking.id}`}>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground truncate">
+                            {booking.class?.title || "Unknown Class"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {booking.class ? `${format(new Date(booking.class.date), "MMM d")} at ${booking.class.time}` : "-"}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <Badge variant={getStatusVariant(booking.status)}>
+                            {booking.status}
+                          </Badge>
+                          <span className={`text-sm font-medium ${booking.status === "cancelled" ? "line-through text-muted-foreground" : ""}`}>
                             {booking.isFreeSession ? (
                               <span className="text-green-600">FREE</span>
                             ) : (
                               `£${parseFloat(booking.price || "5.00").toFixed(2)}`
                             )}
                           </span>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={getStatusVariant(booking.status)}>
-                            {booking.status}
-                          </Badge>
-                          {booking.isFreeSession && (
-                            <Badge variant="outline" className="ml-1 text-xs">1st Session</Badge>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            {getMemberDisplayName(booking)}
+                            {booking.memberDeleted && (
+                              <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>
+                            )}
+                          </p>
+                          {getMemberEmail(booking) && (
+                            <p className="text-xs text-muted-foreground truncate">{getMemberEmail(booking)}</p>
                           )}
-                        </TableCell>
-                        <TableCell className="text-right text-sm text-muted-foreground">
-                          {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
-                        </TableCell>
+                        </div>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                          {format(new Date(booking.bookedAt), "MMM d")}
+                        </p>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Desktop table view */}
+                <Card className="hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Class</TableHead>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead>Member</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Booked</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredBookings.map((booking) => (
+                        <TableRow key={booking.id} data-testid={`row-booking-${booking.id}`}>
+                          <TableCell className="font-medium">
+                            {booking.class?.title || "Unknown Class"}
+                          </TableCell>
+                          <TableCell>
+                            {booking.class ? (
+                              <div className="flex items-center gap-1 text-sm">
+                                <span>{format(new Date(booking.class.date), "MMM d")}</span>
+                                <span className="text-muted-foreground">at</span>
+                                <span>{booking.class.time}</span>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">
+                                {getMemberDisplayName(booking)}
+                                {booking.memberDeleted && (
+                                  <Badge variant="outline" className="ml-2 text-xs text-muted-foreground">Deleted</Badge>
+                                )}
+                              </p>
+                              {getMemberEmail(booking) && (
+                                <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className={booking.status === "cancelled" ? "line-through text-muted-foreground" : "font-medium"}>
+                              {booking.isFreeSession ? (
+                                <span className="text-green-600">FREE</span>
+                              ) : (
+                                `£${parseFloat(booking.price || "5.00").toFixed(2)}`
+                              )}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusVariant(booking.status)}>
+                              {booking.status}
+                            </Badge>
+                            {booking.isFreeSession && (
+                              <Badge variant="outline" className="ml-1 text-xs">1st Session</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right text-sm text-muted-foreground">
+                            {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </>
             )}
           </TabsContent>
 
@@ -450,165 +499,233 @@ export default function AdminBookings() {
             )}
 
             <div className="space-y-6">
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Gift className="h-5 w-5 text-green-600" />
+              <Card className="p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Gift className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                   Free Sessions (First Session)
                 </h3>
                 {freeSessionBookings.length === 0 ? (
                   <p className="text-muted-foreground text-center py-4">No free session bookings yet.</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Member</TableHead>
-                        <TableHead>Class</TableHead>
-                        <TableHead>Date & Time</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Booked</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                  <>
+                    <div className="space-y-3 md:hidden">
                       {freeSessionBookings.map((booking) => (
-                        <TableRow key={booking.id} data-testid={`row-free-${booking.id}`}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">
-                                {getMemberDisplayName(booking)}
-                                {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
-                              </p>
-                              {getMemberEmail(booking) && (
-                                <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
-                              )}
+                        <div key={booking.id} className="p-3 bg-muted/50 rounded-lg" data-testid={`card-free-${booking.id}`}>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">{getMemberDisplayName(booking)}</p>
+                              <p className="text-xs text-muted-foreground truncate">{booking.class?.title || "Unknown"}</p>
                             </div>
-                          </TableCell>
-                          <TableCell>{booking.class?.title || "Unknown"}</TableCell>
-                          <TableCell>
-                            {booking.class?.date && (
-                              <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
-                          </TableCell>
-                          <TableCell className="text-right text-sm text-muted-foreground">
-                            {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
-                          </TableCell>
-                        </TableRow>
+                            <Badge variant={getStatusVariant(booking.status)} className="text-xs shrink-0">{booking.status}</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{booking.class?.date && `${format(new Date(booking.class.date), "MMM d")} at ${booking.class.time}`}</span>
+                            <span className="text-green-600 font-medium">FREE</span>
+                          </div>
+                        </div>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </div>
+                    <div className="hidden md:block">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Member</TableHead>
+                            <TableHead>Class</TableHead>
+                            <TableHead>Date & Time</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Booked</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {freeSessionBookings.map((booking) => (
+                            <TableRow key={booking.id} data-testid={`row-free-${booking.id}`}>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">
+                                    {getMemberDisplayName(booking)}
+                                    {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                                  </p>
+                                  {getMemberEmail(booking) && (
+                                    <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>{booking.class?.title || "Unknown"}</TableCell>
+                              <TableCell>
+                                {booking.class?.date && (
+                                  <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+                              </TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground">
+                                {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
                 )}
               </Card>
 
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-blue-600" />
+              <Card className="p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   Paid Online (Card)
                 </h3>
                 {paidOnlineBookings.length === 0 ? (
                   <p className="text-muted-foreground text-center py-4">No online card payments yet.</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Member</TableHead>
-                        <TableHead>Class</TableHead>
-                        <TableHead>Date & Time</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Booked</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                  <>
+                    <div className="space-y-3 md:hidden">
                       {paidOnlineBookings.map((booking) => (
-                        <TableRow key={booking.id} data-testid={`row-card-${booking.id}`}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">
-                                {getMemberDisplayName(booking)}
-                                {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
-                              </p>
-                              {getMemberEmail(booking) && (
-                                <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
-                              )}
+                        <div key={booking.id} className="p-3 bg-muted/50 rounded-lg" data-testid={`card-card-${booking.id}`}>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">{getMemberDisplayName(booking)}</p>
+                              <p className="text-xs text-muted-foreground truncate">{booking.class?.title || "Unknown"}</p>
                             </div>
-                          </TableCell>
-                          <TableCell>{booking.class?.title || "Unknown"}</TableCell>
-                          <TableCell>
-                            {booking.class?.date && (
-                              <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="font-medium">£{booking.price || "5.00"}</TableCell>
-                          <TableCell>
-                            <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
-                          </TableCell>
-                          <TableCell className="text-right text-sm text-muted-foreground">
-                            {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
-                          </TableCell>
-                        </TableRow>
+                            <Badge variant={getStatusVariant(booking.status)} className="text-xs shrink-0">{booking.status}</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{booking.class?.date && `${format(new Date(booking.class.date), "MMM d")} at ${booking.class.time}`}</span>
+                            <span className="font-medium text-foreground">£{booking.price || "5.00"}</span>
+                          </div>
+                        </div>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </div>
+                    <div className="hidden md:block">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Member</TableHead>
+                            <TableHead>Class</TableHead>
+                            <TableHead>Date & Time</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Booked</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {paidOnlineBookings.map((booking) => (
+                            <TableRow key={booking.id} data-testid={`row-card-${booking.id}`}>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">
+                                    {getMemberDisplayName(booking)}
+                                    {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                                  </p>
+                                  {getMemberEmail(booking) && (
+                                    <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>{booking.class?.title || "Unknown"}</TableCell>
+                              <TableCell>
+                                {booking.class?.date && (
+                                  <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
+                                )}
+                              </TableCell>
+                              <TableCell className="font-medium">£{booking.price || "5.00"}</TableCell>
+                              <TableCell>
+                                <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+                              </TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground">
+                                {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
                 )}
               </Card>
 
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Banknote className="h-5 w-5 text-amber-600" />
+              <Card className="p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Banknote className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
                   Cash Payments
                 </h3>
                 {cashBookings.length === 0 ? (
                   <p className="text-muted-foreground text-center py-4">No cash payment bookings yet.</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Member</TableHead>
-                        <TableHead>Class</TableHead>
-                        <TableHead>Date & Time</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Booked</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                  <>
+                    <div className="space-y-3 md:hidden">
                       {cashBookings.map((booking) => (
-                        <TableRow key={booking.id} data-testid={`row-cash-${booking.id}`}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">
-                                {getMemberDisplayName(booking)}
-                                {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
-                              </p>
-                              {getMemberEmail(booking) && (
-                                <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
-                              )}
+                        <div key={booking.id} className="p-3 bg-muted/50 rounded-lg" data-testid={`card-cash-${booking.id}`}>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">{getMemberDisplayName(booking)}</p>
+                              <p className="text-xs text-muted-foreground truncate">{booking.class?.title || "Unknown"}</p>
                             </div>
-                          </TableCell>
-                          <TableCell>{booking.class?.title || "Unknown"}</TableCell>
-                          <TableCell>
-                            {booking.class?.date && (
-                              <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="font-medium">£{booking.price || "5.00"}</TableCell>
-                          <TableCell>
                             <Badge 
                               variant={booking.status === "pending_cash" ? "outline" : getStatusVariant(booking.status)}
-                              className={booking.status === "pending_cash" ? "border-amber-500 text-amber-600" : ""}
+                              className={`text-xs shrink-0 ${booking.status === "pending_cash" ? "border-amber-500 text-amber-600" : ""}`}
                             >
-                              {booking.status === "pending_cash" ? "Awaiting Payment" : booking.status}
+                              {booking.status === "pending_cash" ? "Pending" : booking.status}
                             </Badge>
-                          </TableCell>
-                          <TableCell className="text-right text-sm text-muted-foreground">
-                            {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
-                          </TableCell>
-                        </TableRow>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{booking.class?.date && `${format(new Date(booking.class.date), "MMM d")} at ${booking.class.time}`}</span>
+                            <span className="font-medium text-foreground">£{booking.price || "5.00"}</span>
+                          </div>
+                        </div>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </div>
+                    <div className="hidden md:block">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Member</TableHead>
+                            <TableHead>Class</TableHead>
+                            <TableHead>Date & Time</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Booked</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {cashBookings.map((booking) => (
+                            <TableRow key={booking.id} data-testid={`row-cash-${booking.id}`}>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">
+                                    {getMemberDisplayName(booking)}
+                                    {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                                  </p>
+                                  {getMemberEmail(booking) && (
+                                    <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>{booking.class?.title || "Unknown"}</TableCell>
+                              <TableCell>
+                                {booking.class?.date && (
+                                  <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
+                                )}
+                              </TableCell>
+                              <TableCell className="font-medium">£{booking.price || "5.00"}</TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant={booking.status === "pending_cash" ? "outline" : getStatusVariant(booking.status)}
+                                  className={booking.status === "pending_cash" ? "border-amber-500 text-amber-600" : ""}
+                                >
+                                  {booking.status === "pending_cash" ? "Awaiting Payment" : booking.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground">
+                                {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
                 )}
               </Card>
             </div>
@@ -741,15 +858,15 @@ export default function AdminBookings() {
               </div>
             </Card>
 
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground">Transaction Ledger</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Complete record of all transactions for HMRC compliance and accounting.
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground">Transaction Ledger</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Complete record for HMRC compliance.
                   </p>
                 </div>
-                <Button onClick={exportToCSV} variant="outline" data-testid="button-export-csv">
+                <Button onClick={exportToCSV} variant="outline" size="sm" className="w-full sm:w-auto" data-testid="button-export-csv">
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
                 </Button>
@@ -762,39 +879,70 @@ export default function AdminBookings() {
                   <p className="text-muted-foreground">No transactions for this period.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Transaction ID</TableHead>
-                        <TableHead>Member</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Amount (GBP)</TableHead>
-                        <TableHead className="text-right">Running Total</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {financeBookings.map((booking, index) => {
-                        const bookingAmount = booking.isFreeSession ? 0 : parseFloat(booking.price || "5.00");
-                        const runningTotal = financeBookings
-                          .slice(index)
-                          .filter(b => b.status === "confirmed" && !b.isFreeSession)
-                          .reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
-                        return (
-                          <TableRow key={booking.id}>
-                            <TableCell className="text-sm whitespace-nowrap">
-                              {format(new Date(booking.bookedAt), "dd/MM/yyyy HH:mm")}
-                            </TableCell>
-                            <TableCell className="font-mono text-xs">
-                              TXN-{booking.id.slice(0, 8).toUpperCase()}
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <p className="font-medium">
-                                  {getMemberDisplayName(booking)}
-                                  {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                <>
+                  {/* Mobile transaction cards */}
+                  <div className="space-y-3 md:hidden">
+                    {financeBookings.map((booking) => {
+                      const bookingAmount = booking.isFreeSession ? 0 : parseFloat(booking.price || "5.00");
+                      return (
+                        <div key={booking.id} className="p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">{getMemberDisplayName(booking)}</p>
+                              <p className="text-xs text-muted-foreground truncate">{booking.class?.title || "Session"}</p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              {booking.isFreeSession ? (
+                                <span className="text-xs text-muted-foreground">£0.00</span>
+                              ) : booking.status === "cancelled" ? (
+                                <span className="text-sm font-medium text-destructive">-£{bookingAmount.toFixed(2)}</span>
+                              ) : (
+                                <span className="text-sm font-medium text-green-600">+£{bookingAmount.toFixed(2)}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{format(new Date(booking.bookedAt), "dd/MM/yy")}</span>
+                            <Badge variant={getStatusVariant(booking.status)} className="text-xs">{booking.status}</Badge>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* Desktop table */}
+                  <div className="overflow-x-auto hidden md:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Transaction ID</TableHead>
+                          <TableHead>Member</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Amount (GBP)</TableHead>
+                          <TableHead className="text-right">Running Total</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {financeBookings.map((booking, index) => {
+                          const bookingAmount = booking.isFreeSession ? 0 : parseFloat(booking.price || "5.00");
+                          const runningTotal = financeBookings
+                            .slice(index)
+                            .filter(b => b.status === "confirmed" && !b.isFreeSession)
+                            .reduce((sum, b) => sum + parseFloat(b.price || "5.00"), 0);
+                          return (
+                            <TableRow key={booking.id}>
+                              <TableCell className="text-sm whitespace-nowrap">
+                                {format(new Date(booking.bookedAt), "dd/MM/yyyy HH:mm")}
+                              </TableCell>
+                              <TableCell className="font-mono text-xs">
+                                TXN-{booking.id.slice(0, 8).toUpperCase()}
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">
+                                    {getMemberDisplayName(booking)}
+                                    {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
                                 </p>
                                 {getMemberEmail(booking) && (
                                   <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
@@ -835,6 +983,7 @@ export default function AdminBookings() {
                     </TableBody>
                   </Table>
                 </div>
+                </>
               )}
             </Card>
 

@@ -199,17 +199,17 @@ export default function AdminSchedule() {
 
   return (
     <AdminLayout title="Schedule Settings">
-      <div className="mx-auto max-w-2xl space-y-6 p-4">
-        <div className="flex items-start justify-between gap-4">
+      <div className="mx-auto max-w-2xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Weekly Schedule</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Weekly Schedule</h2>
             <p className="text-sm text-muted-foreground mt-1">
               Create and manage recurring sessions. Classes generate 2 weeks ahead.
             </p>
           </div>
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
-              <Button data-testid="button-create-class">
+              <Button data-testid="button-create-class" className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 New Class
               </Button>
