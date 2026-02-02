@@ -1,9 +1,16 @@
 // Resend email integration for Mill Town ABC
 import { Resend } from 'resend';
 
-let connectionSettings: any;
-
 async function getCredentials() {
+  // First try environment variables (works on any host)
+  if (process.env.RESEND_API_KEY) {
+    return {
+      apiKey: process.env.RESEND_API_KEY,
+      fromEmail: process.env.RESEND_FROM_EMAIL || 'Mill Town ABC <noreply@milltownabc.co.uk>'
+    };
+  }
+
+  // Fall back to Replit integration if available
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY 
     ? 'repl ' + process.env.REPL_IDENTITY 
@@ -11,27 +18,32 @@ async function getCredentials() {
     ? 'depl ' + process.env.WEB_REPL_RENEWAL 
     : null;
 
-  if (!xReplitToken) {
-    throw new Error('Resend credentials not available');
-  }
+  if (hostname && xReplitToken) {
+    try {
+      const response = await fetch(
+        'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
+        {
+          headers: {
+            'Accept': 'application/json',
+            'X_REPLIT_TOKEN': xReplitToken
+          }
+        }
+      );
+      const data = await response.json();
+      const connectionSettings = data.items?.[0];
 
-  connectionSettings = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X_REPLIT_TOKEN': xReplitToken
+      if (connectionSettings?.settings?.api_key) {
+        return {
+          apiKey: connectionSettings.settings.api_key, 
+          fromEmail: connectionSettings.settings.from_email || 'Mill Town ABC <noreply@milltownabc.co.uk>'
+        };
       }
+    } catch (error) {
+      console.error("[Email] Failed to get Replit connector credentials:", error);
     }
-  ).then(res => res.json()).then(data => data.items?.[0]);
-
-  if (!connectionSettings || (!connectionSettings.settings.api_key)) {
-    throw new Error('Resend not connected');
   }
-  return {
-    apiKey: connectionSettings.settings.api_key, 
-    fromEmail: connectionSettings.settings.from_email || 'Mill Town ABC <onboarding@resend.dev>'
-  };
+
+  throw new Error('Resend API key not configured. Set RESEND_API_KEY environment variable.');
 }
 
 async function getResendClient() {
