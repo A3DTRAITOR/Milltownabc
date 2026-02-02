@@ -12,7 +12,7 @@ import { Calendar, Clock, User, LogOut, X, Loader2 } from "lucide-react";
 import { format, parseISO, isPast } from "date-fns";
 import type { Booking, BoxingClass } from "@shared/schema";
 
-type BookingWithClass = Booking & { class?: BoxingClass };
+type BookingWithClass = Booking & { class?: BoxingClass; isFreeSession?: boolean; price?: string };
 
 interface MemberData {
   id: string;
@@ -168,7 +168,14 @@ export default function Dashboard() {
                   <Card key={booking.id} className="p-4" data-testid={`card-booking-${booking.id}`}>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <h3 className="font-semibold text-foreground">{booking.class?.title}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-foreground">{booking.class?.title}</h3>
+                          {booking.isFreeSession ? (
+                            <Badge variant="default" className="bg-green-600 text-xs" data-testid={`badge-free-${booking.id}`}>FREE</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-xs" data-testid={`badge-price-${booking.id}`}>£{booking.price || '5'}</Badge>
+                          )}
+                        </div>
                         <div className="flex flex-wrap gap-3 mt-1 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -206,13 +213,20 @@ export default function Dashboard() {
           {/* Past Bookings */}
           {pastBookings.length > 0 && (
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-4">Past Classes</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-4">Booking History</h2>
               <div className="space-y-3">
-                {pastBookings.slice(0, 5).map((booking) => (
+                {pastBookings.map((booking) => (
                   <Card key={booking.id} className="p-4 opacity-70">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-medium text-foreground">{booking.class?.title}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium text-foreground">{booking.class?.title}</h3>
+                          {booking.isFreeSession ? (
+                            <Badge variant="default" className="bg-green-600/70 text-xs" data-testid={`badge-history-free-${booking.id}`}>FREE</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-xs" data-testid={`badge-history-price-${booking.id}`}>£{booking.price || '5'}</Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           {formatDate(booking.class?.date || '')} at {booking.class?.time}
                         </p>

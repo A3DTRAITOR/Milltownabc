@@ -14,6 +14,7 @@ export const members = pgTable("members", {
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   experienceLevel: varchar("experience_level", { length: 50 }).default("beginner"),
   isAdmin: boolean("is_admin").default(false),
+  hasUsedFreeSession: boolean("has_used_free_session").default(false),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -41,6 +42,8 @@ export const bookings = pgTable("bookings", {
   classId: varchar("class_id").notNull().references(() => boxingClasses.id),
   stripePaymentId: varchar("stripe_payment_id", { length: 255 }),
   status: varchar("status", { length: 50 }).default("pending"),
+  isFreeSession: boolean("is_free_session").default(false),
+  price: decimal("price", { precision: 10, scale: 2 }).default("5.00"),
   bookedAt: timestamp("booked_at").defaultNow(),
 });
 

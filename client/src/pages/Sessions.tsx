@@ -16,6 +16,7 @@ import type { BoxingClass } from "@shared/schema";
 interface MemberData {
   id: string;
   name: string;
+  hasUsedFreeSession?: boolean;
 }
 
 export default function Sessions() {
@@ -39,10 +40,14 @@ export default function Sessions() {
       const res = await apiRequest("POST", `/api/classes/${classId}/book`);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
       queryClient.invalidateQueries({ queryKey: ["/api/members/me/bookings"] });
-      toast({ title: "Booking confirmed!", description: "You've successfully booked this class." });
+      queryClient.invalidateQueries({ queryKey: ["/api/members/me"] });
+      toast({ 
+        title: data.isFreeSession ? "Free Session Booked!" : "Booking confirmed!", 
+        description: data.message || "You've successfully booked this class."
+      });
       setBookingClassId(null);
     },
     onError: (error: Error) => {
@@ -113,6 +118,25 @@ export default function Sessions() {
 
       <section className="py-12 lg:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+
+          {/* Free Session Banner */}
+          {currentMember && !currentMember.hasUsedFreeSession && (
+            <Card className="p-4 mb-6 bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800" data-testid="banner-free-session">
+              <div className="flex items-center gap-3">
+                <Badge variant="default" className="bg-green-600" data-testid="badge-free-intro">
+                  FREE
+                </Badge>
+                <div>
+                  <p className="font-bold text-green-800 dark:text-green-200" data-testid="text-free-session-title">
+                    Your first session is FREE!
+                  </p>
+                  <p className="text-sm text-green-700 dark:text-green-300" data-testid="text-free-session-desc">
+                    Book any class below - your first session costs nothing. Then just £5 per session after.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
           
           {/* Calendar Header */}
           <Card className="p-4 mb-6">
@@ -293,11 +317,12 @@ export default function Sessions() {
                     const spotsLeft = (boxingClass.capacity || 12) - (boxingClass.bookedCount || 0);
                     const isFull = spotsLeft <= 0;
                     const isBooking = bookingClassId === boxingClass.id;
+                    const isEligibleForFree = currentMember && !currentMember.hasUsedFreeSession;
 
                     return (
                       <Card
                         key={boxingClass.id}
-                        className="p-4 border-2 hover:border-primary/30 transition-colors"
+                        className={`p-4 border-2 hover:border-primary/30 transition-colors ${isEligibleForFree ? 'ring-2 ring-green-500/30' : ''}`}
                         data-testid={`timeslot-${boxingClass.id}`}
                       >
                         <div className="flex items-center gap-2 mb-2">
@@ -315,12 +340,18 @@ export default function Sessions() {
                             <Users className="h-3.5 w-3.5" />
                             {spotsLeft} spots left
                           </span>
-                          <span className="font-bold text-primary">£{boxingClass.price}</span>
+                          {isEligibleForFree ? (
+                            <Badge variant="default" className="bg-green-600" data-testid={`badge-free-${boxingClass.id}`}>
+                              FREE
+                            </Badge>
+                          ) : (
+                            <span className="font-bold text-primary" data-testid={`text-price-${boxingClass.id}`}>£5</span>
+                          )}
                         </div>
 
                         {currentMember ? (
                           <Button
-                            className="w-full"
+                            className={`w-full ${isEligibleForFree ? 'bg-green-600' : ''}`}
                             onClick={() => bookMutation.mutate(boxingClass.id)}
                             disabled={isFull || isBooking}
                             data-testid={`button-book-${boxingClass.id}`}
@@ -329,11 +360,16 @@ export default function Sessions() {
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : isFull ? (
                               "Class Full"
+                            ) : isEligibleForFree ? (
+                              <span data-testid={`text-book-free-${boxingClass.id}`}>
+                                <Check className="h-4 w-4 mr-2 inline" />
+                                Book Free First Session
+                              </span>
                             ) : (
-                              <>
-                                <Check className="h-4 w-4 mr-2" />
-                                Book Now
-                              </>
+                              <span data-testid={`text-book-paid-${boxingClass.id}`}>
+                                <Check className="h-4 w-4 mr-2 inline" />
+                                Pay £5 (Stripe coming soon)
+                              </span>
                             )}
                           </Button>
                         ) : (

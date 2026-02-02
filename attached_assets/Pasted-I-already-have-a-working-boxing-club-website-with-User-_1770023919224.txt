@@ -1,0 +1,70 @@
+I already have a working boxing club website with:
+
+
+User accounts, calendar, and booking system.
+
+
+Logic that makes the first session free and prevents users from using the free session more than once (stored as a database flag).
+- Stripe is NOT fully set up yet - it's planned but not implemented.
+
+
+I need you to modify the existing project so that:
+
+
+The UI clearly shows when a session is free for this user:
+
+
+On the calendar/booking page, if the logged‑in user has not used their free session, show a banner like "🎉 Your first session is FREE, then £5 per session".
+
+
+When they select a session and it's their first one, show the price as "£0 - First Session FREE" and change the button text to "Book Free First Session".
+
+
+If they have already used the free session, show "£5 per session" and the button text "Pay £5 (Stripe coming soon)".
+
+
+
+
+Backend booking logic:
+
+
+If first session (free flag = false): create booking with price: 0, mark as free intro, set free flag = true, no Stripe needed.
+
+
+If paid session: create pending booking and prepare Stripe checkout structure (but don't call Stripe yet - just return a placeholder response).
+
+
+
+
+Email confirmations for ALL bookings (both free and paid):
+
+
+After ANY booking is created in the database, automatically send confirmation email to user.
+
+
+Email should include: user's name, session date/time, gym location/address.
+
+
+Use Nodemailer with SMTP (add .env variables for SMTP_HOST, SMTP_USER, SMTP_PASS).
+
+
+Create reusable sendBookingConfirmationEmail(user, booking) function.
+
+
+
+
+Make it production-ready:
+
+
+Add clear visual styling for free vs paid sessions (green "FREE" badges, etc).
+
+
+Show booking history on user profile page.
+
+
+Leave comments like // TODO: Complete Stripe integration here where payments will go.
+
+
+
+
+Only modify the minimum files needed - keep existing calendar, auth, and database working exactly as they are now. Focus on UI pricing display, email sending, and Stripe placeholders.

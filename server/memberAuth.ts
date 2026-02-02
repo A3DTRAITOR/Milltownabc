@@ -146,6 +146,7 @@ export function registerMemberRoutes(app: Express) {
         phone: member.phone,
         experienceLevel: member.experienceLevel,
         isAdmin: member.isAdmin || false,
+        hasUsedFreeSession: member.hasUsedFreeSession || false,
       });
     } catch (error) {
       console.error("Get member error:", error);

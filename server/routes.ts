@@ -3,11 +3,13 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
 import { registerMemberRoutes, isAdmin } from "./memberAuth";
+import { sendBookingConfirmationEmail } from "./email";
 import multer from "multer";
 import sharp from "sharp";
 import path from "path";
 import fs from "fs";
 import { randomUUID } from "crypto";
+import { format, parseISO } from "date-fns";
 
 const UPLOAD_DIR = "./uploads";
 const MAX_WIDTH = 1200;
@@ -423,6 +425,11 @@ export async function registerRoutes(
         return res.status(401).json({ message: "Please log in to book a class" });
       }
 
+      const member = await storage.getMemberById(memberId);
+      if (!member) {
+        return res.status(401).json({ message: "Member not found" });
+      }
+
       const boxingClass = await storage.getClass(req.params.id);
       if (!boxingClass) {
         return res.status(404).json({ message: "Class not found" });
@@ -445,23 +452,75 @@ export async function registerRoutes(
         return res.status(400).json({ message: "You have already booked this class" });
       }
 
-      // Check if this is member's first booking (FREE first session)
-      const memberBookings = existingBookings.filter(b => b.status === "confirmed");
-      const isFirstSession = memberBookings.length === 0;
+      // Check if member has used their free session (using database flag)
+      // Also check for prior confirmed bookings as a safety guard for existing members
+      let isFreeSession = !member.hasUsedFreeSession;
+      
+      // Safety guard: If hasUsedFreeSession is false but they have prior confirmed bookings,
+      // treat them as having used their free session (backfill protection)
+      if (isFreeSession) {
+        const confirmedBookings = existingBookings.filter(b => b.status === "confirmed");
+        if (confirmedBookings.length > 0) {
+          isFreeSession = false;
+          // Also update the flag for future checks
+          await storage.updateMember(memberId, { hasUsedFreeSession: true });
+        }
+      }
+      
+      const price = isFreeSession ? "0.00" : "5.00";
 
-      // Create booking
+      // Create booking with price info
+      // Free sessions are confirmed immediately, paid sessions are pending until Stripe is integrated
       const booking = await storage.createBooking({
         memberId,
         classId: req.params.id,
-        status: isFirstSession ? "confirmed" : "pending",
+        status: isFreeSession ? "confirmed" : "pending",
+        isFreeSession,
+        price,
       });
+
+      // If this was a free session, mark member as having used it
+      if (isFreeSession) {
+        await storage.updateMember(memberId, { hasUsedFreeSession: true });
+      }
 
       await storage.incrementBookedCount(req.params.id);
 
+      // Send confirmation email for all bookings
+      const sessionDate = format(parseISO(boxingClass.date), "EEEE, MMMM d, yyyy");
+      const sessionTime = boxingClass.time;
+      
+      sendBookingConfirmationEmail({
+        memberName: member.name,
+        memberEmail: member.email,
+        sessionTitle: boxingClass.title,
+        sessionDate,
+        sessionTime,
+        isFreeSession,
+        price,
+      }).catch(err => console.error("Email send error:", err));
+
+      // TODO: Complete Stripe integration here
+      // For paid sessions, would create Stripe checkout session:
+      // const stripeSession = await stripe.checkout.sessions.create({
+      //   payment_method_types: ['card'],
+      //   line_items: [{ price_data: { currency: 'gbp', product_data: { name: boxingClass.title }, unit_amount: 500 }, quantity: 1 }],
+      //   mode: 'payment',
+      //   success_url: `${process.env.APP_URL}/dashboard?payment=success`,
+      //   cancel_url: `${process.env.APP_URL}/sessions?payment=cancelled`,
+      //   metadata: { bookingId: booking.id, memberId }
+      // });
+      // return res.json({ booking, checkoutUrl: stripeSession.url, requiresPayment: true });
+
       res.json({ 
         booking, 
-        isFirstSession,
-        message: isFirstSession ? "Your first session is FREE!" : "Booking confirmed - £5 payment due at session"
+        isFreeSession,
+        price,
+        requiresPayment: !isFreeSession,
+        checkoutUrl: isFreeSession ? null : null, // TODO: Replace with Stripe checkout URL when integrated
+        message: isFreeSession 
+          ? "Your first session is FREE! A confirmation email has been sent." 
+          : "Booking confirmed - £5 payment due at session. A confirmation email has been sent."
       });
     } catch (error) {
       console.error("Error booking class:", error);
