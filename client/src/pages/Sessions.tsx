@@ -14,6 +14,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMont
 import { Link } from "wouter";
 import type { BoxingClass } from "@shared/schema";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { SquarePayment } from "@/components/SquarePayment";
 
 const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "";
 
@@ -32,6 +33,9 @@ export default function Sessions() {
   const [pendingBookingClassId, setPendingBookingClassId] = useState<string | null>(null);
   const [hcaptchaToken, setHcaptchaToken] = useState<string | null>(null);
   const captchaRef = useRef<HCaptcha>(null);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [paymentClassId, setPaymentClassId] = useState<string | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const { data: classes, isLoading } = useQuery<BoxingClass[]>({
     queryKey: ["/api/classes"],
@@ -42,13 +46,59 @@ export default function Sessions() {
     retry: false,
   });
 
-  const handleBookClick = (classId: string) => {
-    if (HCAPTCHA_SITE_KEY) {
-      setPendingBookingClassId(classId);
-      setCaptchaDialogOpen(true);
+  const handleBookClick = (classId: string, isFreeSession: boolean) => {
+    if (isFreeSession) {
+      if (HCAPTCHA_SITE_KEY) {
+        setPendingBookingClassId(classId);
+        setCaptchaDialogOpen(true);
+      } else {
+        bookMutation.mutate(classId);
+      }
     } else {
-      bookMutation.mutate(classId);
+      setPaymentClassId(classId);
+      setPaymentDialogOpen(true);
     }
+  };
+
+  const handlePaymentSuccess = async (paymentToken: string) => {
+    if (!paymentClassId) return;
+    
+    setIsProcessingPayment(true);
+    try {
+      const res = await apiRequest("POST", `/api/classes/${paymentClassId}/book`, {
+        paymentToken,
+        hcaptchaToken: null,
+      });
+      const data = await res.json();
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/members/me/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/members/me"] });
+      
+      toast({ 
+        title: "Payment successful!", 
+        description: "Your session has been booked."
+      });
+      
+      setPaymentDialogOpen(false);
+      setPaymentClassId(null);
+    } catch (error: any) {
+      toast({
+        title: "Booking failed",
+        description: error.message || "Payment processed but booking failed",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const handlePaymentError = (error: string) => {
+    toast({
+      title: "Payment failed",
+      description: error,
+      variant: "destructive",
+    });
   };
 
   const handleCaptchaVerify = (token: string) => {
@@ -402,7 +452,7 @@ export default function Sessions() {
                         {currentMember ? (
                           <Button
                             className={`w-full ${isEligibleForFree ? 'bg-green-600' : ''}`}
-                            onClick={() => handleBookClick(boxingClass.id)}
+                            onClick={() => handleBookClick(boxingClass.id, isEligibleForFree ?? false)}
                             disabled={isFull || isBooking}
                             data-testid={`button-book-${boxingClass.id}`}
                           >
@@ -496,6 +546,33 @@ export default function Sessions() {
               Confirm Booking
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Dialog */}
+      <Dialog open={paymentDialogOpen} onOpenChange={(open) => {
+        if (!open && !isProcessingPayment) {
+          setPaymentDialogOpen(false);
+          setPaymentClassId(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-md" data-testid="dialog-payment">
+          <DialogHeader>
+            <DialogTitle>Complete Payment</DialogTitle>
+            <DialogDescription>
+              Enter your card details to book this session.
+            </DialogDescription>
+          </DialogHeader>
+          <SquarePayment
+            amount={500}
+            onPaymentSuccess={handlePaymentSuccess}
+            onPaymentError={handlePaymentError}
+            onCancel={() => {
+              setPaymentDialogOpen(false);
+              setPaymentClassId(null);
+            }}
+            isProcessing={isProcessingPayment}
+          />
         </DialogContent>
       </Dialog>
     </PublicLayout>

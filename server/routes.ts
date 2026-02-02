@@ -440,16 +440,19 @@ export async function registerRoutes(
       }
       
       // Verify hCaptcha if provided and configured
-      const { hcaptchaToken } = req.body;
-      if (hcaptchaToken) {
-        const captchaValid = await verifyHCaptcha(hcaptchaToken);
-        if (!captchaValid) {
-          logSuspiciousActivity(ip, "FAILED_CAPTCHA_BOOKING", `Failed captcha for class: ${req.params.id}`);
-          return res.status(400).json({ message: "Captcha verification failed. Please try again." });
+      const { hcaptchaToken, paymentToken } = req.body;
+      // Only require captcha for free sessions (paid sessions go through payment instead)
+      if (!paymentToken) {
+        if (hcaptchaToken) {
+          const captchaValid = await verifyHCaptcha(hcaptchaToken);
+          if (!captchaValid) {
+            logSuspiciousActivity(ip, "FAILED_CAPTCHA_BOOKING", `Failed captcha for class: ${req.params.id}`);
+            return res.status(400).json({ message: "Captcha verification failed. Please try again." });
+          }
+        } else if (process.env.HCAPTCHA_SECRET_KEY) {
+          logSuspiciousActivity(ip, "MISSING_CAPTCHA_BOOKING", `No captcha token for class: ${req.params.id}`);
+          return res.status(400).json({ message: "Please complete the captcha verification" });
         }
-      } else if (process.env.HCAPTCHA_SECRET_KEY) {
-        logSuspiciousActivity(ip, "MISSING_CAPTCHA_BOOKING", `No captcha token for class: ${req.params.id}`);
-        return res.status(400).json({ message: "Please complete the captcha verification" });
       }
       
       // Check if member is logged in via session
@@ -533,24 +536,49 @@ export async function registerRoutes(
       
       const price = isFreeSession ? "0.00" : "5.00";
 
-      // Create booking with price info
-      // Free sessions are confirmed immediately, paid sessions are pending until Stripe is integrated
+      // For paid sessions, process payment first if paymentToken is provided
+      let paymentResult = null;
+      if (!isFreeSession) {
+        if (!paymentToken) {
+          return res.status(400).json({ 
+            message: "Payment required for this session. Please complete the payment form." 
+          });
+        }
+        
+        // Process Square payment
+        const amount = 500; // £5.00 in pence
+        paymentResult = await createPayment({
+          sourceId: paymentToken,
+          amount,
+          currency: "GBP",
+          note: `Mill Town ABC - ${boxingClass.title} on ${boxingClass.date}`,
+        });
+        
+        if (!paymentResult.success) {
+          return res.status(400).json({ 
+            message: paymentResult.error || "Payment failed. Please try again." 
+          });
+        }
+      }
+
+      // Create booking - confirmed if free or if payment succeeded
       const booking = await storage.createBooking({
         memberId,
         classId: req.params.id,
-        status: isFreeSession ? "confirmed" : "pending",
+        status: "confirmed",
         isFreeSession,
         price,
+        squarePaymentId: paymentResult?.paymentId || null,
       });
 
-      // If this was a free session, mark member as having used it
+      // Mark member as having used free session
       if (isFreeSession) {
         await storage.updateMember(memberId, { hasUsedFreeSession: true });
       }
 
       await storage.incrementBookedCount(req.params.id);
 
-      // Send confirmation email for all bookings
+      // Send confirmation email
       const sessionDate = format(parseISO(boxingClass.date), "EEEE, MMMM d, yyyy");
       const sessionTime = boxingClass.time;
       
@@ -564,22 +592,14 @@ export async function registerRoutes(
         price,
       }).catch(err => console.error("Email send error:", err));
 
-      // TODO: Complete Square integration here
-      // For paid sessions, the frontend will collect card details via Square Web Payments SDK
-      // and send the payment token to /api/payments/process endpoint
-      // Note: Using Square sandbox mode for testing - replace with live keys in production
-
       res.json({ 
         booking, 
         isFreeSession,
         price,
-        requiresPayment: !isFreeSession,
-        // Square payment is handled client-side via Web Payments SDK
-        squareApplicationId: process.env.SQUARE_APPLICATION_ID || null,
-        squareLocationId: process.env.SQUARE_LOCATION_ID || null,
+        paymentId: paymentResult?.paymentId || null,
         message: isFreeSession 
           ? "Your first session is FREE! A confirmation email has been sent." 
-          : "Booking created - complete payment with Square to confirm."
+          : "Payment successful! Your booking is confirmed."
       });
     } catch (error) {
       console.error("Error booking class:", error);
