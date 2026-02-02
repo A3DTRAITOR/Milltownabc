@@ -227,15 +227,15 @@ export default function AdminCalendar() {
 
   return (
     <AdminLayout title="Calendar">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="mx-auto max-w-6xl space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Class Schedule</h2>
-            <p className="text-muted-foreground">Manage your boxing class sessions.</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Class Schedule</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage your boxing class sessions.</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button data-testid="button-add-class">
+              <Button className="w-full sm:w-auto" data-testid="button-add-class">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Class
               </Button>

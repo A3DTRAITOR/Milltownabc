@@ -75,10 +75,10 @@ export default function AdminMembers() {
 
   return (
     <AdminLayout title="Members">
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="mx-auto max-w-6xl space-y-4 sm:space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">All Members</h2>
-          <p className="text-muted-foreground">View and manage club members.</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">All Members</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">View and manage club members.</p>
         </div>
 
         {isLoading ? (
