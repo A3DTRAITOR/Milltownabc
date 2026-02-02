@@ -232,6 +232,67 @@ export function registerMemberRoutes(app: Express) {
     }
   });
 
+  // Rate limiting for resend verification (track last resend time per email)
+  const resendCooldowns = new Map<string, number>();
+  const RESEND_COOLDOWN_MS = 60000; // 60 seconds
+
+  // Resend verification email
+  app.post("/api/members/resend-verification", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const member = await storage.getMemberByEmail(email);
+      if (!member) {
+        // Don't reveal if email exists for security
+        return res.json({ message: "If this email is registered, a verification link has been sent." });
+      }
+
+      if (member.emailVerified) {
+        return res.status(400).json({ message: "Email is already verified. You can log in now." });
+      }
+
+      // Check cooldown
+      const lastResend = resendCooldowns.get(email);
+      const now = Date.now();
+      if (lastResend && (now - lastResend) < RESEND_COOLDOWN_MS) {
+        const remainingSeconds = Math.ceil((RESEND_COOLDOWN_MS - (now - lastResend)) / 1000);
+        return res.status(429).json({ 
+          message: `Please wait ${remainingSeconds} seconds before requesting another email.`,
+          retryAfter: remainingSeconds
+        });
+      }
+
+      // Generate new verification token
+      const verificationToken = randomUUID();
+      await storage.updateMember(member.id, { 
+        emailVerificationToken: verificationToken 
+      });
+
+      // Send verification email
+      const protocol = req.protocol;
+      const host = req.get('host');
+      const baseUrl = `${protocol}://${host}`;
+      
+      sendVerificationEmail({
+        memberName: member.name,
+        memberEmail: member.email,
+        verificationToken,
+        baseUrl,
+      }).catch(err => console.error("Resend verification email error:", err));
+
+      // Update cooldown
+      resendCooldowns.set(email, now);
+
+      res.json({ message: "Verification email sent! Please check your inbox." });
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      res.status(500).json({ message: "Failed to resend verification email" });
+    }
+  });
+
   // Get current member
   app.get("/api/members/me", isMemberAuthenticated, async (req, res) => {
     try {

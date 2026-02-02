@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, LogIn } from "lucide-react";
+import { Loader2, LogIn, Mail, RefreshCw } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -24,6 +24,16 @@ type LoginData = z.infer<typeof loginSchema>;
 export default function Login() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [showResendOption, setShowResendOption] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
 
   const form = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
@@ -32,15 +42,30 @@ export default function Login() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
-      const res = await apiRequest("POST", "/api/members/login", data);
-      return res.json();
+      const res = await fetch("/api/members/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const error = new Error(json.message || "Login failed") as any;
+        error.requiresVerification = json.requiresVerification;
+        throw error;
+      }
+      return json;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/members/me"] });
       toast({ title: "Welcome back!", description: "You've successfully logged in." });
       setLocation("/dashboard");
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      if (error.requiresVerification) {
+        setShowResendOption(true);
+        setResendEmail(form.getValues("email"));
+      }
       toast({
         title: "Login failed",
         description: error.message || "Invalid email or password",
@@ -49,8 +74,46 @@ export default function Login() {
     },
   });
 
+  const resendMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const res = await fetch("/api/members/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+        credentials: "include",
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const error = new Error(json.message || "Failed to resend") as any;
+        error.retryAfter = json.retryAfter;
+        throw error;
+      }
+      return json;
+    },
+    onSuccess: (data) => {
+      toast({ title: "Email sent!", description: data.message || "Check your inbox for the verification link." });
+      setCooldown(60);
+    },
+    onError: (error: any) => {
+      if (error.retryAfter) {
+        setCooldown(error.retryAfter);
+      }
+      toast({
+        title: "Could not send email",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: LoginData) => {
     loginMutation.mutate(data);
+  };
+
+  const handleResend = () => {
+    if (resendEmail && cooldown === 0) {
+      resendMutation.mutate(resendEmail);
+    }
   };
 
   return (
@@ -117,6 +180,38 @@ export default function Login() {
                 </Button>
               </form>
             </Form>
+
+            {showResendOption && (
+              <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md">
+                <div className="flex items-start gap-3">
+                  <Mail className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                      Email not verified
+                    </p>
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                      Check your inbox for the verification link, or request a new one.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={handleResend}
+                      disabled={resendMutation.isPending || cooldown > 0}
+                      data-testid="button-resend-verification"
+                    >
+                      {resendMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                      )}
+                      {cooldown > 0 ? `Wait ${cooldown}s` : "Resend verification email"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
