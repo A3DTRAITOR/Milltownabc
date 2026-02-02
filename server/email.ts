@@ -119,6 +119,7 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
     
     const result = await client.emails.send({
       from: fromEmail,
+      replyTo: 'Milltownabc@gmail.com',
       to: data.memberEmail,
       subject: `Booking Confirmed - ${data.sessionTitle} on ${data.sessionDate}`,
       html: htmlContent,
@@ -191,6 +192,7 @@ export async function sendVerificationEmail(data: VerificationEmailData): Promis
     
     const result = await client.emails.send({
       from: fromEmail,
+      replyTo: 'Milltownabc@gmail.com',
       to: data.memberEmail,
       subject: "Verify your email - Mill Town ABC",
       html: htmlContent,
