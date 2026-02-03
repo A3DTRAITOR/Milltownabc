@@ -161,22 +161,22 @@ export default function About() {
               <p className="mt-4 text-muted-foreground">
                 Represented the Northwest Regional Team and competed internationally, defeating champions from Spain, Poland, Scotland, and Ireland.
               </p>
-              <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mt-6">
-                <div className="text-center p-3 sm:p-4 bg-background rounded-lg">
-                  <div className="text-2xl sm:text-3xl font-black text-primary">70+</div>
+              <div className="grid gap-2 sm:gap-3 grid-cols-4 mt-6">
+                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
+                  <div className="text-xl sm:text-2xl font-black text-primary">70+</div>
                   <div className="mt-1 text-xs text-muted-foreground">Amateur Bouts</div>
                 </div>
-                <div className="text-center p-3 sm:p-4 bg-background rounded-lg">
-                  <div className="text-2xl sm:text-3xl font-black text-primary">8x</div>
+                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
+                  <div className="text-xl sm:text-2xl font-black text-primary">8x</div>
                   <div className="mt-1 text-xs text-muted-foreground">NW Champion</div>
                 </div>
-                <div className="text-center p-3 sm:p-4 bg-background rounded-lg">
-                  <div className="text-2xl sm:text-3xl font-black text-primary">1</div>
-                  <div className="mt-1 text-xs text-muted-foreground">ABA National Title</div>
+                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
+                  <div className="text-xl sm:text-2xl font-black text-primary">1</div>
+                  <div className="mt-1 text-xs text-muted-foreground">ABA Title</div>
                 </div>
-                <div className="text-center p-3 sm:p-4 bg-background rounded-lg">
-                  <div className="text-2xl sm:text-3xl font-black text-primary">3</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Nations Championships</div>
+                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
+                  <div className="text-xl sm:text-2xl font-black text-primary">3</div>
+                  <div className="mt-1 text-xs text-muted-foreground">Nations</div>
                 </div>
               </div>
             </div>
