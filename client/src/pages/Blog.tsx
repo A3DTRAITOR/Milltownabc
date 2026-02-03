@@ -52,16 +52,17 @@ export default function Blog() {
   return (
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl" data-testid="text-blog-title">
-              Our Blog
-            </h1>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground lg:text-xl" data-testid="text-blog-subtitle">
-              Insights, updates, and expert advice to help your business thrive.
-            </p>
-          </div>
+      <section className="bg-foreground py-16 lg:py-24">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
+            News & Updates
+          </span>
+          <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl uppercase" data-testid="text-blog-title">
+            Our Blog
+          </h1>
+          <p className="mt-6 text-lg leading-relaxed text-gray-300 lg:text-xl" data-testid="text-blog-subtitle">
+            Latest news, training tips, and updates from Mill Town ABC.
+          </p>
         </div>
       </section>
 

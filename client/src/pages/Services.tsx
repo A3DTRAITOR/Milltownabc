@@ -90,18 +90,16 @@ export default function Services() {
       
       {/* Hero - Dark */}
       <section className="bg-foreground py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
-              Programs
-            </span>
-            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl uppercase" data-testid="text-services-title">
-              {content.heroTitle}
-            </h1>
-            <p className="mt-6 text-lg leading-relaxed text-gray-300 lg:text-xl" data-testid="text-services-subtitle">
-              {content.heroSubtitle}
-            </p>
-          </div>
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
+            Programs
+          </span>
+          <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl uppercase" data-testid="text-services-title">
+            {content.heroTitle}
+          </h1>
+          <p className="mt-6 text-lg leading-relaxed text-gray-300 lg:text-xl" data-testid="text-services-subtitle">
+            {content.heroSubtitle}
+          </p>
         </div>
       </section>
 
