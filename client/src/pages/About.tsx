@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Target, Shield, Trophy } from "lucide-react";
 import type { PageContent, SiteSettings } from "@shared/schema";
+import coachPhoto from "@assets/7dce9844-82df-4955-aa5f-dee2f3f81232_1770135544164.jpg";
 
 export default function About() {
   const { data: pageData, isLoading: pageLoading } = useQuery<{ content: PageContent }>({
@@ -133,37 +134,50 @@ export default function About() {
       {/* Head Coach Section */}
       <section className="py-16 lg:py-20 bg-card border-t border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
-              Head Coach
-            </span>
-            <h2 className="text-3xl font-bold text-foreground sm:text-4xl uppercase tracking-tight">
-              Alex Clegg
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Alex is an ex-amateur boxer who started training at age 8. With decades of competitive experience, he brings authentic ring knowledge to every session at Mill Town ABC.
-            </p>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="text-center p-6 bg-background rounded-lg">
-              <div className="text-4xl font-black text-primary">70+</div>
-              <div className="mt-2 text-sm text-muted-foreground">Amateur Bouts</div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
+            <div className="relative mx-auto lg:mx-0 max-w-sm">
+              <div className="absolute inset-0 bg-primary/20 rounded-lg transform rotate-3"></div>
+              <img 
+                src={coachPhoto} 
+                alt="Alex Clegg - Head Coach at Mill Town ABC" 
+                className="relative rounded-lg shadow-xl object-cover w-full aspect-[3/4]"
+              />
+              <div className="absolute -bottom-4 -right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg">
+                <span className="font-bold text-sm">ABA National Champion</span>
+              </div>
             </div>
-            <div className="text-center p-6 bg-background rounded-lg">
-              <div className="text-4xl font-black text-primary">8x</div>
-              <div className="mt-2 text-sm text-muted-foreground">NW Champion</div>
-            </div>
-            <div className="text-center p-6 bg-background rounded-lg">
-              <div className="text-4xl font-black text-primary">1</div>
-              <div className="mt-2 text-sm text-muted-foreground">ABA National Title</div>
-            </div>
-            <div className="text-center p-6 bg-background rounded-lg">
-              <div className="text-4xl font-black text-primary">3</div>
-              <div className="mt-2 text-sm text-muted-foreground">Nations Championships</div>
+            <div className="text-center lg:text-left">
+              <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
+                Head Coach
+              </span>
+              <h2 className="text-3xl font-bold text-foreground sm:text-4xl uppercase tracking-tight">
+                Alex Clegg
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Alex is an ex-amateur boxer who started training at age 8. With decades of competitive experience, he brings authentic ring knowledge to every session at Mill Town ABC.
+              </p>
+              <p className="mt-4 text-muted-foreground">
+                Represented the Northwest Regional Team and competed internationally, defeating champions from Spain, Poland, Scotland, and Ireland.
+              </p>
             </div>
           </div>
-          <div className="mt-8 text-center text-muted-foreground">
-            <p>Also represented the Northwest Regional Team and competed internationally, defeating champions from Spain, Poland, Scotland, and Ireland.</p>
+          <div className="grid gap-4 sm:gap-8 grid-cols-2 lg:grid-cols-4">
+            <div className="text-center p-4 sm:p-6 bg-background rounded-lg">
+              <div className="text-3xl sm:text-4xl font-black text-primary">70+</div>
+              <div className="mt-2 text-xs sm:text-sm text-muted-foreground">Amateur Bouts</div>
+            </div>
+            <div className="text-center p-4 sm:p-6 bg-background rounded-lg">
+              <div className="text-3xl sm:text-4xl font-black text-primary">8x</div>
+              <div className="mt-2 text-xs sm:text-sm text-muted-foreground">NW Champion</div>
+            </div>
+            <div className="text-center p-4 sm:p-6 bg-background rounded-lg">
+              <div className="text-3xl sm:text-4xl font-black text-primary">1</div>
+              <div className="mt-2 text-xs sm:text-sm text-muted-foreground">ABA National Title</div>
+            </div>
+            <div className="text-center p-4 sm:p-6 bg-background rounded-lg">
+              <div className="text-3xl sm:text-4xl font-black text-primary">3</div>
+              <div className="mt-2 text-xs sm:text-sm text-muted-foreground">Nations Championships</div>
+            </div>
           </div>
         </div>
       </section>
