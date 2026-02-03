@@ -135,12 +135,12 @@ export default function About() {
       <section className="py-16 lg:py-20 bg-card border-t border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
-            <div className="relative mx-auto lg:mx-0 max-w-sm">
+            <div className="relative mx-auto lg:mx-0 max-w-xs sm:max-w-sm">
               <div className="absolute inset-0 bg-primary/20 rounded-lg transform rotate-3"></div>
               <img 
                 src={coachPhoto} 
                 alt="Alex Clegg - Head Coach at Mill Town ABC" 
-                className="relative rounded-lg shadow-xl object-cover w-full aspect-[3/4]"
+                className="relative rounded-lg shadow-xl object-cover object-top w-full"
               />
               <div className="absolute -bottom-4 -right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg">
                 <span className="font-bold text-sm">ABA National Champion</span>
