@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Target, Shield, Trophy } from "lucide-react";
 import type { PageContent, SiteSettings } from "@shared/schema";
-import coachPhoto from "@assets/7dce9844-82df-4955-aa5f-dee2f3f81232_1770135544164.jpg";
+import coachPhoto from "@assets/7dce9844-82df-4955-aa5f-dee2f3f81232-Picsart-AiImageEnhancer_1770135871235.jpg";
 
 export default function About() {
   const { data: pageData, isLoading: pageLoading } = useQuery<{ content: PageContent }>({
@@ -139,7 +139,9 @@ export default function About() {
               <div className="absolute inset-0 bg-primary/20 rounded-lg transform rotate-3"></div>
               <img 
                 src={coachPhoto} 
-                alt="Alex Clegg - Head Coach at Mill Town ABC" 
+                alt="Alex Clegg, Head Coach at Mill Town ABC Boxing Club in Glossop - ABA National Champion and 8x North West Boxing Champion" 
+                title="Alex Clegg - Mill Town ABC Head Coach"
+                loading="eager"
                 className="relative rounded-lg shadow-xl object-cover object-top w-full"
               />
               <div className="absolute -bottom-4 -right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg">
