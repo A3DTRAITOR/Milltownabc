@@ -12,6 +12,7 @@ import coleherneLogo from "@assets/coleherne_ltd_logo_1769975540746.jpeg";
 import highPeakLogo from "@assets/25032764306_-_HpWW_Logo_1769975542310.png";
 import compareAgentsLogo from "@assets/Compare_agents-1_1769975630898.png";
 import tacaoLogo from "@assets/Tacao-1_1769975635963.png";
+import coachPhoto from "@assets/7dce9844-82df-4955-aa5f-dee2f3f81232-Picsart-AiImageEnhancer_1770136035129.jpg";
 
 export default function Home() {
   const { data: pageData, isLoading: pageLoading } = useQuery<{ content: PageContent }>({
@@ -180,7 +181,20 @@ export default function Home() {
       <section className="py-16 lg:py-24 bg-card border-t border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-2 items-center">
-            <div>
+            <div className="relative mx-auto lg:mx-0 max-w-xs sm:max-w-sm order-2 lg:order-1">
+              <div className="absolute inset-0 bg-primary/20 rounded-lg transform rotate-3"></div>
+              <img 
+                src={coachPhoto} 
+                alt="Alex Clegg, Head Coach at Mill Town ABC Boxing Club in Glossop - ABA National Champion and 8x North West Boxing Champion" 
+                title="Alex Clegg - Mill Town ABC Head Coach"
+                loading="eager"
+                className="relative rounded-lg shadow-xl w-full"
+              />
+              <div className="absolute -bottom-4 -right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg">
+                <span className="font-bold text-sm">ABA National Champion</span>
+              </div>
+            </div>
+            <div className="text-center lg:text-left order-1 lg:order-2">
               <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
                 Head Coach
               </span>
@@ -188,36 +202,29 @@ export default function Home() {
                 Alex Clegg
               </h2>
               <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-                Alex is an ex-amateur boxer who started training at age 8. With a wealth of competitive experience, he brings real ring knowledge to every session.
+                Alex is an ex-amateur boxer who started training at age 8. With decades of competitive experience, he brings authentic ring knowledge to every session at Mill Town ABC.
               </p>
-              <div className="mt-8 grid grid-cols-2 gap-6">
-                <div className="text-center p-4 bg-primary/5 rounded-lg">
-                  <div className="text-3xl font-black text-primary">70+</div>
-                  <div className="mt-1 text-sm text-muted-foreground">Amateur Bouts</div>
+              <p className="mt-4 text-muted-foreground">
+                Represented the Northwest Regional Team and competed internationally, defeating champions from Spain, Poland, Scotland, and Ireland.
+              </p>
+              <div className="grid gap-2 sm:gap-3 grid-cols-4 mt-6">
+                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
+                  <div className="text-xl sm:text-2xl font-black text-primary">70+</div>
+                  <div className="mt-1 text-xs text-muted-foreground">Amateur Bouts</div>
                 </div>
-                <div className="text-center p-4 bg-primary/5 rounded-lg">
-                  <div className="text-3xl font-black text-primary">8x</div>
-                  <div className="mt-1 text-sm text-muted-foreground">NW Champion</div>
+                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
+                  <div className="text-xl sm:text-2xl font-black text-primary">8x</div>
+                  <div className="mt-1 text-xs text-muted-foreground">NW Champion</div>
+                </div>
+                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
+                  <div className="text-xl sm:text-2xl font-black text-primary">1</div>
+                  <div className="mt-1 text-xs text-muted-foreground">ABA Title</div>
+                </div>
+                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
+                  <div className="text-xl sm:text-2xl font-black text-primary">3</div>
+                  <div className="mt-1 text-xs text-muted-foreground">Nations</div>
                 </div>
               </div>
-              <ul className="mt-6 space-y-3 text-muted-foreground">
-                <li className="flex items-start gap-3">
-                  <Trophy className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>ABA National Champion</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Trophy className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>Northwest Regional Team</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Trophy className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>3 Nations Championships</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Trophy className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>International victories vs Spain, Poland, Scotland, Ireland</span>
-                </li>
-              </ul>
               <div className="mt-8">
                 <Button asChild data-testid="button-learn-more-coach">
                   <Link href="/about">
@@ -225,14 +232,6 @@ export default function Home() {
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="aspect-square bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg flex items-center justify-center">
-                <div className="text-center p-8">
-                  <Users className="h-24 w-24 text-primary/40 mx-auto mb-4" />
-                  <p className="text-muted-foreground">Coach Photo Coming Soon</p>
-                </div>
               </div>
             </div>
           </div>

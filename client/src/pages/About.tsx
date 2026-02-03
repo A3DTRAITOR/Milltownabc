@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Target, Shield, Trophy } from "lucide-react";
 import type { PageContent, SiteSettings } from "@shared/schema";
-import coachPhoto from "@assets/7dce9844-82df-4955-aa5f-dee2f3f81232-Picsart-AiImageEnhancer_1770136035129.jpg";
 
 export default function About() {
   const { data: pageData, isLoading: pageLoading } = useQuery<{ content: PageContent }>({
@@ -130,59 +129,6 @@ export default function About() {
           </div>
         </section>
       ))}
-
-      {/* Head Coach Section */}
-      <section className="py-16 lg:py-20 bg-card border-t border-border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
-            <div className="relative mx-auto lg:mx-0 max-w-xs sm:max-w-sm">
-              <div className="absolute inset-0 bg-primary/20 rounded-lg transform rotate-3"></div>
-              <img 
-                src={coachPhoto} 
-                alt="Alex Clegg, Head Coach at Mill Town ABC Boxing Club in Glossop - ABA National Champion and 8x North West Boxing Champion" 
-                title="Alex Clegg - Mill Town ABC Head Coach"
-                loading="eager"
-                className="relative rounded-lg shadow-xl w-full"
-              />
-              <div className="absolute -bottom-4 -right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg">
-                <span className="font-bold text-sm">ABA National Champion</span>
-              </div>
-            </div>
-            <div className="text-center lg:text-left">
-              <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
-                Head Coach
-              </span>
-              <h2 className="text-3xl font-bold text-foreground sm:text-4xl uppercase tracking-tight">
-                Alex Clegg
-              </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                Alex is an ex-amateur boxer who started training at age 8. With decades of competitive experience, he brings authentic ring knowledge to every session at Mill Town ABC.
-              </p>
-              <p className="mt-4 text-muted-foreground">
-                Represented the Northwest Regional Team and competed internationally, defeating champions from Spain, Poland, Scotland, and Ireland.
-              </p>
-              <div className="grid gap-2 sm:gap-3 grid-cols-4 mt-6">
-                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
-                  <div className="text-xl sm:text-2xl font-black text-primary">70+</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Amateur Bouts</div>
-                </div>
-                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
-                  <div className="text-xl sm:text-2xl font-black text-primary">8x</div>
-                  <div className="mt-1 text-xs text-muted-foreground">NW Champion</div>
-                </div>
-                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
-                  <div className="text-xl sm:text-2xl font-black text-primary">1</div>
-                  <div className="mt-1 text-xs text-muted-foreground">ABA Title</div>
-                </div>
-                <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
-                  <div className="text-xl sm:text-2xl font-black text-primary">3</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Nations</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Club Stats */}
       <section className="bg-primary py-16 lg:py-20">
