@@ -4,54 +4,70 @@ interface SEOHeadProps {
   title?: string;
   description?: string;
   canonicalUrl?: string;
+  ogType?: string;
+  ogImage?: string;
 }
 
-export function SEOHead({ title, description, canonicalUrl }: SEOHeadProps) {
+function setMeta(selector: string, attr: string, value: string) {
+  let el = document.querySelector(selector);
+  if (!el) {
+    el = document.createElement("meta");
+    if (selector.includes("property=")) {
+      el.setAttribute("property", selector.match(/property="([^"]+)"/)?.[1] || "");
+    } else if (selector.includes("name=")) {
+      el.setAttribute("name", selector.match(/name="([^"]+)"/)?.[1] || "");
+    }
+    document.head.appendChild(el);
+  }
+  el.setAttribute(attr, value);
+}
+
+const DOMAIN = "https://milltownabc.co.uk";
+
+export function SEOHead({ title, description, canonicalUrl, ogType, ogImage }: SEOHeadProps) {
   useEffect(() => {
     if (title) {
       document.title = title;
-    }
-    
-    let metaDescription = document.querySelector('meta[name="description"]');
-    if (description) {
-      if (!metaDescription) {
-        metaDescription = document.createElement("meta");
-        metaDescription.setAttribute("name", "description");
-        document.head.appendChild(metaDescription);
-      }
-      metaDescription.setAttribute("content", description);
+      setMeta('meta[property="og:title"]', "content", title);
+      setMeta('meta[name="twitter:title"]', "content", title);
     }
 
-    let metaOgTitle = document.querySelector('meta[property="og:title"]');
-    if (title) {
-      if (!metaOgTitle) {
-        metaOgTitle = document.createElement("meta");
-        metaOgTitle.setAttribute("property", "og:title");
-        document.head.appendChild(metaOgTitle);
-      }
-      metaOgTitle.setAttribute("content", title);
-    }
-
-    let metaOgDescription = document.querySelector('meta[property="og:description"]');
     if (description) {
-      if (!metaOgDescription) {
-        metaOgDescription = document.createElement("meta");
-        metaOgDescription.setAttribute("property", "og:description");
-        document.head.appendChild(metaOgDescription);
-      }
-      metaOgDescription.setAttribute("content", description);
+      setMeta('meta[name="description"]', "content", description);
+      setMeta('meta[property="og:description"]', "content", description);
+      setMeta('meta[name="twitter:description"]', "content", description);
     }
 
     if (canonicalUrl) {
-      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
       if (!canonicalLink) {
         canonicalLink = document.createElement("link");
         canonicalLink.setAttribute("rel", "canonical");
         document.head.appendChild(canonicalLink);
       }
       canonicalLink.setAttribute("href", canonicalUrl);
+      setMeta('meta[property="og:url"]', "content", canonicalUrl);
+    } else {
+      const url = DOMAIN + window.location.pathname;
+      let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (!canonicalLink) {
+        canonicalLink = document.createElement("link");
+        canonicalLink.setAttribute("rel", "canonical");
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute("href", url);
+      setMeta('meta[property="og:url"]', "content", url);
     }
-  }, [title, description, canonicalUrl]);
+
+    if (ogType) {
+      setMeta('meta[property="og:type"]', "content", ogType);
+    }
+
+    if (ogImage) {
+      setMeta('meta[property="og:image"]', "content", ogImage);
+      setMeta('meta[name="twitter:image"]', "content", ogImage);
+    }
+  }, [title, description, canonicalUrl, ogType, ogImage]);
 
   return null;
 }

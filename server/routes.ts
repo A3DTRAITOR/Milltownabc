@@ -1113,6 +1113,75 @@ export async function registerRoutes(
     }
   });
 
+  // ===== SEO ROUTES =====
+
+  // robots.txt
+  app.get("/robots.txt", (_req, res) => {
+    const domain = "https://milltownabc.co.uk";
+    res.type("text/plain").send(
+`User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /dashboard
+
+Sitemap: ${domain}/sitemap.xml`
+    );
+  });
+
+  // sitemap.xml - dynamic with all public pages and blog posts
+  app.get("/sitemap.xml", async (_req, res) => {
+    const domain = "https://milltownabc.co.uk";
+    const now = new Date().toISOString().split("T")[0];
+
+    const staticPages = [
+      { loc: "/", priority: "1.0", changefreq: "weekly" },
+      { loc: "/about", priority: "0.8", changefreq: "monthly" },
+      { loc: "/services", priority: "0.8", changefreq: "monthly" },
+      { loc: "/sessions", priority: "0.9", changefreq: "daily" },
+      { loc: "/safety", priority: "0.5", changefreq: "yearly" },
+      { loc: "/blog", priority: "0.7", changefreq: "weekly" },
+      { loc: "/contact", priority: "0.7", changefreq: "monthly" },
+    ];
+
+    let blogUrls = "";
+    try {
+      const posts = await storage.getAllBlogPosts();
+      const publishedPosts = posts.filter((p: any) => p.published);
+      for (const post of publishedPosts) {
+        const lastmod = post.updatedAt
+          ? new Date(post.updatedAt).toISOString().split("T")[0]
+          : now;
+        blogUrls += `
+  <url>
+    <loc>${domain}/blog/${post.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+      }
+    } catch (e) {
+      // continue without blog posts
+    }
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticPages
+  .map(
+    (p) => `  <url>
+    <loc>${domain}${p.loc}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`
+  )
+  .join("\n")}${blogUrls}
+</urlset>`;
+
+    res.type("application/xml").send(xml);
+  });
+
   // Admin: Cancel multiple bookings (bulk cancel)
   app.post("/api/admin/bookings/bulk-cancel", isAdmin, async (req, res) => {
     try {
