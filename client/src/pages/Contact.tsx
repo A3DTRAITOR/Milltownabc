@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,12 +87,13 @@ export default function Contact() {
     );
   }
 
-  const seoTitle = `Contact Us - ${settings?.businessName || "Mill Town ABC"}`;
-  const seoDescription = "Get in touch with Mill Town ABC in Glossop. Contact us about classes, membership, or any questions. Located at Whitfield Community Centre.";
+  const seoTitle = `Contact Mill Town ABC - Boxing Club Glossop | Whitfield Community Centre`;
+  const seoDescription = "Contact Mill Town ABC boxing club in Glossop. Based at Whitfield Community Centre, Ebenezer Street, SK13 8JY. Call Alex: 07565 208193 or Mark: 07713 659360.";
 
   return (
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Contact", url: "/contact" }]} />
       <section className="bg-foreground py-16 lg:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">

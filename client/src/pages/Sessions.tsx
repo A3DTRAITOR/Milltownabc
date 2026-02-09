@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -232,7 +233,8 @@ export default function Sessions() {
 
   return (
     <PublicLayout>
-      <SEOHead title="Book a Class - Mill Town ABC" description="Select a date and time to book your boxing class at Mill Town ABC in Glossop. All sessions £5. First session FREE!" />
+      <SEOHead title="Book Boxing Classes in Glossop - Mill Town ABC | £5 Per Session" description="Book boxing classes at Mill Town ABC, Whitfield Community Centre, Glossop. Monday, Wednesday and Saturday sessions available. All classes £5. First session FREE!" />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Book a Class", url: "/sessions" }]} />
 
       <section className="bg-foreground py-12 lg:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">

@@ -1,5 +1,6 @@
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { Card } from "@/components/ui/card";
 import { Shield, UserCheck, Users, Eye, AlertTriangle, CheckCircle } from "lucide-react";
 
@@ -7,9 +8,10 @@ export default function Safety() {
   return (
     <PublicLayout>
       <SEOHead 
-        title="Safety Policy - Mill Town ABC" 
-        description="Safety policies and club rules at Mill Town ABC. We are committed to providing safe training conditions for all members." 
+        title="Safety Policy & Club Rules - Mill Town ABC Boxing Club Glossop" 
+        description="Safety policies and club rules at Mill Town ABC boxing club in Glossop. Committed to providing safe training conditions, proper supervision, and safe equipment for all members." 
       />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Safety Policy", url: "/safety" }]} />
       
       <section className="bg-foreground py-16 lg:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">

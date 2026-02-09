@@ -118,7 +118,7 @@ export default function Login() {
 
   return (
     <PublicLayout>
-      <SEOHead title="Login - Mill Town ABC" description="Log in to your Mill Town ABC account to book classes and manage your sessions." />
+      <SEOHead title="Login - Mill Town ABC Boxing Club Glossop" description="Log in to your Mill Town ABC account to book boxing classes and manage your sessions at Whitfield Community Centre, Glossop." />
       
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-md px-4 sm:px-6 lg:px-8">

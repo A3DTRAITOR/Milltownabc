@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { PublicLayout } from "@/components/layout/PublicLayout";
+import { SEOHead } from "@/components/SEOHead";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
@@ -71,8 +73,19 @@ export default function BlogPost() {
     );
   }
 
+  const postDescription = post.excerpt || post.content?.replace(/<[^>]*>/g, "").slice(0, 160) || "";
+  const postUrl = `https://milltownabc.co.uk/blog/${post.slug}`;
+
   return (
     <PublicLayout settings={settings}>
+      <SEOHead
+        title={`${post.title} - Mill Town ABC`}
+        description={postDescription}
+        canonicalUrl={postUrl}
+        ogType="article"
+        ogImage={post.featuredImage || undefined}
+      />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Blog", url: "/blog" }, { name: post.title, url: `/blog/${post.slug}` }]} />
       <article className="py-16 lg:py-24">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <Button variant="ghost" className="mb-8" asChild data-testid="button-back-to-blog">
@@ -101,7 +114,8 @@ export default function BlogPost() {
             <div className="mt-8 aspect-video overflow-hidden rounded-lg">
               <img
                 src={post.featuredImage}
-                alt={post.title}
+                alt={`${post.title} - Mill Town ABC`}
+                loading="lazy"
                 className="h-full w-full object-cover"
               />
             </div>

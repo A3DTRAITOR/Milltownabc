@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
@@ -46,12 +47,13 @@ export default function Blog() {
   }
 
   const publishedPosts = posts?.filter((post) => post.published) || [];
-  const seoTitle = `Blog - ${settings?.businessName || "Our Blog"}`;
-  const seoDescription = "Insights, updates, and expert advice to help your business thrive.";
+  const seoTitle = `Boxing News & Training Tips - Mill Town ABC Blog`;
+  const seoDescription = "Latest news, training tips, and updates from Mill Town ABC boxing club in Glossop. Expert advice from Head Coach Alex Clegg.";
 
   return (
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Blog", url: "/blog" }]} />
       <section className="bg-foreground py-16 lg:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block px-4 py-1 mb-4 text-sm font-semibold tracking-wider text-primary uppercase bg-primary/10 rounded-full">
@@ -81,7 +83,8 @@ export default function Blog() {
                       <div className="aspect-video overflow-hidden">
                         <img
                           src={post.featuredImage}
-                          alt={post.title}
+                          alt={`${post.title} - Mill Town ABC Blog`}
+                          loading="lazy"
                           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>

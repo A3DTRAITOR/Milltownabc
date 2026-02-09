@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -81,12 +82,13 @@ export default function Services() {
     );
   }
 
-  const seoTitle = content.metaTitle || `Training - ${settings?.businessName || "Mill Town ABC"}`;
-  const seoDescription = content.metaDescription || content.heroSubtitle || "Explore our training programs.";
+  const seoTitle = content.metaTitle || `Boxing Training Programs in Glossop - Mill Town ABC | Beginners to Competitive`;
+  const seoDescription = content.metaDescription || content.heroSubtitle || "Boxing training for all levels at Mill Town ABC in Glossop. Beginner, general fitness, and carded boxer sessions. All classes just £5. First session FREE.";
 
   return (
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Training Programs", url: "/services" }]} />
       
       {/* Hero - Dark */}
       <section className="bg-foreground py-16 lg:py-24">

@@ -108,7 +108,7 @@ export default function Register() {
 
   return (
     <PublicLayout>
-      <SEOHead title="Register - Mill Town ABC" description="Join Mill Town ABC and start booking classes today. First session FREE! All classes just £5." />
+      <SEOHead title="Join Mill Town ABC - Boxing Club Glossop | First Session FREE" description="Register at Mill Town ABC boxing club in Glossop. First session FREE, all classes just £5. Train at Whitfield Community Centre with ABA National Champion Alex Clegg." />
       
       <section className="py-12 lg:py-16">
         <div className="mx-auto max-w-lg px-4 sm:px-6 lg:px-8">

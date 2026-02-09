@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Target, Shield, Trophy } from "lucide-react";
@@ -74,12 +75,13 @@ export default function About() {
     );
   }
 
-  const seoTitle = content.metaTitle || `About Us - ${settings?.businessName || "Mill Town ABC"}`;
-  const seoDescription = content.metaDescription || content.heroSubtitle || "Learn about our mission and values.";
+  const seoTitle = content.metaTitle || `About Mill Town ABC - Boxing Club Glossop | Head Coach Alex Clegg`;
+  const seoDescription = content.metaDescription || content.heroSubtitle || "Mill Town ABC is based at Whitfield Community Centre in Glossop. Led by Head Coach Alex Clegg, ABA National Champion with 70+ amateur bouts.";
 
   return (
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "About", url: "/about" }]} />
       
       {/* Hero - Dark */}
       <section className="bg-foreground py-16 lg:py-24">

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
@@ -83,12 +84,13 @@ export default function Home() {
     );
   }
 
-  const seoTitle = content.metaTitle || `${settings?.businessName || "Mill Town ABC"} - Train Hard, Fight Smart`;
-  const seoDescription = content.metaDescription || content.heroSubtitle || "Professional boxing training for all levels.";
+  const seoTitle = content.metaTitle || `${settings?.businessName || "Mill Town ABC"} - Boxing Club in Glossop | Training for All Levels`;
+  const seoDescription = content.metaDescription || content.heroSubtitle || "Mill Town ABC is a boxing club at Whitfield Community Centre in Glossop. Led by ABA National Champion Alex Clegg. Classes from £5. All levels welcome.";
 
   return (
     <PublicLayout settings={settings}>
       <SEOHead title={seoTitle} description={seoDescription} />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }]} />
       
       {/* Hero Section - Dark, Bold with Image */}
       <section className="relative min-h-[600px] lg:min-h-[700px] overflow-hidden">
@@ -306,7 +308,7 @@ export default function Home() {
               data-testid="link-sponsor-compare-agents"
             >
               <div className="h-16 flex items-center justify-center mb-4">
-                <img src={compareAgentsLogo} alt="Compare Agents" className="h-full w-auto object-contain" />
+                <img src={compareAgentsLogo} alt="Compare Agents - Mill Town ABC Sponsor" loading="lazy" className="h-full w-auto object-contain" />
               </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Compare Agents</h3>
               <p className="mt-2 text-sm text-muted-foreground flex-grow">Instantly compare the service and performance of Estate agents near you.</p>
@@ -319,7 +321,7 @@ export default function Home() {
               data-testid="link-sponsor-tacao"
             >
               <div className="h-16 flex items-center justify-center mb-4">
-                <img src={tacaoLogo} alt="Tacao" className="h-full w-auto object-contain" />
+                <img src={tacaoLogo} alt="Tacao - Mill Town ABC Sponsor" loading="lazy" className="h-full w-auto object-contain" />
               </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Tacao</h3>
               <p className="mt-2 text-sm text-muted-foreground flex-grow">Community and consultancy for entrepreneurs, business owners, and professionals.</p>
@@ -332,7 +334,7 @@ export default function Home() {
               data-testid="link-sponsor-high-peak"
             >
               <div className="h-16 flex items-center justify-center mb-4">
-                <img src={highPeakLogo} alt="High Peak Workwear" className="h-full w-auto object-contain" />
+                <img src={highPeakLogo} alt="High Peak Workwear - Mill Town ABC Sponsor" loading="lazy" className="h-full w-auto object-contain" />
               </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">High Peak Workwear</h3>
               <p className="mt-2 text-sm text-muted-foreground flex-grow">High quality custom embroidered workwear for all trades.</p>
@@ -345,7 +347,7 @@ export default function Home() {
               data-testid="link-sponsor-coleherne"
             >
               <div className="h-16 flex items-center justify-center mb-4">
-                <img src={coleherneLogo} alt="Coleherne Group" className="h-full w-auto object-contain" />
+                <img src={coleherneLogo} alt="Coleherne Group - Mill Town ABC Sponsor" loading="lazy" className="h-full w-auto object-contain" />
               </div>
               <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">Coleherne Group</h3>
               <p className="mt-2 text-sm text-muted-foreground flex-grow">Specialist manufacture and repair of precision engineered components for industry.</p>
