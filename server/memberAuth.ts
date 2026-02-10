@@ -16,13 +16,15 @@ function getClientIP(req: Request): string {
   return req.ip || req.socket.remoteAddress || "unknown";
 }
 
+const ukPhoneRegex = /^(?:0\d{10}|\+44\d{10})$/;
+
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().optional().nullable(),
+  phone: z.string().regex(ukPhoneRegex, "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)").optional().nullable(),
   age: z.number().min(5).max(100).optional().nullable(),
   emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string().min(10, "Emergency contact phone is required"),
+  emergencyContactPhone: z.string().regex(ukPhoneRegex, "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
   hcaptchaToken: z.string().optional().nullable(),
@@ -319,6 +321,9 @@ export function registerMemberRoutes(app: Express) {
   app.patch("/api/members/me", isMemberAuthenticated, async (req, res) => {
     try {
       const { name, phone, experienceLevel } = req.body;
+      if (phone && !ukPhoneRegex.test(phone)) {
+        return res.status(400).json({ message: "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)" });
+      }
       const member = await storage.updateMember(req.session.memberId!, {
         name,
         phone,

@@ -18,15 +18,30 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "";
 
-const ukPhoneRegex = /^(?:\+44\s?\d{4}\s?\d{6}|0\d{10})$/;
+const ukPhoneRegex = /^(?:0\d{10}|\+44\d{10})$/;
+
+const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: string) => void) => {
+  const raw = e.target.value.replace(/[^0-9+]/g, "");
+  const limited = raw.startsWith("+44") ? raw.slice(0, 13) : raw.slice(0, 11);
+  onChange(limited);
+};
+
+const handleAgeInput = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: number | undefined) => void) => {
+  const raw = e.target.value.replace(/[^0-9]/g, "").slice(0, 3);
+  onChange(raw ? parseInt(raw) : undefined);
+};
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email"),
-  phone: z.string().min(1, "Phone number is required").regex(ukPhoneRegex, "Enter a valid UK mobile number"),
+  phone: z.string()
+    .min(1, "Phone number is required")
+    .regex(ukPhoneRegex, "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)"),
   age: z.number().min(5, "Age must be at least 5").max(100, "Please enter a valid age"),
   emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string().min(1, "Emergency contact phone is required").regex(ukPhoneRegex, "Enter a valid UK mobile number"),
+  emergencyContactPhone: z.string()
+    .min(1, "Emergency contact phone is required")
+    .regex(ukPhoneRegex, "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
@@ -189,9 +204,21 @@ export default function Register() {
                       <FormItem>
                         <FormLabel className="text-sm font-medium">Phone Number</FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder="07XXX XXXXXX" className="h-11" {...field} data-testid="input-register-phone" />
+                          <Input 
+                            type="tel" 
+                            placeholder="07123456789" 
+                            className="h-11" 
+                            inputMode="numeric"
+                            maxLength={13}
+                            value={field.value}
+                            onChange={(e) => handlePhoneInput(e, field.onChange)}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
+                            data-testid="input-register-phone" 
+                          />
                         </FormControl>
-                        <FormDescription className="text-xs text-muted-foreground">e.g. 07123456789</FormDescription>
+                        <FormDescription className="text-xs text-muted-foreground">11 digits, e.g. 07123456789</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -204,12 +231,16 @@ export default function Register() {
                         <FormLabel className="text-sm font-medium">Age</FormLabel>
                         <FormControl>
                           <Input 
-                            type="number" 
+                            type="text" 
+                            inputMode="numeric"
                             placeholder="Your age"
                             className="h-11"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            maxLength={3}
                             value={field.value || ""}
+                            onChange={(e) => handleAgeInput(e, field.onChange)}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
                             data-testid="input-register-age" 
                           />
                         </FormControl>
@@ -248,9 +279,21 @@ export default function Register() {
                         <FormItem>
                           <FormLabel className="text-sm font-medium">Contact Phone</FormLabel>
                           <FormControl>
-                            <Input type="tel" placeholder="07XXX XXXXXX" className="h-11" {...field} data-testid="input-register-emergency-phone" />
+                            <Input 
+                              type="tel" 
+                              placeholder="07123456789" 
+                              className="h-11" 
+                              inputMode="numeric"
+                              maxLength={13}
+                              value={field.value}
+                              onChange={(e) => handlePhoneInput(e, field.onChange)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              data-testid="input-register-emergency-phone" 
+                            />
                           </FormControl>
-                          <FormDescription className="text-xs text-muted-foreground">e.g. 07123456789</FormDescription>
+                          <FormDescription className="text-xs text-muted-foreground">11 digits, e.g. 07123456789</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
