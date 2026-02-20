@@ -287,25 +287,27 @@ export default function Sessions() {
                 variant="outline" 
                 onClick={prevWeek} 
                 disabled={isCurrentWeek}
+                className="h-10 sm:h-9 px-2 sm:px-4"
                 data-testid="button-prev-week"
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
+                <ChevronLeft className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Previous</span>
               </Button>
-              <div className="text-center">
-                <h2 className="text-xl font-bold text-foreground">
+              <div className="text-center min-w-0">
+                <h2 className="text-base sm:text-xl font-bold text-foreground">
                   {format(weekStart, "d MMM")} - {format(weekEnd, "d MMM yyyy")}
                 </h2>
-                <p className="text-sm text-muted-foreground">2 weeks of sessions</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">2 weeks of sessions</p>
               </div>
               <Button 
                 variant="outline" 
                 onClick={nextWeek} 
                 disabled={weekStart >= maxWeekStart}
+                className="h-10 sm:h-9 px-2 sm:px-4"
                 data-testid="button-next-week"
               >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-4 w-4 sm:ml-1" />
               </Button>
             </div>
           </Card>

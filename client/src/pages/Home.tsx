@@ -209,7 +209,7 @@ export default function Home() {
               <p className="mt-4 text-muted-foreground">
                 Represented the Northwest Regional Team and competed internationally, defeating champions from Spain, Poland, Scotland, and Ireland.
               </p>
-              <div className="grid gap-2 sm:gap-3 grid-cols-4 mt-6">
+              <div className="grid gap-2 sm:gap-3 grid-cols-2 sm:grid-cols-4 mt-6">
                 <div className="text-center lg:text-left p-2 sm:p-3 bg-background rounded-lg">
                   <div className="text-xl sm:text-2xl font-black text-primary">70+</div>
                   <div className="mt-1 text-xs text-muted-foreground">Amateur Bouts</div>
