@@ -73,6 +73,15 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  app.use((req, res, next) => {
+    const url = req.originalUrl;
+    if (url !== "/" && url.endsWith("/") && !url.startsWith("/api/")) {
+      const cleanUrl = url.slice(0, -1);
+      return res.redirect(301, cleanUrl);
+    }
+    next();
+  });
+
   await setupAuth(app);
   registerAuthRoutes(app);
   registerMemberRoutes(app);
@@ -1174,6 +1183,8 @@ Sitemap: ${domain}/sitemap.xml`
       { loc: "/safety", priority: "0.5", changefreq: "yearly" },
       { loc: "/blog", priority: "0.7", changefreq: "weekly" },
       { loc: "/contact", priority: "0.7", changefreq: "monthly" },
+      { loc: "/privacy", priority: "0.3", changefreq: "yearly" },
+      { loc: "/terms", priority: "0.3", changefreq: "yearly" },
     ];
 
     let blogUrls = "";
