@@ -29,6 +29,7 @@ export interface IStorage {
 
   // Member methods
   getMemberByEmail(email: string): Promise<Member | undefined>;
+  getMemberByPhone(phone: string): Promise<Member | undefined>;
   getMemberById(id: string): Promise<Member | undefined>;
   getMemberByVerificationToken(token: string): Promise<Member | undefined>;
   createMember(data: InsertMember): Promise<Member>;
@@ -143,6 +144,11 @@ export class DatabaseStorage implements IStorage {
   // Member methods
   async getMemberByEmail(email: string): Promise<Member | undefined> {
     const [member] = await db.select().from(members).where(eq(members.email, email.toLowerCase()));
+    return member || undefined;
+  }
+
+  async getMemberByPhone(phone: string): Promise<Member | undefined> {
+    const [member] = await db.select().from(members).where(eq(members.phone, phone));
     return member || undefined;
   }
 
