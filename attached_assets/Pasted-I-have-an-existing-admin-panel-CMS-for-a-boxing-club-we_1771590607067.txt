@@ -1,0 +1,57 @@
+I have an existing admin panel / CMS for a boxing club website.
+I am happy with the current functionality and fields, but I want to polish and simplify the admin UI, especially for mobile use.
+
+Requirements and constraints:
+
+The gym owner will mostly edit content on their phone, so design the admin as mobile‑first and then enhance it for desktop.
+
+Do not remove or rename any existing fields, routes, or core functionality.
+
+Do not change any labels or wording used in the admin.
+
+Public‑facing pages must remain visually the same; only adjust the admin UI.
+
+Mobile‑first layout:
+
+On small screens, remove the fixed sidebar and replace it with a simple top bar: a title on the left and a hamburger menu on the right that opens the existing navigation as an overlay/drawer.
+
+Use a single‑column layout for the content editor: labels above inputs, fields stacked vertically, full‑width with padding, and generous vertical spacing.
+
+Make inputs and buttons large and easy to tap (approximately 44–48px tall) with clear separation between groups of fields.
+
+Replace cramped horizontal tabs for pages/sections with a mobile‑friendly control, such as:
+
+A dropdown at the top saying “Editing: [Home ▼]”, or
+
+A simple list of pages on a first screen that navigates to a single‑page edit screen.
+
+Reducing visual overload:
+
+Keep the default edit view short and focused on the essential fields (e.g. hero title, hero subtitle, main content).
+
+Move non‑essential or advanced fields (such as SEO title/description, advanced settings) into collapsible sections or an “Advanced / SEO” panel that can be expanded when needed.
+
+Use light borders and plenty of whitespace; avoid nested heavy cards and unnecessary lines so the interface feels clean and calm.
+
+Actions and feedback:
+
+On mobile, make the primary action “Save Changes” a clear, prominent button near the bottom of the form, ideally full‑width and easy to reach with a thumb.
+
+Ensure the save button and any secondary actions have enough spacing so they’re not easy to tap by mistake.
+
+Keep validation and error messages simple and inline next to the relevant fields, without cluttering the screen.
+
+Desktop enhancement (responsive only):
+
+For larger screens, you may reintroduce the sidebar and centered content card, but only via responsive CSS / layout changes, keeping the mobile structure as the base.
+
+On desktop, preserve the clean single‑column form and clear spacing; do not cram extra controls into the view.
+
+Implementation details:
+
+Refactor the admin templates/components and styles to follow this mobile‑first approach.
+
+Use responsive breakpoints so that the mobile layout is the default and the desktop enhancements are additive.
+
+After making the changes, briefly describe what you changed in the admin UI and confirm that no public‑facing pages were altered.
+

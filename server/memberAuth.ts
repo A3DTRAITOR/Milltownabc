@@ -40,7 +40,7 @@ const registerSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be under 100 characters"),
   email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
   phone: phoneValidation.optional().nullable(),
-  age: z.number().min(12, "You must be at least 12 years old to register").max(100, "Please enter a valid age").optional().nullable(),
+  age: z.number().min(1, "Please enter a valid age").max(100, "Please enter a valid age").optional().nullable(),
   emergencyContactName: z.string().trim().min(2, "Emergency contact name is required").max(100, "Name must be under 100 characters"),
   emergencyContactPhone: phoneValidation,
   password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password is too long"),
