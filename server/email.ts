@@ -239,6 +239,12 @@ export async function sendCancellationEmail(data: CancellationEmailData): Promis
           </div>
           ` : ''}
 
+          ${!data.freeSessionRestored ? `
+          <div class="info-box">
+            <p><strong>Refunds:</strong> If you paid by card and are eligible for a refund, please contact us at <a href="mailto:Milltownabc@gmail.com">Milltownabc@gmail.com</a> or speak to a coach at the gym. Refunds are processed within a few days.</p>
+          </div>
+          ` : ''}
+
           <p>If you'd like to book another session, visit our website to view available classes.</p>
           
           <p>Hope to see you soon!</p>

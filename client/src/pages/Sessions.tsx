@@ -272,10 +272,14 @@ export default function Sessions() {
           {/* Cancellation Policy Notice */}
           <Card className="p-4 mb-6 bg-muted/50" data-testid="card-cancellation-policy">
             <div className="text-sm text-muted-foreground">
-              <p className="font-semibold text-foreground mb-1">Cancellation Policy</p>
+              <p className="font-semibold text-foreground mb-1">Cancellation & Refund Policy</p>
               <p>
-                Cancel more than 1 hour before your session and we'll restore your free session or refund your payment. 
-                Cancellations within 1 hour of the session start time will forfeit your free session or payment.
+                Cancel more than 1 hour before your session and your free session will be restored. 
+                Cancellations within 1 hour of the session start time will forfeit your free session.
+              </p>
+              <p className="mt-2">
+                For card payment refunds, please contact us at Milltownabc@gmail.com or speak to a coach at the gym. 
+                Refunds for cancellations made more than 1 hour before the session will be processed within a few days.
               </p>
             </div>
           </Card>
