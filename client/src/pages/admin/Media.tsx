@@ -184,7 +184,7 @@ export default function AdminMedia() {
                     or click to browse (max 5MB, auto-resized to 1200px)
                   </p>
                 </div>
-                <Button onClick={() => fileInputRef.current?.click()} data-testid="button-browse-files">
+                <Button className="h-12 sm:h-10 text-base sm:text-sm" onClick={() => fileInputRef.current?.click()} data-testid="button-browse-files">
                   <Upload className="mr-2 h-4 w-4" />
                   Browse Files
                 </Button>

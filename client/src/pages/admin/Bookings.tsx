@@ -251,7 +251,19 @@ export default function AdminBookings() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
+          <div className="sm:hidden">
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger className="h-12 text-base" data-testid="select-tab-mobile">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="bookings">Bookings</SelectItem>
+                <SelectItem value="payments">Payment Types</SelectItem>
+                <SelectItem value="finance">Financial Summary</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <TabsList className="hidden sm:inline-flex">
             <TabsTrigger value="bookings" data-testid="tab-bookings">Bookings</TabsTrigger>
             <TabsTrigger value="payments" data-testid="tab-payments">Payment Types</TabsTrigger>
             <TabsTrigger value="finance" data-testid="tab-finance">Financial Summary</TabsTrigger>
@@ -884,7 +896,7 @@ export default function AdminBookings() {
                     Complete record for HMRC compliance.
                   </p>
                 </div>
-                <Button onClick={exportToCSV} variant="outline" size="sm" className="w-full sm:w-auto" data-testid="button-export-csv">
+                <Button onClick={exportToCSV} variant="outline" className="w-full sm:w-auto h-12 sm:h-9 text-base sm:text-sm" data-testid="button-export-csv">
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
                 </Button>

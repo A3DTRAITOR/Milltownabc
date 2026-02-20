@@ -78,7 +78,7 @@ export default function AdminBlogList() {
           <p className="text-muted-foreground">
             {posts?.length || 0} post{(posts?.length || 0) !== 1 ? "s" : ""}
           </p>
-          <Button asChild data-testid="button-create-post">
+          <Button asChild className="h-12 sm:h-10 text-base sm:text-sm" data-testid="button-create-post">
             <Link href="/admin/blog/new">
               <Plus className="mr-2 h-4 w-4" />
               New Post

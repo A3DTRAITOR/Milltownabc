@@ -249,6 +249,7 @@ export default function AdminCalendar() {
                   <Label htmlFor="title">Class Title</Label>
                   <Input
                     id="title"
+                    className="h-12 text-base"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="e.g., Beginner Boxing"
@@ -277,6 +278,7 @@ export default function AdminCalendar() {
                     <Input
                       id="date"
                       type="date"
+                      className="h-12 text-base"
                       value={formData.date}
                       onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                       required
@@ -288,6 +290,7 @@ export default function AdminCalendar() {
                     <Input
                       id="time"
                       type="time"
+                      className="h-12 text-base"
                       value={formData.time}
                       onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                       required
@@ -302,6 +305,7 @@ export default function AdminCalendar() {
                     <Input
                       id="duration"
                       type="number"
+                      className="h-12 text-base"
                       value={formData.duration}
                       onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 60 })}
                       min={15}
@@ -314,6 +318,7 @@ export default function AdminCalendar() {
                     <Input
                       id="capacity"
                       type="number"
+                      className="h-12 text-base"
                       value={formData.capacity}
                       onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 12 })}
                       min={1}
@@ -325,6 +330,7 @@ export default function AdminCalendar() {
                     <Label htmlFor="price">Price (£)</Label>
                     <Input
                       id="price"
+                      className="h-12 text-base"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       placeholder="15.00"

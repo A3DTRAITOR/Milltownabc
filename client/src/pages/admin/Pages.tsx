@@ -1,15 +1,25 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/AdminLayout";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, ChevronDown } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { PageContent } from "@shared/schema";
 
@@ -25,6 +35,7 @@ export default function AdminPages() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedPage, setSelectedPage] = useState("home");
+  const [seoOpen, setSeoOpen] = useState(false);
 
   const { data: pageData, isLoading } = useQuery<{ content: PageContent }>({
     queryKey: ["/api/content", selectedPage],
@@ -65,114 +76,126 @@ export default function AdminPages() {
 
   return (
     <AdminLayout title="Edit Pages">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <Tabs value={selectedPage} onValueChange={(v) => { setSelectedPage(v); setFormData({}); }}>
-          <TabsList className="grid w-full grid-cols-5" data-testid="tabs-pages">
-            {pages.map((page) => (
-              <TabsTrigger key={page.key} value={page.key} data-testid={`tab-page-${page.key}`}>
-                {page.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+      <div className="mx-auto max-w-2xl lg:max-w-4xl space-y-5">
+        <div>
+          <Label className="text-sm text-muted-foreground mb-2 block">Editing</Label>
+          <Select
+            value={selectedPage}
+            onValueChange={(v) => { setSelectedPage(v); setFormData({}); }}
+          >
+            <SelectTrigger className="h-12 text-base" data-testid="tabs-pages">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {pages.map((page) => (
+                <SelectItem key={page.key} value={page.key} data-testid={`tab-page-${page.key}`}>
+                  {page.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          {pages.map((page) => (
-            <TabsContent key={page.key} value={page.key} className="space-y-6 mt-6">
-              {isLoading ? (
-                <Card className="p-6 space-y-4">
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                </Card>
-              ) : (
-                <>
-                  <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">SEO Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="metaTitle">Meta Title</Label>
-                        <Input
-                          id="metaTitle"
-                          value={currentContent?.metaTitle || ""}
-                          onChange={(e) => handleInputChange("metaTitle", e.target.value)}
-                          placeholder="Page title for search engines"
-                          maxLength={60}
-                          data-testid="input-meta-title"
-                        />
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {(currentContent?.metaTitle || "").length}/60 characters
-                        </p>
-                      </div>
-                      <div>
-                        <Label htmlFor="metaDescription">Meta Description</Label>
-                        <Textarea
-                          id="metaDescription"
-                          value={currentContent?.metaDescription || ""}
-                          onChange={(e) => handleInputChange("metaDescription", e.target.value)}
-                          placeholder="Brief description for search results"
-                          maxLength={160}
-                          className="resize-none"
-                          rows={3}
-                          data-testid="input-meta-description"
-                        />
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {(currentContent?.metaDescription || "").length}/160 characters
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        ) : (
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="heroTitle">Hero Title</Label>
+              <Input
+                id="heroTitle"
+                value={currentContent?.heroTitle || ""}
+                onChange={(e) => handleInputChange("heroTitle", e.target.value)}
+                placeholder="Main headline"
+                className="h-12 text-base"
+                data-testid="input-hero-title"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="heroSubtitle">Hero Subtitle</Label>
+              <Textarea
+                id="heroSubtitle"
+                value={currentContent?.heroSubtitle || ""}
+                onChange={(e) => handleInputChange("heroSubtitle", e.target.value)}
+                placeholder="Supporting text below headline"
+                className="resize-none min-h-[48px] text-base"
+                rows={3}
+                data-testid="input-hero-subtitle"
+              />
+            </div>
 
-                  <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Hero Section</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="heroTitle">Hero Title</Label>
-                        <Input
-                          id="heroTitle"
-                          value={currentContent?.heroTitle || ""}
-                          onChange={(e) => handleInputChange("heroTitle", e.target.value)}
-                          placeholder="Main headline"
-                          data-testid="input-hero-title"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="heroSubtitle">Hero Subtitle</Label>
-                        <Textarea
-                          id="heroSubtitle"
-                          value={currentContent?.heroSubtitle || ""}
-                          onChange={(e) => handleInputChange("heroSubtitle", e.target.value)}
-                          placeholder="Supporting text below headline"
-                          className="resize-none"
-                          rows={3}
-                          data-testid="input-hero-subtitle"
-                        />
-                      </div>
-                    </div>
-                  </Card>
+            <Collapsible open={seoOpen} onOpenChange={setSeoOpen}>
+              <CollapsibleTrigger asChild>
+                <button
+                  type="button"
+                  className="flex items-center justify-between w-full py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  data-testid="toggle-seo"
+                >
+                  <span>Advanced / SEO</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${seoOpen ? "rotate-180" : ""}`} />
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-5 pt-2">
+                <div className="space-y-2">
+                  <Label htmlFor="metaTitle">Meta Title</Label>
+                  <Input
+                    id="metaTitle"
+                    value={currentContent?.metaTitle || ""}
+                    onChange={(e) => handleInputChange("metaTitle", e.target.value)}
+                    placeholder="Page title for search engines"
+                    maxLength={60}
+                    className="h-12 text-base"
+                    data-testid="input-meta-title"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {(currentContent?.metaTitle || "").length}/60 characters
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="metaDescription">Meta Description</Label>
+                  <Textarea
+                    id="metaDescription"
+                    value={currentContent?.metaDescription || ""}
+                    onChange={(e) => handleInputChange("metaDescription", e.target.value)}
+                    placeholder="Brief description for search results"
+                    maxLength={160}
+                    className="resize-none min-h-[48px] text-base"
+                    rows={3}
+                    data-testid="input-meta-description"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {(currentContent?.metaDescription || "").length}/160 characters
+                  </p>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
-                  <div className="flex justify-end">
-                    <Button 
-                      onClick={handleSave} 
-                      disabled={updateMutation.isPending}
-                      data-testid="button-save-page"
-                    >
-                      {updateMutation.isPending ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="mr-2 h-4 w-4" />
-                          Save Changes
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </>
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
+            <div className="pt-4">
+              <Button
+                onClick={handleSave}
+                disabled={updateMutation.isPending}
+                className="w-full sm:w-auto h-12 sm:h-10 text-base sm:text-sm"
+                data-testid="button-save-page"
+              >
+                {updateMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

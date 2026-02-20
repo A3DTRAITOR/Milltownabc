@@ -230,7 +230,7 @@ export default function AdminSchedule() {
                       <FormItem>
                         <FormLabel>Class Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Beginners Class" {...field} data-testid="input-title" />
+                          <Input className="h-12 text-base" placeholder="e.g. Beginners Class" {...field} data-testid="input-title" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -266,7 +266,7 @@ export default function AdminSchedule() {
                         <FormItem>
                           <FormLabel>Time</FormLabel>
                           <FormControl>
-                            <Input type="time" {...field} data-testid="input-time" />
+                            <Input className="h-12 text-base" type="time" {...field} data-testid="input-time" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

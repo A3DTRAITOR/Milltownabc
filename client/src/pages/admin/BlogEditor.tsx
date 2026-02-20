@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2, ArrowLeft, Image } from "lucide-react";
+import { Save, Loader2, ArrowLeft, Image, ChevronDown } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { BlogPost, InsertBlogPost, MediaFile } from "@shared/schema";
 
@@ -28,6 +29,7 @@ export default function BlogEditor() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isNew = id === "new";
+  const [seoOpen, setSeoOpen] = useState(false);
 
   const [formData, setFormData] = useState<Partial<InsertBlogPost>>({
     title: "",
@@ -149,6 +151,7 @@ export default function BlogEditor() {
                 <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
+                  className="h-12 text-base"
                   value={formData.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="Post title"
@@ -159,6 +162,7 @@ export default function BlogEditor() {
                 <Label htmlFor="slug">Slug</Label>
                 <Input
                   id="slug"
+                  className="h-12 text-base"
                   value={formData.slug}
                   onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
                   placeholder="url-friendly-slug"
@@ -246,39 +250,47 @@ export default function BlogEditor() {
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">SEO Settings</h3>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="metaTitle">Meta Title</Label>
-              <Input
-                id="metaTitle"
-                value={formData.metaTitle || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, metaTitle: e.target.value }))}
-                placeholder="SEO title (defaults to post title)"
-                maxLength={60}
-                data-testid="input-post-meta-title"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                {(formData.metaTitle || "").length}/60 characters
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="metaDescription">Meta Description</Label>
-              <Textarea
-                id="metaDescription"
-                value={formData.metaDescription || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, metaDescription: e.target.value }))}
-                placeholder="SEO description (defaults to excerpt)"
-                maxLength={160}
-                className="resize-none"
-                rows={2}
-                data-testid="input-post-meta-description"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                {(formData.metaDescription || "").length}/160 characters
-              </p>
-            </div>
-          </div>
+          <Collapsible open={seoOpen} onOpenChange={setSeoOpen}>
+            <CollapsibleTrigger asChild>
+              <button type="button" className="flex items-center justify-between w-full py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <span>Advanced / SEO</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${seoOpen ? "rotate-180" : ""}`} />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-5 pt-2">
+              <div>
+                <Label htmlFor="metaTitle">Meta Title</Label>
+                <Input
+                  id="metaTitle"
+                  className="h-12 text-base"
+                  value={formData.metaTitle || ""}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, metaTitle: e.target.value }))}
+                  placeholder="SEO title (defaults to post title)"
+                  maxLength={60}
+                  data-testid="input-post-meta-title"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {(formData.metaTitle || "").length}/60 characters
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="metaDescription">Meta Description</Label>
+                <Textarea
+                  id="metaDescription"
+                  value={formData.metaDescription || ""}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, metaDescription: e.target.value }))}
+                  placeholder="SEO description (defaults to excerpt)"
+                  maxLength={160}
+                  className="resize-none"
+                  rows={2}
+                  data-testid="input-post-meta-description"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {(formData.metaDescription || "").length}/160 characters
+                </p>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </Card>
 
         <Card className="p-6">
@@ -295,11 +307,11 @@ export default function BlogEditor() {
           </div>
         </Card>
 
-        <div className="flex justify-end gap-4">
-          <Button variant="outline" onClick={() => navigate("/admin/blog")}>
+        <div className="flex flex-col sm:flex-row justify-end gap-4">
+          <Button variant="outline" className="w-full sm:w-auto h-12 sm:h-10 text-base sm:text-sm" onClick={() => navigate("/admin/blog")}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={saveMutation.isPending} data-testid="button-save-post">
+          <Button className="w-full sm:w-auto h-12 sm:h-10 text-base sm:text-sm" onClick={handleSave} disabled={saveMutation.isPending} data-testid="button-save-post">
             {saveMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -7,14 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, ChevronDown } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { SiteSettings } from "@shared/schema";
 
 export default function AdminSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [seoOpen, setSeoOpen] = useState(false);
 
   const { data: settingsData, isLoading } = useQuery<{ content: SiteSettings }>({
     queryKey: ["/api/content", "settings"],
@@ -120,6 +122,7 @@ export default function AdminSettings() {
                 <Label htmlFor="businessName">Business Name</Label>
                 <Input
                   id="businessName"
+                  className="h-12 text-base"
                   value={formData.businessName}
                   onChange={(e) => handleInputChange("businessName", e.target.value)}
                   placeholder="Your Business Name"
@@ -130,6 +133,7 @@ export default function AdminSettings() {
                 <Label htmlFor="tagline">Tagline</Label>
                 <Input
                   id="tagline"
+                  className="h-12 text-base"
                   value={formData.tagline}
                   onChange={(e) => handleInputChange("tagline", e.target.value)}
                   placeholder="Your business tagline"
@@ -141,6 +145,7 @@ export default function AdminSettings() {
               <Label htmlFor="logo">Logo URL</Label>
               <Input
                 id="logo"
+                className="h-12 text-base"
                 value={formData.logo}
                 onChange={(e) => handleInputChange("logo", e.target.value)}
                 placeholder="https://example.com/logo.png"
@@ -159,6 +164,7 @@ export default function AdminSettings() {
                 <Input
                   id="email"
                   type="email"
+                  className="h-12 text-base"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="contact@example.com"
@@ -170,6 +176,7 @@ export default function AdminSettings() {
                 <Input
                   id="phone"
                   type="tel"
+                  className="h-12 text-base"
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
                   placeholder="+1 (555) 123-4567"
@@ -199,6 +206,7 @@ export default function AdminSettings() {
               <Label htmlFor="facebook">Facebook</Label>
               <Input
                 id="facebook"
+                className="h-12 text-base"
                 value={formData.socialLinks?.facebook}
                 onChange={(e) => handleInputChange("socialLinks.facebook", e.target.value)}
                 placeholder="https://facebook.com/yourbusiness"
@@ -209,6 +217,7 @@ export default function AdminSettings() {
               <Label htmlFor="twitter">Twitter / X</Label>
               <Input
                 id="twitter"
+                className="h-12 text-base"
                 value={formData.socialLinks?.twitter}
                 onChange={(e) => handleInputChange("socialLinks.twitter", e.target.value)}
                 placeholder="https://twitter.com/yourbusiness"
@@ -219,6 +228,7 @@ export default function AdminSettings() {
               <Label htmlFor="instagram">Instagram</Label>
               <Input
                 id="instagram"
+                className="h-12 text-base"
                 value={formData.socialLinks?.instagram}
                 onChange={(e) => handleInputChange("socialLinks.instagram", e.target.value)}
                 placeholder="https://instagram.com/yourbusiness"
@@ -229,6 +239,7 @@ export default function AdminSettings() {
               <Label htmlFor="linkedin">LinkedIn</Label>
               <Input
                 id="linkedin"
+                className="h-12 text-base"
                 value={formData.socialLinks?.linkedin}
                 onChange={(e) => handleInputChange("socialLinks.linkedin", e.target.value)}
                 placeholder="https://linkedin.com/company/yourbusiness"
@@ -239,45 +250,57 @@ export default function AdminSettings() {
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">SEO / Local Business Schema</h3>
-          <div className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="businessType">Business Type</Label>
-                <Input
-                  id="businessType"
-                  value={formData.localBusiness?.type}
-                  onChange={(e) => handleInputChange("localBusiness.type", e.target.value)}
-                  placeholder="LocalBusiness, Restaurant, Store..."
-                  data-testid="input-business-type"
-                />
+          <Collapsible open={seoOpen} onOpenChange={setSeoOpen}>
+            <CollapsibleTrigger asChild>
+              <button type="button" className="flex items-center justify-between w-full py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <span>SEO / Local Business Schema</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${seoOpen ? "rotate-180" : ""}`} />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-5 pt-2">
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="businessType">Business Type</Label>
+                    <Input
+                      id="businessType"
+                      className="h-12 text-base"
+                      value={formData.localBusiness?.type}
+                      onChange={(e) => handleInputChange("localBusiness.type", e.target.value)}
+                      placeholder="LocalBusiness, Restaurant, Store..."
+                      data-testid="input-business-type"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="priceRange">Price Range</Label>
+                    <Input
+                      id="priceRange"
+                      className="h-12 text-base"
+                      value={formData.localBusiness?.priceRange}
+                      onChange={(e) => handleInputChange("localBusiness.priceRange", e.target.value)}
+                      placeholder="$, $$, $$$, $$$$"
+                      data-testid="input-price-range"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="openingHours">Opening Hours</Label>
+                  <Input
+                    id="openingHours"
+                    className="h-12 text-base"
+                    value={formData.localBusiness?.openingHours}
+                    onChange={(e) => handleInputChange("localBusiness.openingHours", e.target.value)}
+                    placeholder="Mo-Fr 09:00-17:00"
+                    data-testid="input-opening-hours"
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="priceRange">Price Range</Label>
-                <Input
-                  id="priceRange"
-                  value={formData.localBusiness?.priceRange}
-                  onChange={(e) => handleInputChange("localBusiness.priceRange", e.target.value)}
-                  placeholder="$, $$, $$$, $$$$"
-                  data-testid="input-price-range"
-                />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="openingHours">Opening Hours</Label>
-              <Input
-                id="openingHours"
-                value={formData.localBusiness?.openingHours}
-                onChange={(e) => handleInputChange("localBusiness.openingHours", e.target.value)}
-                placeholder="Mo-Fr 09:00-17:00"
-                data-testid="input-opening-hours"
-              />
-            </div>
-          </div>
+            </CollapsibleContent>
+          </Collapsible>
         </Card>
 
         <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saveMutation.isPending} data-testid="button-save-settings">
+          <Button className="w-full sm:w-auto h-12 sm:h-10 text-base sm:text-sm" onClick={handleSave} disabled={saveMutation.isPending} data-testid="button-save-settings">
             {saveMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -16,6 +16,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, Calendar, FileText, LogOut, ExternalLink, Users, ClipboardList, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,8 +44,89 @@ interface MemberData {
   isAdmin: boolean;
 }
 
+function SidebarNavContent({ member, handleLogout }: { member: MemberData; handleLogout: () => void }) {
+  const [location] = useLocation();
+  const { setOpenMobile, isMobile } = useSidebar();
+
+  const handleNavClick = () => {
+    if (isMobile) setOpenMobile(false);
+  };
+
+  return (
+    <>
+      <SidebarHeader className="border-b border-sidebar-border p-4">
+        <Link href="/admin" className="flex items-center gap-2" onClick={handleNavClick} data-testid="link-admin-home">
+          <img src="/logo.png" alt="Mill Town ABC" className="w-8 h-8 rounded-full" />
+          <span className="font-semibold text-sidebar-foreground">Admin Panel</span>
+        </Link>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {adminNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location === item.href}
+                    className="h-12 text-base md:h-9 md:text-sm"
+                  >
+                    <Link href={item.href} onClick={handleNavClick} data-testid={`link-admin-nav-${item.label.toLowerCase()}`}>
+                      <item.icon className="h-5 w-5 md:h-4 md:w-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Quick Links</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="h-12 text-base md:h-9 md:text-sm">
+                  <Link href="/" onClick={handleNavClick} data-testid="link-view-site">
+                    <ExternalLink className="h-5 w-5 md:h-4 md:w-4" />
+                    <span>View Site</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border p-4">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>{member.name?.[0] || "U"}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">
+              {member.name}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => { handleNavClick(); handleLogout(); }}
+            data-testid="button-admin-logout"
+            title="Logout"
+            className="h-12 w-12 md:h-8 md:w-8"
+          >
+            <LogOut className="h-5 w-5 md:h-4 md:w-4" />
+          </Button>
+        </div>
+      </SidebarFooter>
+    </>
+  );
+}
+
 export function AdminLayout({ children, title }: AdminLayoutProps) {
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   const { data: member, isLoading, isError } = useQuery<MemberData>({
@@ -134,74 +216,13 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
     <SidebarProvider style={sidebarStyle}>
       <div className="flex h-screen w-full">
         <Sidebar>
-          <SidebarHeader className="border-b border-sidebar-border p-4">
-            <Link href="/admin" className="flex items-center gap-2" data-testid="link-admin-home">
-              <img src="/logo.png" alt="Mill Town ABC" className="w-8 h-8 rounded-full" />
-              <span className="font-semibold text-sidebar-foreground">Admin Panel</span>
-            </Link>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>Management</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {adminNavItems.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton asChild isActive={location === item.href}>
-                        <Link href={item.href} data-testid={`link-admin-nav-${item.label.toLowerCase()}`}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-            <SidebarGroup>
-              <SidebarGroupLabel>Quick Links</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/" data-testid="link-view-site">
-                        <ExternalLink className="h-4 w-4" />
-                        <span>View Site</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-          <SidebarFooter className="border-t border-sidebar-border p-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>{member.name?.[0] || "U"}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  {member.name}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">{member.email}</p>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleLogout}
-                data-testid="button-admin-logout"
-                title="Logout"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-          </SidebarFooter>
+          <SidebarNavContent member={member} handleLogout={handleLogout} />
         </Sidebar>
         <div className="flex flex-col flex-1 overflow-hidden">
           <header className="flex items-center justify-between gap-4 border-b border-border bg-background px-4 py-3 lg:px-6">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger data-testid="button-sidebar-toggle" />
-              {title && <h1 className="text-xl font-semibold text-foreground">{title}</h1>}
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="h-12 w-12 md:h-9 md:w-9" data-testid="button-sidebar-toggle" />
+              {title && <h1 className="text-lg lg:text-xl font-semibold text-foreground truncate">{title}</h1>}
             </div>
           </header>
           <main className="flex-1 overflow-auto bg-muted/30 p-4 lg:p-6">
