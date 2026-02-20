@@ -20,22 +20,31 @@ const getOidcConfig = memoize(
 
 export function getSession() {
   const sessionTtl = 30 * 60 * 1000; // 30 minutes for inactivity timeout
+  const isProduction = process.env.NODE_ENV === "production";
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
+    createTableIfMissing: true,
     ttl: sessionTtl / 1000, // TTL in seconds for pg store
     tableName: "sessions",
   });
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: (() => {
+      const secret = process.env.SESSION_SECRET;
+      if (!secret && process.env.NODE_ENV === "production") {
+        console.error("[FATAL] SESSION_SECRET environment variable is required in production. Generate one with: openssl rand -hex 32");
+        process.exit(1);
+      }
+      return secret || "dev-only-session-secret-not-for-production";
+    })(),
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     rolling: true, // Reset session expiry on each request (inactivity timeout)
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: isProduction,
+      sameSite: isProduction ? "lax" : "lax",
       maxAge: sessionTtl,
     },
   });
@@ -64,6 +73,12 @@ async function upsertUser(claims: any) {
 export async function setupAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
+
+  if (!process.env.REPL_ID) {
+    console.log("[Auth] Running outside Replit - Replit OIDC auth disabled, member auth only");
+    return;
+  }
+
   app.use(passport.initialize());
   app.use(passport.session());
 

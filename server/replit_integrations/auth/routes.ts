@@ -4,7 +4,10 @@ import { isAuthenticated } from "./replitAuth";
 
 // Register auth-specific routes
 export function registerAuthRoutes(app: Express): void {
-  // Get current authenticated user
+  if (!process.env.REPL_ID) {
+    return;
+  }
+
   app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
