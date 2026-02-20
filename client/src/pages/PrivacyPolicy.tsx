@@ -68,7 +68,7 @@ export default function PrivacyPolicy() {
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li><strong className="text-foreground">Contract</strong> - We need your data to provide our booking service, process payments, and manage your membership (Article 6(1)(b)).</li>
               <li><strong className="text-foreground">Legitimate interest</strong> - We collect emergency contact details for your safety during training, and we use phone number uniqueness to prevent abuse of our free first session offer (Article 6(1)(f)).</li>
-              <li><strong className="text-foreground">Consent</strong> - When you submit our contact form, you consent to us using your details to respond to your enquiry (Article 6(1)(a)).</li>
+              <li><strong className="text-foreground">Consent</strong> - When you submit our contact form, you consent to us using your details to respond to your enquiry. We also seek your consent before placing analytics cookies on your device (Article 6(1)(a)).</li>
             </ul>
           </Card>
 
@@ -120,14 +120,25 @@ export default function PrivacyPolicy() {
           <Card className="p-6 lg:p-8">
             <h2 className="text-xl font-bold text-foreground mb-4">7. Cookies</h2>
             <p className="text-muted-foreground leading-relaxed">
-              This website uses only <strong className="text-foreground">essential cookies</strong> required for the site to function:
+              This website uses the following types of cookies:
             </p>
-            <ul className="list-disc pl-6 space-y-2 text-muted-foreground mt-3">
+            <h3 className="text-lg font-semibold text-foreground mt-4 mb-2">Essential Cookies</h3>
+            <p className="text-muted-foreground leading-relaxed mb-2">These are required for the site to function and cannot be switched off:</p>
+            <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li><strong className="text-foreground">Session cookie</strong> (connect.sid) - Keeps you logged in while you use the site. This cookie is deleted when you log out or close your browser session.</li>
-              <li><strong className="text-foreground">Cookie consent</strong> (cookie-consent) - Remembers that you've acknowledged our cookie notice.</li>
+              <li><strong className="text-foreground">Cookie consent</strong> (cookie-consent) - Remembers your cookie preferences.</li>
+            </ul>
+            <h3 className="text-lg font-semibold text-foreground mt-4 mb-2">Analytics Cookies</h3>
+            <p className="text-muted-foreground leading-relaxed mb-2">With your consent, we use Google Analytics to understand how visitors use our website. This helps us improve the site. Google Analytics sets the following cookies:</p>
+            <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+              <li><strong className="text-foreground">_ga</strong> - Used to distinguish users. Expires after 2 years.</li>
+              <li><strong className="text-foreground">_ga_*</strong> - Used to maintain session state. Expires after 2 years.</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
-              We do not use any analytics, advertising, or tracking cookies. We do not use Google Analytics or any similar service.
+              Google Analytics collects anonymised data about pages visited, time spent on the site, and how you arrived at the site. This data is processed by Google. You can opt out of analytics cookies at any time using our cookie banner, or by installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google Analytics Opt-out Browser Add-on</a>.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-3">
+              We do not use any advertising or marketing cookies.
             </p>
           </Card>
 
@@ -171,9 +182,11 @@ export default function PrivacyPolicy() {
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li><strong className="text-foreground">Square</strong> - For processing card payments. Square handles all card data securely under PCI DSS compliance.</li>
               <li><strong className="text-foreground">Resend</strong> - For sending transactional emails (booking confirmations, email verification, cancellation notices).</li>
+              <li><strong className="text-foreground">Google Analytics</strong> - For understanding how visitors use our website (with your consent). Google may process data outside the UK; Google is certified under the UK Extension to the EU-US Data Privacy Framework. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google's Privacy Policy</a>.</li>
+              <li><strong className="text-foreground">Google Search Console</strong> - For monitoring how the site appears in Google search results. This service does not collect personal data from visitors.</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
-              We do not share your personal data with any other third parties.
+              We do not share your personal data with any other third parties beyond those listed above.
             </p>
           </Card>
 

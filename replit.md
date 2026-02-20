@@ -10,7 +10,8 @@ Key features:
 - Class booking: £5 per session, first session FREE
 - Member dashboard for viewing and managing bookings
 - Admin panel with role-based access control for managing content, classes, members (including edit), and financials
-- UK legal compliance: Privacy Policy, Terms & Conditions, Cookie Consent banner
+- UK legal compliance: Privacy Policy, Terms & Conditions, Cookie Consent banner (with analytics opt-in/out)
+- Google Analytics and Google Search Console integration documented in Privacy Policy
 - Registration requires agreement to Terms & Privacy Policy
 - UK-compliant financial reporting with CSV export for accountants
 

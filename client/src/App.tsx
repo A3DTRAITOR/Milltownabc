@@ -26,7 +26,7 @@ import AdminMembers from "@/pages/admin/Members";
 import AdminBookings from "@/pages/admin/Bookings";
 import VerifyEmail from "@/pages/VerifyEmail";
 import NotFound from "@/pages/not-found";
-import { CookieConsent } from "@/components/CookieConsent";
+import { CookieConsent, useInitAnalytics } from "@/components/CookieConsent";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -71,6 +71,8 @@ function Router() {
 }
 
 function App() {
+  useInitAnalytics();
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import type { SiteSettings } from "@shared/schema";
+import { revokeConsent } from "@/components/CookieConsent";
 
 interface FooterProps {
   settings?: SiteSettings;
@@ -64,6 +65,15 @@ export function Footer({ settings }: FooterProps) {
                 <Link href="/terms" className="text-sm text-gray-400 hover:text-primary transition-colors" data-testid="link-footer-terms">
                   Terms & Conditions
                 </Link>
+              </li>
+              <li>
+                <button 
+                  onClick={revokeConsent}
+                  className="text-sm text-gray-400 hover:text-primary transition-colors cursor-pointer"
+                  data-testid="button-manage-cookies"
+                >
+                  Manage Cookies
+                </button>
               </li>
             </ul>
           </div>
