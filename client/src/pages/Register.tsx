@@ -57,6 +57,7 @@ const registerSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password is too long"),
   confirmPassword: z.string(),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
+  agreeToTerms: z.literal(true, { errorMap: () => ({ message: "You must agree to the Terms & Conditions and Privacy Policy" }) }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -83,6 +84,7 @@ export default function Register() {
       password: "",
       confirmPassword: "",
       experienceLevel: "beginner",
+      agreeToTerms: false as unknown as true,
     },
   });
 
@@ -379,6 +381,33 @@ export default function Register() {
                   </div>
                 </div>
                 
+                <FormField
+                  control={form.control}
+                  name="agreeToTerms"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value === true}
+                          onChange={(e) => field.onChange(e.target.checked ? true : false)}
+                          className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          data-testid="checkbox-agree-terms"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal text-muted-foreground cursor-pointer">
+                          I agree to the{" "}
+                          <Link href="/terms" className="text-primary hover:underline" target="_blank">Terms & Conditions</Link>
+                          {" "}and{" "}
+                          <Link href="/privacy" className="text-primary hover:underline" target="_blank">Privacy Policy</Link>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
                 {HCAPTCHA_SITE_KEY && (
                   <div className="flex justify-center" data-testid="captcha-register">
                     <HCaptcha

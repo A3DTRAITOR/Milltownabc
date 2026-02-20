@@ -55,6 +55,16 @@ export function Footer({ settings }: FooterProps) {
                   Contact
                 </Link>
               </li>
+              <li>
+                <Link href="/privacy" className="text-sm text-gray-400 hover:text-primary transition-colors" data-testid="link-footer-privacy">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-gray-400 hover:text-primary transition-colors" data-testid="link-footer-terms">
+                  Terms & Conditions
+                </Link>
+              </li>
             </ul>
           </div>
 

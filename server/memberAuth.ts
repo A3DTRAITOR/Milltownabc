@@ -46,6 +46,7 @@ const registerSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password is too long"),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
   hcaptchaToken: z.string().optional().nullable(),
+  agreeToTerms: z.literal(true, { errorMap: () => ({ message: "You must agree to the Terms & Conditions and Privacy Policy" }) }),
 });
 
 const loginSchema = z.object({
@@ -599,6 +600,88 @@ export function registerMemberRoutes(app: Express) {
     } catch (error) {
       console.error("Get members error:", error);
       res.status(500).json({ message: "Failed to get members" });
+    }
+  });
+
+  // Admin: Edit a member's information
+  app.patch("/api/admin/members/:id", isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const member = await storage.getMemberById(id);
+      if (!member) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+
+      const adminUpdateSchema = z.object({
+        name: z.string().trim().min(2).max(100).optional(),
+        email: z.string().trim().toLowerCase().email("Invalid email").optional(),
+        phone: z.string().min(1, "Phone is required").optional(),
+        age: z.number().min(1).max(100).optional().nullable(),
+        emergencyContactName: z.string().trim().min(2).max(100).optional(),
+        emergencyContactPhone: z.string().min(1).optional(),
+        experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+      });
+
+      const parsed = adminUpdateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: parsed.error.errors[0]?.message || "Invalid data" });
+      }
+
+      const updates: Record<string, any> = {};
+      const data = parsed.data;
+
+      for (const [key, value] of Object.entries(data)) {
+        if (value !== undefined) {
+          updates[key] = value;
+        }
+      }
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: "No valid fields to update" });
+      }
+
+      if (updates.email && updates.email !== member.email) {
+        const existing = await storage.getMemberByEmail(updates.email);
+        if (existing && existing.id !== id) {
+          return res.status(400).json({ message: "Email already in use by another member" });
+        }
+      }
+
+      if (updates.phone) {
+        const ukMobileRegex = /^(?:07\d{9}|\+447\d{9})$/;
+        const stripped = updates.phone.replace(/[\s\-\(\)]/g, "");
+        if (!ukMobileRegex.test(stripped)) {
+          return res.status(400).json({ message: "Please enter a valid UK mobile number" });
+        }
+        updates.phone = stripped;
+        if (stripped !== member.phone) {
+          const existing = await storage.getMemberByPhone(stripped);
+          if (existing && existing.id !== id) {
+            return res.status(400).json({ message: "Phone number already in use by another member" });
+          }
+        }
+      }
+
+      const updated = await storage.updateMember(id, updates);
+      if (!updated) {
+        return res.status(500).json({ message: "Failed to update member" });
+      }
+
+      res.json({
+        id: updated.id,
+        name: updated.name,
+        email: updated.email,
+        phone: updated.phone,
+        age: updated.age,
+        emergencyContactName: updated.emergencyContactName,
+        emergencyContactPhone: updated.emergencyContactPhone,
+        experienceLevel: updated.experienceLevel,
+        isAdmin: updated.isAdmin,
+        createdAt: updated.createdAt,
+      });
+    } catch (error) {
+      console.error("Update member error:", error);
+      res.status(500).json({ message: "Failed to update member" });
     }
   });
 

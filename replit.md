@@ -5,11 +5,13 @@
 This is a full-stack boxing club website for Mill Town ABC, based at Whitfield Community Centre in Glossop. Features member authentication, calendar-based class booking system, and comprehensive admin CMS. 
 
 Key features:
-- Public pages: Home, About, Training Programs, Class Schedule, Safety Policy, Blog, Contact
+- Public pages: Home, About, Training Programs, Class Schedule, Safety Policy, Blog, Contact, Privacy Policy, Terms & Conditions
 - Member accounts: register/login with session management
 - Class booking: £5 per session, first session FREE
 - Member dashboard for viewing and managing bookings
-- Admin panel with role-based access control for managing content, classes, members, and financials
+- Admin panel with role-based access control for managing content, classes, members (including edit), and financials
+- UK legal compliance: Privacy Policy, Terms & Conditions, Cookie Consent banner
+- Registration requires agreement to Terms & Privacy Policy
 - UK-compliant financial reporting with CSV export for accountants
 
 Design uses a bold boxing aesthetic with colors: black (#000000), white (#FFFFFF), light gray (#F5F5F5), red (#C8102E), and gray (#4A5568).

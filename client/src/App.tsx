@@ -16,6 +16,8 @@ import Register from "@/pages/Register";
 import Sessions from "@/pages/Sessions";
 import Safety from "@/pages/Safety";
 import Dashboard from "@/pages/Dashboard";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import Terms from "@/pages/Terms";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminSchedule from "@/pages/admin/Schedule";
 import AdminCalendar from "@/pages/admin/Calendar";
@@ -24,6 +26,7 @@ import AdminMembers from "@/pages/admin/Members";
 import AdminBookings from "@/pages/admin/Bookings";
 import VerifyEmail from "@/pages/VerifyEmail";
 import NotFound from "@/pages/not-found";
+import { CookieConsent } from "@/components/CookieConsent";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -47,6 +50,8 @@ function Router() {
       <Route path="/services" component={Services} />
       <Route path="/sessions" component={Sessions} />
       <Route path="/safety" component={Safety} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={Terms} />
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/contact" component={Contact} />
@@ -72,6 +77,7 @@ function App() {
         <ScrollToTop />
         <Toaster />
         <Router />
+        <CookieConsent />
       </TooltipProvider>
     </QueryClientProvider>
   );

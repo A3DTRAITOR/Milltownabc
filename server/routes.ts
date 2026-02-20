@@ -886,7 +886,7 @@ export async function registerRoutes(
       }
 
       // Send cancellation confirmation email
-      const member = await storage.getMember(memberId);
+      const member = await storage.getMemberById(memberId);
       if (member && boxingClass) {
         const sessionDate = new Date(boxingClass.date + 'T00:00:00');
         const formattedDate = sessionDate.toLocaleDateString('en-GB', {
@@ -901,7 +901,7 @@ export async function registerRoutes(
           memberEmail: member.email,
           sessionTitle: boxingClass.title,
           sessionDate: formattedDate,
-          sessionTime: boxingClass.startTime,
+          sessionTime: boxingClass.time,
           freeSessionRestored
         }).catch(err => console.error("[Email] Failed to send cancellation email:", err));
       }
@@ -1076,7 +1076,7 @@ export async function registerRoutes(
       // Get member and class details for each booking
       const bookingsWithDetails = await Promise.all(
         allBookings.map(async (booking) => {
-          const member = await storage.getMemberById(booking.memberId);
+          const member = booking.memberId ? await storage.getMemberById(booking.memberId) : null;
           const boxingClass = await storage.getClass(booking.classId);
           return {
             ...booking,
@@ -1107,7 +1107,7 @@ export async function registerRoutes(
       // Get member and class details for each booking
       const bookingsWithDetails = await Promise.all(
         pendingBookings.map(async (booking) => {
-          const member = await storage.getMemberById(booking.memberId);
+          const member = booking.memberId ? await storage.getMemberById(booking.memberId) : null;
           const boxingClass = await storage.getClass(booking.classId);
           return {
             ...booking,

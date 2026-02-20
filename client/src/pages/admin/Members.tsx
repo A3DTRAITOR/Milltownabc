@@ -4,6 +4,9 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -15,8 +18,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { User, Mail, Phone, Calendar, AlertTriangle, Trash2 } from "lucide-react";
+import { User, Mail, Phone, Calendar, AlertTriangle, Trash2, Pencil, Loader2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,6 +46,8 @@ interface Member {
 export default function AdminMembers() {
   const { toast } = useToast();
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [memberToEdit, setMemberToEdit] = useState<Member | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Member>>({});
 
   const { data: members, isLoading } = useQuery<Member[]>({
     queryKey: ["/api/admin/members"],
@@ -63,6 +75,26 @@ export default function AdminMembers() {
     }
   });
 
+  const editMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Member> }) => {
+      const res = await apiRequest("PATCH", `/api/admin/members/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/members"] });
+      toast({ title: "Member updated", description: "Member information has been saved." });
+      setMemberToEdit(null);
+      setEditForm({});
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Update failed", 
+        description: error.message || "Failed to update member", 
+        variant: "destructive" 
+      });
+    }
+  });
+
   const handleDeleteClick = (member: Member) => {
     setMemberToDelete(member);
   };
@@ -71,6 +103,24 @@ export default function AdminMembers() {
     if (memberToDelete) {
       deleteMutation.mutate(memberToDelete.id);
     }
+  };
+
+  const handleEditClick = (member: Member) => {
+    setMemberToEdit(member);
+    setEditForm({
+      name: member.name,
+      email: member.email,
+      phone: member.phone || "",
+      age: member.age,
+      emergencyContactName: member.emergencyContactName || "",
+      emergencyContactPhone: member.emergencyContactPhone || "",
+      experienceLevel: member.experienceLevel || "beginner",
+    });
+  };
+
+  const handleEditSave = () => {
+    if (!memberToEdit) return;
+    editMutation.mutate({ id: memberToEdit.id, data: editForm });
   };
 
   return (
@@ -145,7 +195,17 @@ export default function AdminMembers() {
                       )}
                     </div>
                   </div>
-                  <div className="shrink-0">
+                  <div className="flex gap-1 shrink-0">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleEditClick(member)}
+                      title="Edit member"
+                      data-testid={`button-edit-member-${member.id}`}
+                    >
+                      <Pencil className="h-4 w-4 text-muted-foreground" />
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="icon"
@@ -168,6 +228,105 @@ export default function AdminMembers() {
           Total: {members?.length || 0} members
         </div>
       </div>
+
+      <Dialog open={!!memberToEdit} onOpenChange={(open) => { if (!open) { setMemberToEdit(null); setEditForm({}); } }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Member</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={editForm.name || ""}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                data-testid="input-edit-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editForm.email || ""}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                data-testid="input-edit-email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Phone</Label>
+              <Input
+                id="edit-phone"
+                value={(editForm.phone as string) || ""}
+                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value.replace(/[^0-9+\s\-\(\)]/g, "") })}
+                placeholder="07123 456789"
+                data-testid="input-edit-phone"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-age">Age</Label>
+              <Input
+                id="edit-age"
+                type="number"
+                min={1}
+                max={100}
+                value={editForm.age || ""}
+                onChange={(e) => setEditForm({ ...editForm, age: e.target.value ? parseInt(e.target.value) : undefined })}
+                data-testid="input-edit-age"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-emergency-name">Emergency Contact Name</Label>
+              <Input
+                id="edit-emergency-name"
+                value={editForm.emergencyContactName || ""}
+                onChange={(e) => setEditForm({ ...editForm, emergencyContactName: e.target.value })}
+                data-testid="input-edit-emergency-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-emergency-phone">Emergency Contact Phone</Label>
+              <Input
+                id="edit-emergency-phone"
+                value={editForm.emergencyContactPhone || ""}
+                onChange={(e) => setEditForm({ ...editForm, emergencyContactPhone: e.target.value.replace(/[^0-9+\s\-\(\)]/g, "") })}
+                placeholder="07123 456789"
+                data-testid="input-edit-emergency-phone"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-experience">Experience Level</Label>
+              <Select
+                value={editForm.experienceLevel || "beginner"}
+                onValueChange={(val) => setEditForm({ ...editForm, experienceLevel: val })}
+              >
+                <SelectTrigger data-testid="select-edit-experience">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => { setMemberToEdit(null); setEditForm({}); }} className="w-full sm:w-auto" data-testid="button-cancel-edit">
+              Cancel
+            </Button>
+            <Button onClick={handleEditSave} disabled={editMutation.isPending} className="w-full sm:w-auto" data-testid="button-save-edit">
+              {editMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
         <AlertDialogContent>
