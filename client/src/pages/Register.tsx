@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,12 +18,28 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "";
 
-const ukPhoneRegex = /^(?:0\d{10}|\+44\d{10})$/;
+function stripPhone(val: string): string {
+  return val.replace(/[\s\-\(\)]/g, "");
+}
+
+const ukMobileRegex = /^(?:07\d{9}|\+447\d{9})$/;
+
+const phoneValidation = z.string()
+  .min(1, "Phone number is required")
+  .transform(stripPhone)
+  .refine((val) => ukMobileRegex.test(val), {
+    message: "Please enter a valid UK mobile number (e.g. 07123 456789 or +44 7123 456789)",
+  });
+
+const optionalPhoneValidation = z.string()
+  .transform(stripPhone)
+  .refine((val) => val === "" || ukMobileRegex.test(val), {
+    message: "Please enter a valid UK mobile number (e.g. 07123 456789 or +44 7123 456789)",
+  });
 
 const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: string) => void) => {
-  const raw = e.target.value.replace(/[^0-9+]/g, "");
-  const limited = raw.startsWith("+44") ? raw.slice(0, 13) : raw.slice(0, 11);
-  onChange(limited);
+  const raw = e.target.value.replace(/[^0-9+\s\-\(\)]/g, "");
+  onChange(raw);
 };
 
 const handleAgeInput = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: number | undefined) => void) => {
@@ -32,17 +48,13 @@ const handleAgeInput = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: 
 };
 
 const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email"),
-  phone: z.string()
-    .min(1, "Phone number is required")
-    .regex(ukPhoneRegex, "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)"),
-  age: z.number().min(5, "Age must be at least 5").max(100, "Please enter a valid age"),
-  emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string()
-    .min(1, "Emergency contact phone is required")
-    .regex(ukPhoneRegex, "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be under 100 characters"),
+  email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
+  phone: phoneValidation,
+  age: z.number({ required_error: "Age is required" }).min(12, "You must be at least 12 years old to register").max(100, "Please enter a valid age"),
+  emergencyContactName: z.string().trim().min(2, "Emergency contact name is required").max(100, "Name must be under 100 characters"),
+  emergencyContactPhone: phoneValidation,
+  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password is too long"),
   confirmPassword: z.string(),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -57,6 +69,7 @@ export default function Register() {
   const [, setLocation] = useLocation();
   const [hcaptchaToken, setHcaptchaToken] = useState<string | null>(null);
   const captchaRef = useRef<HCaptcha>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const form = useForm<RegisterData>({
     resolver: zodResolver(registerSchema),
@@ -76,6 +89,15 @@ export default function Register() {
   const watchAge = form.watch("age");
 
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+  useEffect(() => {
+    const errors = form.formState.errors;
+    if (!form.formState.isSubmitting && Object.keys(errors).length > 0) {
+      const firstErrorField = Object.keys(errors)[0];
+      const el = formRef.current?.querySelector(`[name="${firstErrorField}"]`) as HTMLElement | null;
+      el?.focus();
+    }
+  }, [form.formState.submitCount]);
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
@@ -167,7 +189,7 @@ export default function Register() {
                   </div>
                 </div>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -176,7 +198,7 @@ export default function Register() {
                       <FormItem>
                         <FormLabel className="text-sm font-medium">Full Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="John Smith" className="h-11" {...field} data-testid="input-register-name" />
+                          <Input placeholder="John Smith" className="h-11" maxLength={100} required {...field} data-testid="input-register-name" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -189,7 +211,7 @@ export default function Register() {
                       <FormItem>
                         <FormLabel className="text-sm font-medium">Email Address</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="your@email.com" className="h-11" {...field} data-testid="input-register-email" />
+                          <Input type="email" placeholder="your@email.com" className="h-11" maxLength={255} required {...field} data-testid="input-register-email" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -206,10 +228,11 @@ export default function Register() {
                         <FormControl>
                           <Input 
                             type="tel" 
-                            placeholder="07123456789" 
+                            placeholder="07123 456789" 
                             className="h-11" 
-                            inputMode="numeric"
-                            maxLength={13}
+                            inputMode="tel"
+                            maxLength={16}
+                            required
                             value={field.value}
                             onChange={(e) => handlePhoneInput(e, field.onChange)}
                             onBlur={field.onBlur}
@@ -218,7 +241,7 @@ export default function Register() {
                             data-testid="input-register-phone" 
                           />
                         </FormControl>
-                        <FormDescription className="text-xs text-muted-foreground">11 digits, e.g. 07123456789</FormDescription>
+                        <FormDescription className="text-xs text-muted-foreground">UK mobile, e.g. 07123 456789</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -236,6 +259,7 @@ export default function Register() {
                             placeholder="Your age"
                             className="h-11"
                             maxLength={3}
+                            required
                             value={field.value || ""}
                             onChange={(e) => handleAgeInput(e, field.onChange)}
                             onBlur={field.onBlur}
@@ -266,7 +290,7 @@ export default function Register() {
                         <FormItem>
                           <FormLabel className="text-sm font-medium">Contact Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Contact's full name" className="h-11" {...field} data-testid="input-register-emergency-name" />
+                            <Input placeholder="Contact's full name" className="h-11" maxLength={100} required {...field} data-testid="input-register-emergency-name" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -281,10 +305,11 @@ export default function Register() {
                           <FormControl>
                             <Input 
                               type="tel" 
-                              placeholder="07123456789" 
+                              placeholder="07123 456789" 
                               className="h-11" 
-                              inputMode="numeric"
-                              maxLength={13}
+                              inputMode="tel"
+                              maxLength={16}
+                              required
                               value={field.value}
                               onChange={(e) => handlePhoneInput(e, field.onChange)}
                               onBlur={field.onBlur}
@@ -293,7 +318,7 @@ export default function Register() {
                               data-testid="input-register-emergency-phone" 
                             />
                           </FormControl>
-                          <FormDescription className="text-xs text-muted-foreground">11 digits, e.g. 07123456789</FormDescription>
+                          <FormDescription className="text-xs text-muted-foreground">UK mobile, e.g. 07123 456789</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -332,7 +357,7 @@ export default function Register() {
                         <FormItem>
                           <FormLabel className="text-sm font-medium">Password</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="Min 8 characters" className="h-11" autoComplete="new-password" {...field} data-testid="input-register-password" />
+                            <Input type="password" placeholder="Min 8 characters" className="h-11" autoComplete="new-password" maxLength={128} required {...field} data-testid="input-register-password" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -345,7 +370,7 @@ export default function Register() {
                         <FormItem>
                           <FormLabel className="text-sm font-medium">Confirm Password</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="Confirm password" className="h-11" autoComplete="new-password" {...field} data-testid="input-register-confirm" />
+                            <Input type="password" placeholder="Confirm password" className="h-11" autoComplete="new-password" maxLength={128} required {...field} data-testid="input-register-confirm" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

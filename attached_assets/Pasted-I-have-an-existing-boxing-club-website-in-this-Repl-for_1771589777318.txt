@@ -1,0 +1,110 @@
+I have an existing boxing club website in this Repl for UK users only.
+I am happy with all current pages, layout, styling, and wording and I do not want these changed.
+
+Your task is to make all existing signup / registration / contact forms behave like a typical modern UK website in terms of input validation and error handling.
+
+General constraints
+
+Do not redesign anything.
+
+Do not add, remove, or rename any form fields.
+
+Do not change any visible text, labels, headings, or content.
+
+Only change code where needed to add or improve validation and error handling.
+
+For every form on the site (especially member signup):
+
+Use appropriate HTML5 types and required flags
+
+Use type="email" for emails, type="tel" for phone numbers, type="password" for passwords, type="date" for dates, type="number" where numeric input is expected.
+
+Add the required attribute to all fields that must be filled in for a normal signup in the UK (e.g. name, email, mobile number, date of birth, any mandatory consents).
+
+Add reasonable minlength / maxlength to prevent extremely short or excessively long inputs.
+
+UK mobile phone numbers
+
+Assume users are in the UK.
+
+Use type="tel".
+
+Accept common UK mobile formats, for example:
+
+07123 456789
+
+07123456789
+
++44 7123 456789
+
++447123456789
+
+Before validating, strip spaces, dashes, and brackets.
+
+Validate that the cleaned number is either:
+
+A UK mobile starting 07 with 11 digits total, or
+
+Starts with +44 followed by 10 digits (and represents a mobile, starting 7 after the country code).
+
+Reject inputs containing letters or obviously wrong lengths, and show a clear, friendly error message telling the user to enter a UK mobile number in a typical format.
+
+UK address and postcode (if present)
+
+Treat address fields as UK addresses.
+
+For postcode fields, trim spaces and convert to uppercase before validation/storage.
+
+Apply a sensible UK postcode pattern that allows common formats (e.g. SW1A 1AA, M1 1AE, W1A 0AX, EC1A 1BB), but don’t be so strict that valid edge cases are rejected.
+
+Show a helpful message if the postcode is clearly not a valid UK format.
+
+Date of birth and age
+
+Use type="date" where possible.
+
+On submit, calculate age based on today’s date and ensure the member is within a sensible UK age range for a boxing gym (for example, minimum 12 years old – you choose the exact rule and implement it consistently).
+
+Show a clear error if they are too young or outside the allowed range.
+
+Email addresses
+
+Use type="email" and rely on standard HTML5 validation plus any light additional checks if needed.
+
+Accept normal UK‑style everyday emails (Gmail, Outlook, iCloud, etc.) without being overly strict.
+
+Trim whitespace and normalise case where appropriate before validating.
+
+Passwords (if registration/login exists)
+
+Enforce a minimum length (at least 8–10 characters).
+
+Include a confirm‑password field that must match exactly.
+
+Do not display the actual password in any error messages or logs.
+
+Error messages and UX
+
+On the client side, prevent form submission if required fields are empty or invalid.
+
+Highlight invalid fields and place clear, friendly error messages next to them, using language appropriate for UK users (e.g. “Please enter a valid UK mobile number”).
+
+Move focus to the first invalid field after a failed submit.
+
+Server‑side validation (backend):
+
+Mirror the same rules on the server for all forms (UK mobiles, UK postcodes, age limits, required fields, etc.).
+
+Never rely only on client‑side checks.
+
+Trim whitespace, normalise formats (e.g. strip spaces from phone numbers, uppercase postcodes), and safely handle special characters to avoid security issues.
+
+Reject obviously invalid or malicious input and return the same kind of friendly error messages where appropriate.
+
+Finally:
+
+Only touch the minimum code required to implement or improve validation and error handling for UK users.
+
+Do not alter layout, design, or content.
+
+When you are finished, list which forms you improved and briefly summarise the validation rules now applied (especially for UK mobile numbers, postcodes, and age).

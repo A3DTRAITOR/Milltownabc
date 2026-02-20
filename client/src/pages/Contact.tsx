@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { SEOHead } from "@/components/SEOHead";
@@ -16,18 +17,36 @@ import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { SiteSettings } from "@shared/schema";
 
+function stripPhone(val: string): string {
+  return val.replace(/[\s\-\(\)]/g, "");
+}
+
+const ukMobileRegex = /^(?:07\d{9}|\+447\d{9})$/;
+
 const contactFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  phone: z.string().optional(),
-  subject: z.string().min(3, "Subject must be at least 3 characters"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be under 100 characters"),
+  email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
+  phone: z.string()
+    .transform(stripPhone)
+    .refine((val) => val === "" || ukMobileRegex.test(val), {
+      message: "Please enter a valid UK mobile number (e.g. 07123 456789)",
+    })
+    .optional()
+    .or(z.literal("")),
+  subject: z.string().trim().min(3, "Subject must be at least 3 characters").max(200, "Subject must be under 200 characters"),
+  message: z.string().trim().min(10, "Message must be at least 10 characters").max(2000, "Message must be under 2000 characters"),
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
+const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: string) => void) => {
+  const raw = e.target.value.replace(/[^0-9+\s\-\(\)]/g, "");
+  onChange(raw);
+};
+
 export default function Contact() {
   const { toast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const { data: settingsData, isLoading: settingsLoading } = useQuery<{ content: SiteSettings }>({
     queryKey: ["/api/content", "settings"],
@@ -45,6 +64,15 @@ export default function Contact() {
       message: "",
     },
   });
+
+  useEffect(() => {
+    const errors = form.formState.errors;
+    if (!form.formState.isSubmitting && Object.keys(errors).length > 0) {
+      const firstErrorField = Object.keys(errors)[0];
+      const el = formRef.current?.querySelector(`[name="${firstErrorField}"]`) as HTMLElement | null;
+      el?.focus();
+    }
+  }, [form.formState.submitCount]);
 
   const contactMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
@@ -115,7 +143,7 @@ export default function Contact() {
               <Card className="p-6 lg:p-8">
                 <h2 className="text-2xl font-semibold text-foreground mb-6">Send Me a Message</h2>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
                     <div className="grid gap-6 sm:grid-cols-2">
                       <FormField
                         control={form.control}
@@ -124,7 +152,7 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Your name" {...field} data-testid="input-contact-name" />
+                              <Input placeholder="Your name" maxLength={100} required {...field} data-testid="input-contact-name" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -137,7 +165,7 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                              <Input type="email" placeholder="your@email.com" {...field} data-testid="input-contact-email" />
+                              <Input type="email" placeholder="your@email.com" maxLength={255} required {...field} data-testid="input-contact-email" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -151,7 +179,18 @@ export default function Contact() {
                         <FormItem>
                           <FormLabel>Phone (Optional)</FormLabel>
                           <FormControl>
-                            <Input type="tel" placeholder="Your phone number" {...field} data-testid="input-contact-phone" />
+                            <Input 
+                              type="tel" 
+                              placeholder="07123 456789"
+                              inputMode="tel"
+                              maxLength={16}
+                              value={field.value}
+                              onChange={(e) => handlePhoneInput(e, field.onChange)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              data-testid="input-contact-phone" 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -164,7 +203,7 @@ export default function Contact() {
                         <FormItem>
                           <FormLabel>Subject</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Private session inquiry, Class schedule question" {...field} data-testid="input-contact-subject" />
+                            <Input placeholder="e.g., Private session inquiry, Class schedule question" maxLength={200} required {...field} data-testid="input-contact-subject" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -180,6 +219,8 @@ export default function Contact() {
                             <Textarea 
                               placeholder="Tell us about your boxing experience, fitness goals, or any questions you have..." 
                               className="min-h-[150px] resize-none"
+                              maxLength={2000}
+                              required
                               {...field} 
                               data-testid="input-contact-message"
                             />

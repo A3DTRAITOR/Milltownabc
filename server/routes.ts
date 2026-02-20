@@ -334,12 +334,43 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Name, email, subject, and message are required" });
       }
 
+      const trimmedName = String(name).trim();
+      const trimmedEmail = String(email).trim().toLowerCase();
+      const trimmedSubject = String(subject).trim();
+      const trimmedMessage = String(message).trim();
+
+      if (trimmedName.length < 2) {
+        return res.status(400).json({ message: "Name must be at least 2 characters" });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
+      }
+
+      if (trimmedSubject.length < 3) {
+        return res.status(400).json({ message: "Subject must be at least 3 characters" });
+      }
+
+      if (trimmedMessage.length < 10) {
+        return res.status(400).json({ message: "Message must be at least 10 characters" });
+      }
+
+      const ukMobileRegex = /^(?:07\d{9}|\+447\d{9})$/;
+      let cleanedPhone: string | undefined;
+      if (phone && String(phone).trim()) {
+        cleanedPhone = String(phone).replace(/[\s\-\(\)]/g, "");
+        if (!ukMobileRegex.test(cleanedPhone)) {
+          return res.status(400).json({ message: "Please enter a valid UK mobile number (e.g. 07123 456789)" });
+        }
+      }
+
       const sanitizedData = {
-        name: sanitizeInput(String(name).slice(0, 100)),
-        email: sanitizeInput(String(email).slice(0, 100)),
-        phone: phone ? sanitizeInput(String(phone).slice(0, 20)) : undefined,
-        subject: sanitizeInput(String(subject).slice(0, 200)),
-        message: sanitizeInput(String(message).slice(0, 2000)),
+        name: sanitizeInput(trimmedName.slice(0, 100)),
+        email: sanitizeInput(trimmedEmail.slice(0, 255)),
+        phone: cleanedPhone ? sanitizeInput(cleanedPhone) : undefined,
+        subject: sanitizeInput(trimmedSubject.slice(0, 200)),
+        message: sanitizeInput(trimmedMessage.slice(0, 2000)),
       };
 
       console.log("Contact form submission:", sanitizedData);

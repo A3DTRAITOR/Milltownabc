@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,7 +15,7 @@ import { queryClient } from "@/lib/queryClient";
 import { Loader2, LogIn, Mail, RefreshCw } from "lucide-react";
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
+  email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -27,6 +27,7 @@ export default function Login() {
   const [showResendOption, setShowResendOption] = useState(false);
   const [resendEmail, setResendEmail] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -39,6 +40,15 @@ export default function Login() {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
+
+  useEffect(() => {
+    const errors = form.formState.errors;
+    if (!form.formState.isSubmitting && Object.keys(errors).length > 0) {
+      const firstErrorField = Object.keys(errors)[0];
+      const el = formRef.current?.querySelector(`[name="${firstErrorField}"]`) as HTMLElement | null;
+      el?.focus();
+    }
+  }, [form.formState.submitCount]);
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
@@ -135,7 +145,7 @@ export default function Login() {
               </p>
             </div>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
                 <FormField
                   control={form.control}
                   name="email"
@@ -143,7 +153,7 @@ export default function Login() {
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Email Address</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="your@email.com" className="h-11" {...field} data-testid="input-login-email" />
+                        <Input type="email" placeholder="your@email.com" className="h-11" maxLength={255} required {...field} data-testid="input-login-email" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -156,7 +166,7 @@ export default function Login() {
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Enter your password" className="h-11" {...field} data-testid="input-login-password" />
+                        <Input type="password" placeholder="Enter your password" className="h-11" required {...field} data-testid="input-login-password" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

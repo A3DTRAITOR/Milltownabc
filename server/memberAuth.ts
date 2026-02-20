@@ -16,22 +16,40 @@ function getClientIP(req: Request): string {
   return req.ip || req.socket.remoteAddress || "unknown";
 }
 
-const ukPhoneRegex = /^(?:0\d{10}|\+44\d{10})$/;
+function stripPhone(val: string): string {
+  return val.replace(/[\s\-\(\)]/g, "");
+}
+
+const ukMobileRegex = /^(?:07\d{9}|\+447\d{9})$/;
+
+const phoneValidation = z.string()
+  .transform(stripPhone)
+  .refine((val) => ukMobileRegex.test(val), {
+    message: "Please enter a valid UK mobile number (e.g. 07123 456789 or +44 7123 456789)",
+  });
+
+const optionalPhoneValidation = z.string()
+  .transform(stripPhone)
+  .refine((val) => val === "" || ukMobileRegex.test(val), {
+    message: "Please enter a valid UK mobile number (e.g. 07123 456789 or +44 7123 456789)",
+  })
+  .optional()
+  .nullable();
 
 const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().regex(ukPhoneRegex, "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)").optional().nullable(),
-  age: z.number().min(5).max(100).optional().nullable(),
-  emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string().regex(ukPhoneRegex, "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be under 100 characters"),
+  email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
+  phone: phoneValidation.optional().nullable(),
+  age: z.number().min(12, "You must be at least 12 years old to register").max(100, "Please enter a valid age").optional().nullable(),
+  emergencyContactName: z.string().trim().min(2, "Emergency contact name is required").max(100, "Name must be under 100 characters"),
+  emergencyContactPhone: phoneValidation,
+  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password is too long"),
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
   hcaptchaToken: z.string().optional().nullable(),
 });
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -321,12 +339,17 @@ export function registerMemberRoutes(app: Express) {
   app.patch("/api/members/me", isMemberAuthenticated, async (req, res) => {
     try {
       const { name, phone, experienceLevel } = req.body;
-      if (phone && !ukPhoneRegex.test(phone)) {
-        return res.status(400).json({ message: "Enter a valid UK phone number (e.g. 07123456789 or +447123456789)" });
+      if (phone) {
+        const cleanedPhone = stripPhone(String(phone));
+        if (!ukMobileRegex.test(cleanedPhone)) {
+          return res.status(400).json({ message: "Please enter a valid UK mobile number (e.g. 07123 456789 or +44 7123 456789)" });
+        }
       }
+      const trimmedName = name ? String(name).trim().slice(0, 100) : undefined;
+      const cleanedPhone = phone ? stripPhone(String(phone)) : undefined;
       const member = await storage.updateMember(req.session.memberId!, {
-        name,
-        phone,
+        name: trimmedName,
+        phone: cleanedPhone,
         experienceLevel,
       });
       if (!member) {
