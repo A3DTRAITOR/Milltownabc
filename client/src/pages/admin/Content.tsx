@@ -49,6 +49,13 @@ const fieldLabels: Record<string, string> = {
 
 const seoFields = ["metaTitle", "metaDescription"];
 
+const sectionRoutes: Record<string, string> = {
+  home: "/",
+  about: "/about",
+  services: "/services",
+  contact: "/contact",
+};
+
 export default function AdminContent() {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState("home");
@@ -112,9 +119,9 @@ export default function AdminContent() {
             <p className="text-sm text-muted-foreground">Update the text on your website pages.</p>
           </div>
           <Button asChild variant="outline" size="sm" className="w-full sm:w-auto h-11 sm:h-9">
-            <Link href="/">
+            <Link href={sectionRoutes[activeSection] || "/"}>
               <Eye className="h-4 w-4 mr-2" />
-              Preview Site
+              Preview Page
             </Link>
           </Button>
         </div>
