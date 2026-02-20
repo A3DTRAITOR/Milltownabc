@@ -45,3 +45,4 @@ integrations = ["javascript_log_in_with_replit:2.0.0", "javascript_database:1.0.
 
 [userenv.shared]
 RESEND_FROM_EMAIL = "Mill Town ABC <noreply@milltownabc.co.uk>"
+VITE_GA_MEASUREMENT_ID = "G-RFH88DP2F5"
