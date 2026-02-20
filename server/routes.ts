@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
+import { setupAuth, isAuthenticated, registerAuthRoutes } from "./auth_setup";
 import { registerMemberRoutes, isAdmin } from "./memberAuth";
 import { sendBookingConfirmationEmail, sendVerificationEmail, sendCancellationEmail } from "./email";
 import { checkBookingRateLimit, verifyHCaptcha, logSuspiciousActivity, getSuspiciousActivityLog } from "./antiSpam";

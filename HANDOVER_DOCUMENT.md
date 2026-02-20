@@ -16,12 +16,10 @@
 
 ## Step-by-Step Transfer Guide
 
-### Step 1: Download Your Code from Replit
+### Step 1: Download Your Code
 
-1. In Replit, click the **three dots (...)** in the Files panel
-2. Click **"Download as zip"**
-3. Save the zip file to your computer
-4. Extract the zip file
+1. Download or export the project files as a zip
+2. Extract the zip file to your computer
 
 ### Step 2: Push Code to GitHub
 
@@ -136,11 +134,11 @@ In Railway, set these build commands:
 
 ### Resend Email
 - From Email: `Mill Town ABC <noreply@milltownabc.co.uk>`
-- API Key: Connected via Replit integration (set manually on new host)
+- API Key: Set via RESEND_API_KEY environment variable
 
 ### Database
 - Type: PostgreSQL
-- Current: Replit-managed (will need new DB on Railway)
+- Current: Will need new DB on Railway
 
 ---
 

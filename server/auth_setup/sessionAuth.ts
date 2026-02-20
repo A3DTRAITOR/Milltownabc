@@ -11,7 +11,7 @@ import { authStorage } from "./storage";
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
+      new URL(process.env.ISSUER_URL || "https://replit.com/oidc"),
       process.env.REPL_ID!
     );
   },
@@ -25,7 +25,7 @@ export function getSession() {
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: true,
-    ttl: sessionTtl / 1000, // TTL in seconds for pg store
+    ttl: sessionTtl / 1000,
     tableName: "sessions",
   });
   return session({
@@ -40,7 +40,7 @@ export function getSession() {
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    rolling: true, // Reset session expiry on each request (inactivity timeout)
+    rolling: true,
     cookie: {
       httpOnly: true,
       secure: isProduction,
@@ -75,7 +75,7 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
 
   if (!process.env.REPL_ID) {
-    console.log("[Auth] Running outside Replit - Replit OIDC auth disabled, member auth only");
+    console.log("[Auth] OIDC auth disabled, member auth only");
     return;
   }
 
@@ -94,12 +94,10 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  // Keep track of registered strategies
   const registeredStrategies = new Set<string>();
 
-  // Helper function to ensure strategy exists for a domain
   const ensureStrategy = (domain: string) => {
-    const strategyName = `replitauth:${domain}`;
+    const strategyName = `oidcauth:${domain}`;
     if (!registeredStrategies.has(strategyName)) {
       const strategy = new Strategy(
         {
@@ -120,7 +118,7 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/login", (req, res, next) => {
     ensureStrategy(req.hostname);
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    passport.authenticate(`oidcauth:${req.hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
@@ -128,7 +126,7 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     ensureStrategy(req.hostname);
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    passport.authenticate(`oidcauth:${req.hostname}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
     })(req, res, next);
