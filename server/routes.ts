@@ -82,6 +82,10 @@ export async function registerRoutes(
     next();
   });
 
+  app.get("/api/health", (_req, res) => {
+    res.status(200).json({ status: "ok" });
+  });
+
   await setupAuth(app);
   registerAuthRoutes(app);
   registerMemberRoutes(app);
