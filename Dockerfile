@@ -28,7 +28,6 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/shared ./shared
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/db-init.cjs ./db-init.cjs
 
 RUN mkdir -p uploads
@@ -38,4 +37,4 @@ EXPOSE 5000
 ENV NODE_ENV=production
 ENV PORT=5000
 
-CMD sh -c "node db-init.cjs && npm start"
+CMD ["sh", "-c", "node db-init.cjs && node dist/index.cjs"]
