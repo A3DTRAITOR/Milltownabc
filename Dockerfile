@@ -30,6 +30,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/shared ./shared
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 
+RUN npm install drizzle-kit tsx
+
 RUN mkdir -p uploads
 
 EXPOSE 5000
@@ -37,4 +39,4 @@ EXPOSE 5000
 ENV NODE_ENV=production
 ENV PORT=5000
 
-CMD ["npm", "start"]
+CMD sh -c "npx drizzle-kit push --force && npm start"
