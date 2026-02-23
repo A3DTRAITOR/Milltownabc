@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { startBookingScheduler } from "./scheduler";
+import { initializeDatabase } from "./db";
 
 const app = express();
 const httpServer = createServer(app);
@@ -61,6 +62,10 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  if (process.env.NODE_ENV === "production") {
+    await initializeDatabase();
+  }
+
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
