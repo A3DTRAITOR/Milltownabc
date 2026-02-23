@@ -24,13 +24,11 @@ WORKDIR /app
 
 COPY package.json package-lock.json* ./
 
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev && npm install drizzle-kit tsx
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/shared ./shared
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-
-RUN npm install drizzle-kit tsx
 
 RUN mkdir -p uploads
 
@@ -39,4 +37,7 @@ EXPOSE 5000
 ENV NODE_ENV=production
 ENV PORT=5000
 
-CMD sh -c "npx drizzle-kit push --force && npm start"
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
+
+CMD ["./start.sh"]
