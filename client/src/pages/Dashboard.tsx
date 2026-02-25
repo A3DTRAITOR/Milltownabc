@@ -244,21 +244,21 @@ export default function Dashboard() {
               <div className="space-y-3">
                 {pastBookings.map((booking) => (
                   <Card key={booking.id} className="p-4 opacity-70">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-foreground">{booking.class?.title}</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-medium text-foreground truncate">{booking.class?.title}</h3>
+                        <div className="flex items-center gap-2 shrink-0">
                           {booking.isFreeSession ? (
                             <Badge variant="default" className="bg-green-600/70 text-xs" data-testid={`badge-history-free-${booking.id}`}>FREE</Badge>
                           ) : (
                             <Badge variant="secondary" className="text-xs" data-testid={`badge-history-price-${booking.id}`}>£{booking.price || '5'}</Badge>
                           )}
+                          <Badge variant="secondary" className="text-xs">Completed</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {formatDate(booking.class?.date || '')} at {booking.class?.time}
-                        </p>
                       </div>
-                      <Badge variant="secondary">Completed</Badge>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(booking.class?.date || '')} at {booking.class?.time}
+                      </p>
                     </div>
                   </Card>
                 ))}
