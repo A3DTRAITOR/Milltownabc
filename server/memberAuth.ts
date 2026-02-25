@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { storage } from "./storage";
 import { z } from "zod";
 import { verifyHCaptcha, checkSignupRateLimit, logSuspiciousActivity } from "./antiSpam";
-import { sendVerificationEmail } from "./email";
+import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
 
 const SALT_ROUNDS = 12;
 
@@ -319,6 +319,101 @@ export function registerMemberRoutes(app: Express) {
     } catch (error) {
       console.error("Resend verification error:", error);
       res.status(500).json({ message: "Failed to resend verification email" });
+    }
+  });
+
+  const resetCooldowns = new Map<string, number>();
+  const RESET_COOLDOWN_MS = 60000;
+
+  app.post("/api/members/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+
+      const lastReset = resetCooldowns.get(normalizedEmail);
+      const now = Date.now();
+      if (lastReset && (now - lastReset) < RESET_COOLDOWN_MS) {
+        return res.json({ message: "If this email is registered, a password reset link has been sent." });
+      }
+
+      const member = await storage.getMemberByEmail(normalizedEmail);
+      if (!member) {
+        return res.json({ message: "If this email is registered, a password reset link has been sent." });
+      }
+
+      const resetToken = randomUUID();
+      const resetExpires = new Date(Date.now() + 60 * 60 * 1000);
+
+      await storage.updateMember(member.id, {
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetExpires,
+      });
+
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.get('host');
+      const baseUrl = `${protocol}://${host}`;
+
+      sendPasswordResetEmail({
+        memberName: member.name,
+        memberEmail: member.email,
+        resetToken,
+        baseUrl,
+      }).catch(err => console.error("Password reset email error:", err));
+
+      resetCooldowns.set(normalizedEmail, now);
+
+      res.json({ message: "If this email is registered, a password reset link has been sent." });
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Something went wrong. Please try again." });
+    }
+  });
+
+  app.post("/api/members/reset-password", async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      if (!token || !password) {
+        return res.status(400).json({ message: "Token and new password are required" });
+      }
+
+      if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters" });
+      }
+
+      if (password.length > 128) {
+        return res.status(400).json({ message: "Password is too long" });
+      }
+
+      const member = await storage.getMemberByResetToken(token);
+
+      if (!member) {
+        return res.status(400).json({ message: "Invalid or expired reset link. Please request a new one." });
+      }
+
+      if (!member.passwordResetExpires || new Date(member.passwordResetExpires) < new Date()) {
+        await storage.updateMember(member.id, {
+          passwordResetToken: null,
+          passwordResetExpires: null,
+        });
+        return res.status(400).json({ message: "This reset link has expired. Please request a new one." });
+      }
+
+      const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+
+      await storage.updateMember(member.id, {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      });
+
+      res.json({ message: "Password has been reset successfully. You can now log in with your new password." });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Something went wrong. Please try again." });
     }
   });
 
