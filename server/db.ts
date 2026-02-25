@@ -4,7 +4,12 @@ import * as schema from "@shared/schema";
 
 const { Pool } = pg;
 
+console.log("[STARTUP] NODE_ENV:", process.env.NODE_ENV);
+console.log("[STARTUP] DATABASE_URL set:", !!process.env.DATABASE_URL);
+console.log("[STARTUP] PORT:", process.env.PORT);
+
 if (!process.env.DATABASE_URL) {
+  console.error("[FATAL] DATABASE_URL is not set. Available env vars:", Object.keys(process.env).filter(k => !k.startsWith('npm_')).join(', '));
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?",
   );
@@ -16,9 +21,23 @@ export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: isProduction ? { rejectUnauthorized: false } : false,
 });
+
+pool.on('error', (err) => {
+  console.error('[DB] Pool error:', err.message);
+});
+
 export const db = drizzle(pool, { schema });
 
 export async function initializeDatabase() {
+  console.log("[DB] Testing database connection...");
+  try {
+    const result = await pool.query('SELECT NOW()');
+    console.log("[DB] Connection successful:", result.rows[0].now);
+  } catch (err: any) {
+    console.error("[DB] Connection FAILED:", err.message);
+    throw err;
+  }
+
   const queries = [
     `CREATE TABLE IF NOT EXISTS "sessions" (
       "sid" varchar PRIMARY KEY,
@@ -123,12 +142,12 @@ export async function initializeDatabase() {
   ];
 
   try {
-    console.log("Initializing database schema...");
+    console.log("[DB] Initializing database schema...");
     for (const query of queries) {
       await pool.query(query);
     }
-    console.log("Database schema initialized successfully!");
+    console.log("[DB] Database schema initialized successfully!");
   } catch (err: any) {
-    console.error("Schema init error:", err.message);
+    console.error("[DB] Schema init error:", err.message);
   }
 }
