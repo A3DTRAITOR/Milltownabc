@@ -21,6 +21,8 @@ export const members = pgTable("members", {
   squareCustomerId: varchar("square_customer_id", { length: 255 }),
   emailVerified: boolean("email_verified").default(false),
   emailVerificationToken: varchar("email_verification_token", { length: 255 }),
+  passwordResetToken: varchar("password_reset_token", { length: 255 }),
+  passwordResetExpires: timestamp("password_reset_expires"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
