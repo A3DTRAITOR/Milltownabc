@@ -1098,7 +1098,8 @@ export async function registerRoutes(
               title: boxingClass.title, 
               date: boxingClass.date, 
               time: boxingClass.time,
-              classType: boxingClass.classType
+              classType: boxingClass.classType,
+              duration: boxingClass.duration
             } : null,
           };
         })
@@ -1154,6 +1155,24 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error confirming booking:", error);
       res.status(500).json({ message: "Failed to confirm booking" });
+    }
+  });
+
+  // Admin: Cancel a booking
+  app.delete("/api/admin/bookings/:id", isAdmin, async (req, res) => {
+    try {
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      await storage.cancelBooking(req.params.id);
+      await storage.decrementBookedCount(booking.classId);
+      
+      res.json({ message: "Booking cancelled successfully" });
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      res.status(500).json({ message: "Failed to cancel booking" });
     }
   });
 
