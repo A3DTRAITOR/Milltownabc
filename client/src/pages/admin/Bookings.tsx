@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,8 +22,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format, startOfDay, startOfWeek, startOfMonth, startOfYear, isAfter, subMonths } from "date-fns";
+import { format, startOfDay, startOfWeek, startOfMonth, startOfYear, isAfter, isBefore, subMonths, parseISO, addMinutes } from "date-fns";
 import { ClipboardList, CheckCircle, XCircle, PoundSterling, TrendingUp, Calendar, AlertCircle, Download, FileText, Building2, Gift, CreditCard, Banknote } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface Booking {
   id: string;
@@ -45,6 +47,7 @@ interface Booking {
     date: string;
     time: string;
     classType: string;
+    duration?: number;
   };
 }
 
@@ -68,14 +71,55 @@ const BUSINESS_NAME = "Mill Town ABC";
 const BUSINESS_ADDRESS = "Whitfield Community Centre, Ebenezer Street, Glossop, SK13 8JY";
 const CURRENCY = "GBP";
 
+function isSessionPast(booking: Booking): boolean {
+  if (!booking.class?.date || !booking.class?.time) return false;
+  try {
+    const [hours, minutes] = booking.class.time.split(":").map(Number);
+    const classDate = parseISO(booking.class.date);
+    classDate.setHours(hours, minutes, 0, 0);
+    const duration = booking.class.duration || 60;
+    const classEnd = addMinutes(classDate, duration);
+    return isBefore(classEnd, new Date());
+  } catch {
+    return false;
+  }
+}
+
 export default function AdminBookings() {
   const [statusFilter, setStatusFilter] = useState<string>("confirmed");
   const [activeTab, setActiveTab] = useState<string>("bookings");
   const [financePeriod, setFinancePeriod] = useState<string>("all");
   const [hideDeletedMembers, setHideDeletedMembers] = useState<boolean>(true);
+  const { toast } = useToast();
   
   const { data: bookings, isLoading } = useQuery<Booking[]>({
     queryKey: ["/api/admin/bookings"],
+  });
+
+  const confirmMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      await apiRequest("POST", `/api/admin/bookings/${bookingId}/confirm`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      toast({ title: "Payment confirmed", description: "Booking has been marked as paid." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to confirm payment.", variant: "destructive" });
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: async (bookingId: string) => {
+      await apiRequest("DELETE", `/api/admin/bookings/${bookingId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      toast({ title: "Booking cancelled", description: "The booking has been cancelled." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to cancel booking.", variant: "destructive" });
+    },
   });
 
   const getStatusVariant = (status: string) => {
@@ -83,6 +127,7 @@ export default function AdminBookings() {
       case "confirmed": return "default";
       case "cancelled": return "secondary";
       case "pending": return "outline";
+      case "pending_cash": return "outline";
       default: return "secondary";
     }
   };
@@ -371,8 +416,11 @@ export default function AdminBookings() {
                           </p>
                         </div>
                         <div className="flex flex-col items-end gap-1">
-                          <Badge variant={getStatusVariant(booking.status)}>
-                            {booking.status}
+                          <Badge 
+                            variant={getStatusVariant(booking.status)}
+                            className={booking.status === "pending_cash" ? "border-amber-500 text-amber-600" : ""}
+                          >
+                            {booking.status === "pending_cash" ? "Awaiting Cash" : booking.status}
                           </Badge>
                           <span className={`text-sm font-medium ${booking.status === "cancelled" ? "line-through text-muted-foreground" : ""}`}>
                             {booking.isFreeSession ? (
@@ -399,6 +447,31 @@ export default function AdminBookings() {
                           {format(new Date(booking.bookedAt), "MMM d")}
                         </p>
                       </div>
+                      {booking.status === "pending_cash" && (
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t">
+                          <Button 
+                            size="sm" 
+                            className="flex-1 h-8 text-xs bg-green-600 hover:bg-green-700"
+                            onClick={() => confirmMutation.mutate(booking.id)}
+                            disabled={confirmMutation.isPending || cancelMutation.isPending}
+                            data-testid={`button-confirm-booking-${booking.id}`}
+                          >
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Confirm Paid
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="flex-1 h-8 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => cancelMutation.mutate(booking.id)}
+                            disabled={confirmMutation.isPending || cancelMutation.isPending}
+                            data-testid={`button-cancel-booking-${booking.id}`}
+                          >
+                            <XCircle className="h-3 w-3 mr-1" />
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
                     </Card>
                   ))}
                 </div>
@@ -413,7 +486,8 @@ export default function AdminBookings() {
                         <TableHead>Member</TableHead>
                         <TableHead>Amount</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Booked</TableHead>
+                        <TableHead>Booked</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -456,15 +530,47 @@ export default function AdminBookings() {
                             </span>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={getStatusVariant(booking.status)}>
-                              {booking.status}
+                            <Badge 
+                              variant={getStatusVariant(booking.status)}
+                              className={booking.status === "pending_cash" ? "border-amber-500 text-amber-600" : ""}
+                            >
+                              {booking.status === "pending_cash" ? "Awaiting Cash" : booking.status}
                             </Badge>
                             {booking.isFreeSession && (
                               <Badge variant="outline" className="ml-1 text-xs">1st Session</Badge>
                             )}
                           </TableCell>
-                          <TableCell className="text-right text-sm text-muted-foreground">
+                          <TableCell className="text-sm text-muted-foreground">
                             {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {booking.status === "pending_cash" ? (
+                              <div className="flex items-center justify-end gap-2">
+                                <Button 
+                                  size="sm" 
+                                  className="h-7 text-xs bg-green-600 hover:bg-green-700"
+                                  onClick={() => confirmMutation.mutate(booking.id)}
+                                  disabled={confirmMutation.isPending || cancelMutation.isPending}
+                                  data-testid={`button-confirm-booking-${booking.id}`}
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Confirm Paid
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                                  onClick={() => cancelMutation.mutate(booking.id)}
+                                  disabled={confirmMutation.isPending || cancelMutation.isPending}
+                                  data-testid={`button-cancel-booking-${booking.id}`}
+                                >
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Cancel
+                                </Button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">-</span>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -514,15 +620,17 @@ export default function AdminBookings() {
 
             {pendingCashBookings.length > 0 && (
               <Card className="p-4 border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-amber-800 dark:text-amber-200">
-                      {pendingCashBookings.length} Pending Cash Payment{pendingCashBookings.length !== 1 ? 's' : ''}
-                    </p>
-                    <p className="text-sm text-amber-700 dark:text-amber-300">
-                      These members have booked but need to pay £5 cash at reception before their session.
-                    </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-amber-800 dark:text-amber-200">
+                        {pendingCashBookings.length} Pending Cash Payment{pendingCashBookings.length !== 1 ? 's' : ''}
+                      </p>
+                      <p className="text-sm text-amber-700 dark:text-amber-300">
+                        These members have booked but need to pay £5 cash at reception. Use the buttons below to confirm or cancel each booking.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -685,26 +793,54 @@ export default function AdminBookings() {
                 ) : (
                   <>
                     <div className="space-y-3 md:hidden">
-                      {cashBookings.map((booking) => (
-                        <div key={booking.id} className="p-3 bg-muted/50 rounded-lg" data-testid={`card-cash-${booking.id}`}>
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <div className="min-w-0">
-                              <p className="font-medium text-sm truncate">{getMemberDisplayName(booking)}</p>
-                              <p className="text-xs text-muted-foreground truncate">{booking.class?.title || "Unknown"}</p>
+                      {cashBookings.map((booking) => {
+                        const past = isSessionPast(booking);
+                        return (
+                          <div key={booking.id} className={`p-3 rounded-lg ${booking.status === "pending_cash" && past ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800" : "bg-muted/50"}`} data-testid={`card-cash-${booking.id}`}>
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="min-w-0">
+                                <p className="font-medium text-sm truncate">{getMemberDisplayName(booking)}</p>
+                                <p className="text-xs text-muted-foreground truncate">{booking.class?.title || "Unknown"}</p>
+                              </div>
+                              <Badge 
+                                variant={booking.status === "pending_cash" ? "outline" : getStatusVariant(booking.status)}
+                                className={`text-xs shrink-0 ${booking.status === "pending_cash" ? (past ? "border-red-500 text-red-600" : "border-amber-500 text-amber-600") : ""}`}
+                              >
+                                {booking.status === "pending_cash" ? (past ? "Overdue" : "Awaiting Payment") : booking.status}
+                              </Badge>
                             </div>
-                            <Badge 
-                              variant={booking.status === "pending_cash" ? "outline" : getStatusVariant(booking.status)}
-                              className={`text-xs shrink-0 ${booking.status === "pending_cash" ? "border-amber-500 text-amber-600" : ""}`}
-                            >
-                              {booking.status === "pending_cash" ? "Pending" : booking.status}
-                            </Badge>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>{booking.class?.date && `${format(new Date(booking.class.date), "MMM d")} at ${booking.class.time}`}</span>
+                              <span className="font-medium text-foreground">£{booking.price || "5.00"}</span>
+                            </div>
+                            {booking.status === "pending_cash" && (
+                              <div className="flex items-center gap-2 mt-3 pt-2 border-t">
+                                <Button 
+                                  size="sm" 
+                                  className="flex-1 h-8 text-xs bg-green-600 hover:bg-green-700"
+                                  onClick={() => confirmMutation.mutate(booking.id)}
+                                  disabled={confirmMutation.isPending || cancelMutation.isPending}
+                                  data-testid={`button-confirm-cash-${booking.id}`}
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Confirm Paid
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="flex-1 h-8 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                                  onClick={() => cancelMutation.mutate(booking.id)}
+                                  disabled={confirmMutation.isPending || cancelMutation.isPending}
+                                  data-testid={`button-cancel-cash-${booking.id}`}
+                                >
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Cancel
+                                </Button>
+                              </div>
+                            )}
                           </div>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>{booking.class?.date && `${format(new Date(booking.class.date), "MMM d")} at ${booking.class.time}`}</span>
-                            <span className="font-medium text-foreground">£{booking.price || "5.00"}</span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                     <div className="hidden md:block">
                       <Table>
@@ -715,43 +851,76 @@ export default function AdminBookings() {
                             <TableHead>Date & Time</TableHead>
                             <TableHead>Amount</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Booked</TableHead>
+                            <TableHead>Booked</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {cashBookings.map((booking) => (
-                            <TableRow key={booking.id} data-testid={`row-cash-${booking.id}`}>
-                              <TableCell>
-                                <div>
-                                  <p className="font-medium">
-                                    {getMemberDisplayName(booking)}
-                                    {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
-                                  </p>
-                                  {getMemberEmail(booking) && (
-                                    <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                          {cashBookings.map((booking) => {
+                            const past = isSessionPast(booking);
+                            return (
+                              <TableRow key={booking.id} className={booking.status === "pending_cash" && past ? "bg-red-50/50 dark:bg-red-950/10" : ""} data-testid={`row-cash-${booking.id}`}>
+                                <TableCell>
+                                  <div>
+                                    <p className="font-medium">
+                                      {getMemberDisplayName(booking)}
+                                      {booking.memberDeleted && <Badge variant="outline" className="ml-1 text-xs">Deleted</Badge>}
+                                    </p>
+                                    {getMemberEmail(booking) && (
+                                      <p className="text-xs text-muted-foreground">{getMemberEmail(booking)}</p>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>{booking.class?.title || "Unknown"}</TableCell>
+                                <TableCell>
+                                  {booking.class?.date && (
+                                    <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
                                   )}
-                                </div>
-                              </TableCell>
-                              <TableCell>{booking.class?.title || "Unknown"}</TableCell>
-                              <TableCell>
-                                {booking.class?.date && (
-                                  <span>{format(new Date(booking.class.date), "MMM d")} at {booking.class.time}</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="font-medium">£{booking.price || "5.00"}</TableCell>
-                              <TableCell>
-                                <Badge 
-                                  variant={booking.status === "pending_cash" ? "outline" : getStatusVariant(booking.status)}
-                                  className={booking.status === "pending_cash" ? "border-amber-500 text-amber-600" : ""}
-                                >
-                                  {booking.status === "pending_cash" ? "Awaiting Payment" : booking.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">
-                                {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                                </TableCell>
+                                <TableCell className="font-medium">£{booking.price || "5.00"}</TableCell>
+                                <TableCell>
+                                  <Badge 
+                                    variant={booking.status === "pending_cash" ? "outline" : getStatusVariant(booking.status)}
+                                    className={booking.status === "pending_cash" ? (past ? "border-red-500 text-red-600" : "border-amber-500 text-amber-600") : ""}
+                                  >
+                                    {booking.status === "pending_cash" ? (past ? "Overdue" : "Awaiting Payment") : booking.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {format(new Date(booking.bookedAt), "MMM d, h:mm a")}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {booking.status === "pending_cash" ? (
+                                    <div className="flex items-center justify-end gap-2">
+                                      <Button 
+                                        size="sm" 
+                                        className="h-7 text-xs bg-green-600 hover:bg-green-700"
+                                        onClick={() => confirmMutation.mutate(booking.id)}
+                                        disabled={confirmMutation.isPending || cancelMutation.isPending}
+                                        data-testid={`button-confirm-cash-${booking.id}`}
+                                      >
+                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                        Confirm Paid
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                                        onClick={() => cancelMutation.mutate(booking.id)}
+                                        disabled={confirmMutation.isPending || cancelMutation.isPending}
+                                        data-testid={`button-cancel-cash-${booking.id}`}
+                                      >
+                                        <XCircle className="h-3 w-3 mr-1" />
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">-</span>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
                         </TableBody>
                       </Table>
                     </div>
