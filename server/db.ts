@@ -64,6 +64,8 @@ export async function initializeDatabase() {
       "square_customer_id" varchar(255),
       "email_verified" boolean DEFAULT false,
       "email_verification_token" varchar(255),
+      "password_reset_token" varchar(255),
+      "password_reset_expires" timestamp,
       "created_at" timestamp DEFAULT now()
     )`,
     `CREATE TABLE IF NOT EXISTS "class_templates" (
