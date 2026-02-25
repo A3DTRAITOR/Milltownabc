@@ -22,8 +22,14 @@ export function getSession() {
   const sessionTtl = 30 * 60 * 1000; // 30 minutes for inactivity timeout
   const isProduction = process.env.NODE_ENV === "production";
   const pgStore = connectPg(session);
+  const conObject: any = {
+    connectionString: process.env.DATABASE_URL,
+  };
+  if (isProduction) {
+    conObject.ssl = { rejectUnauthorized: false };
+  }
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
+    conObject,
     createTableIfMissing: true,
     ttl: sessionTtl / 1000,
     tableName: "sessions",
