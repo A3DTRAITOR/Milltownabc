@@ -9,7 +9,11 @@ console.log("[STARTUP] DATABASE_URL set:", !!process.env.DATABASE_URL);
 console.log("[STARTUP] PORT:", process.env.PORT);
 
 if (!process.env.DATABASE_URL) {
-  console.error("[FATAL] DATABASE_URL is not set. Available env vars:", Object.keys(process.env).filter(k => !k.startsWith('npm_')).join(', '));
+  const envKeys = Object.keys(process.env).filter(k => !k.startsWith('npm_') && !k.startsWith('_')).sort().join(', ');
+  console.error("[FATAL] DATABASE_URL is not set.");
+  console.error("[FATAL] Available env var keys:", envKeys);
+  console.error("[FATAL] Make sure DATABASE_URL is set in your hosting provider's environment variables.");
+  console.error("[FATAL] On Render: use the External Database URL from your PostgreSQL service.");
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?",
   );
