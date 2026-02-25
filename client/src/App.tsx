@@ -25,6 +25,8 @@ import AdminContent from "@/pages/admin/Content";
 import AdminMembers from "@/pages/admin/Members";
 import AdminBookings from "@/pages/admin/Bookings";
 import VerifyEmail from "@/pages/VerifyEmail";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/not-found";
 import { CookieConsent, useInitAnalytics } from "@/components/CookieConsent";
 
@@ -65,6 +67,8 @@ function Router() {
       <Route path="/admin/members" component={AdminMembers} />
       <Route path="/admin/bookings" component={AdminBookings} />
       <Route path="/verify-email" component={VerifyEmail} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       <Route component={NotFound} />
     </Switch>
   );
