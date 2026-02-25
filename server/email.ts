@@ -245,6 +245,83 @@ export async function sendCancellationEmail(data: CancellationEmailData): Promis
   }
 }
 
+interface PasswordResetEmailData {
+  memberName: string;
+  memberEmail: string;
+  resetToken: string;
+  baseUrl: string;
+}
+
+export async function sendPasswordResetEmail(data: PasswordResetEmailData): Promise<boolean> {
+  console.log("[Email] Attempting to send password reset email to:", data.memberEmail);
+  
+  const resetLink = `${data.baseUrl}/reset-password?token=${data.resetToken}`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #C8102E; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f5f5f5; }
+        .button { display: inline-block; background: #C8102E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+        .warning { background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 15px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Reset Your Password</h1>
+          <p>Mill Town ABC</p>
+        </div>
+        <div class="content">
+          <p>Hi ${data.memberName},</p>
+          <p>We received a request to reset the password for your Mill Town ABC account. Click the button below to set a new password:</p>
+          
+          <p style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" class="button">Reset Password</a>
+          </p>
+
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; color: #666;">${resetLink}</p>
+
+          <div class="warning">
+            <p style="margin: 0;"><strong>This link will expire in 1 hour.</strong> If you didn't request a password reset, you can safely ignore this email — your password won't be changed.</p>
+          </div>
+        </div>
+        <div class="footer">
+          <p>Mill Town ABC<br>
+          Contact: Alex 07565 208193 | Mark 07713 659360<br>
+          Email: Milltownabc@gmail.com</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    console.log("[Email] Getting Resend client for password reset email...");
+    const { client, fromEmail } = await getResendClient();
+    
+    const result = await client.emails.send({
+      from: fromEmail,
+      replyTo: 'Milltownabc@gmail.com',
+      to: data.memberEmail,
+      subject: "Reset your password - Mill Town ABC",
+      html: htmlContent,
+    });
+    
+    console.log("[Email] Password reset email sent successfully to:", data.memberEmail, "Result:", JSON.stringify(result));
+    return true;
+  } catch (error: any) {
+    console.error("[Email] Failed to send password reset email:", error?.message || error);
+    return false;
+  }
+}
+
 interface VerificationEmailData {
   memberName: string;
   memberEmail: string;
