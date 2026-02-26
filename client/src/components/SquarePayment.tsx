@@ -11,7 +11,7 @@ declare global {
 
 interface SquarePaymentProps {
   amount: number;
-  onPaymentSuccess: (paymentToken: string) => void;
+  onPaymentSuccess: (paymentToken: string, verificationToken?: string) => void;
   onPaymentError: (error: string) => void;
   onCancel: () => void;
   isProcessing: boolean;
@@ -29,6 +29,8 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
   const applePayContainerRef = useRef<HTMLDivElement>(null);
   const googlePayContainerRef = useRef<HTMLDivElement>(null);
   const initializingRef = useRef(false);
+  const paymentsRef = useRef<any>(null);
+  const locationIdRef = useRef<string>("");
 
   useEffect(() => {
     let mounted = true;
@@ -52,6 +54,8 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
           }
           return;
         }
+
+        locationIdRef.current = config.locationId;
 
         if (!window.Square) {
           const script = document.createElement("script");
@@ -81,12 +85,12 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
         }
 
         payments = window.Square.payments(config.applicationId, config.locationId);
+        paymentsRef.current = payments;
         
         if (!payments) {
           throw new Error("Failed to initialize Square payments");
         }
 
-        // Initialize Card payment
         cardInstance = await payments.card();
         if (!cardInstance) {
           throw new Error("Failed to create card instance");
@@ -97,7 +101,6 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
           setCard(cardInstance);
         }
 
-        // Initialize Apple Pay (if available)
         try {
           const applePayRequest = payments.paymentRequest({
             countryCode: 'GB',
@@ -118,7 +121,6 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
           console.log("Apple Pay not available:", appleErr);
         }
 
-        // Initialize Google Pay (if available)
         try {
           const googlePayRequest = payments.paymentRequest({
             countryCode: 'GB',
@@ -170,6 +172,26 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
     };
   }, [amount]);
 
+  const verifyBuyer = async (token: string): Promise<string | undefined> => {
+    const payments = paymentsRef.current;
+    if (!payments) return undefined;
+
+    try {
+      const verificationDetails = {
+        amount: (amount / 100).toFixed(2),
+        billingContact: {},
+        currencyCode: 'GBP',
+        intent: 'CHARGE',
+      };
+
+      const verificationResults = await payments.verifyBuyer(token, verificationDetails);
+      return verificationResults?.token;
+    } catch (err: any) {
+      console.error("[Square] Buyer verification error:", err);
+      return undefined;
+    }
+  };
+
   const handleCardPayment = async () => {
     if (!card) {
       onPaymentError("Payment form not ready");
@@ -180,7 +202,8 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
       const result = await card.tokenize();
       
       if (result.status === "OK") {
-        onPaymentSuccess(result.token);
+        const verificationToken = await verifyBuyer(result.token);
+        onPaymentSuccess(result.token, verificationToken);
       } else {
         const errorMessage = result.errors?.[0]?.message || "Payment failed";
         onPaymentError(errorMessage);
@@ -196,7 +219,8 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
     try {
       const result = await applePay.tokenize();
       if (result.status === "OK") {
-        onPaymentSuccess(result.token);
+        const verificationToken = await verifyBuyer(result.token);
+        onPaymentSuccess(result.token, verificationToken);
       } else {
         const errorMessage = result.errors?.[0]?.message || "Apple Pay failed";
         onPaymentError(errorMessage);
@@ -212,7 +236,8 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
     try {
       const result = await googlePay.tokenize();
       if (result.status === "OK") {
-        onPaymentSuccess(result.token);
+        const verificationToken = await verifyBuyer(result.token);
+        onPaymentSuccess(result.token, verificationToken);
       } else {
         const errorMessage = result.errors?.[0]?.message || "Google Pay failed";
         onPaymentError(errorMessage);
@@ -250,7 +275,6 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
         </div>
       )}
 
-      {/* Digital Wallets Section */}
       {!loading && (applePayAvailable || googlePayAvailable) && (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground text-center font-medium">Express checkout</p>
@@ -284,13 +308,11 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
         </div>
       )}
 
-      {/* Hidden containers for wallet buttons when loading */}
       <div className={loading ? 'hidden' : ''}>
         {!applePayAvailable && <div ref={applePayContainerRef} className="hidden" />}
         {!googlePayAvailable && <div ref={googlePayContainerRef} className="hidden" />}
       </div>
       
-      {/* Card Payment Section */}
       <div 
         ref={cardContainerRef} 
         className={`min-h-[50px] p-3 border rounded-md bg-background ${loading ? 'hidden' : ''}`}
