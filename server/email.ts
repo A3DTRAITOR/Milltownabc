@@ -53,17 +53,16 @@ function emailLayout(title: string, preheader: string, bodyContent: string): str
           
           <!-- HEADER -->
           <tr>
-            <td style="background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px 16px 0 0; padding: 40px 40px 30px; text-align: center; border-bottom: 3px solid #C8102E;">
+            <td style="background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px 16px 0 0; padding: 32px 40px 28px; text-align: center; border-bottom: 3px solid #C8102E;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center" style="padding-bottom: 16px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                      <tr>
-                        <td style="background-color: #C8102E; border-radius: 12px; padding: 10px 20px;">
-                          <span style="font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 2px; text-transform: uppercase;">MILL TOWN ABC</span>
-                        </td>
-                      </tr>
-                    </table>
+                    <img src="https://milltownabc.co.uk/logo.png" alt="Mill Town ABC" width="80" height="80" style="display: block; margin: 0 auto; border-radius: 12px; border: 2px solid #333333;" />
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-bottom: 6px;">
+                    <span style="font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 2px; text-transform: uppercase;">MILL TOWN ABC</span>
                   </td>
                 </tr>
                 <tr>
