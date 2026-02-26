@@ -63,13 +63,14 @@ export default function Sessions() {
     }
   };
 
-  const handlePaymentSuccess = async (paymentToken: string) => {
+  const handlePaymentSuccess = async (paymentToken: string, verificationToken?: string) => {
     if (!paymentClassId) return;
     
     setIsProcessingPayment(true);
     try {
       const res = await apiRequest("POST", `/api/classes/${paymentClassId}/book`, {
         paymentToken,
+        verificationToken,
         hcaptchaToken: null,
       });
       const data = await res.json();
