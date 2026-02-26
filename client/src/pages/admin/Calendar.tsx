@@ -56,7 +56,6 @@ interface ClassFormData {
   date: string;
   time: string;
   duration: number;
-  capacity: number;
   price: string;
   isActive: boolean;
 }
@@ -68,7 +67,6 @@ const defaultFormData: ClassFormData = {
   date: "",
   time: "18:00",
   duration: 60,
-  capacity: 12,
   price: "15.00",
   isActive: true,
 };
@@ -186,7 +184,6 @@ export default function AdminCalendar() {
       date: boxingClass.date,
       time: boxingClass.time,
       duration: boxingClass.duration || 60,
-      capacity: boxingClass.capacity || 12,
       price: boxingClass.price || "15.00",
       isActive: boxingClass.isActive !== false,
     });
@@ -314,19 +311,6 @@ export default function AdminCalendar() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="capacity">Capacity</Label>
-                    <Input
-                      id="capacity"
-                      type="number"
-                      className="h-12 text-base"
-                      value={formData.capacity}
-                      onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 12 })}
-                      min={1}
-                      max={50}
-                      data-testid="input-class-capacity"
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="price">Price (£)</Label>
                     <Input
                       id="price"
@@ -427,7 +411,7 @@ export default function AdminCalendar() {
                                   </span>
                                   <span className="flex items-center gap-1">
                                     <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                                    {boxingClass.bookedCount || 0}/{boxingClass.capacity}
+                                    {boxingClass.bookedCount || 0} booked
                                   </span>
                                   <span className="font-medium text-primary">£{boxingClass.price}</span>
                                 </div>
@@ -527,7 +511,7 @@ export default function AdminCalendar() {
               )}
               <div className="mt-4 pt-4 border-t flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
-                  {attendeesClass && getAttendeesForClass(attendeesClass.id).length} / {attendeesClass?.capacity} spots filled
+                  {attendeesClass && getAttendeesForClass(attendeesClass.id).length} attendees
                 </span>
                 <Button variant="outline" onClick={() => setAttendeesClass(null)} data-testid="button-close-attendees">
                   Close
