@@ -1045,11 +1045,12 @@ export async function registerRoutes(
   // Get Square configuration for frontend
   app.get("/api/square/config", async (req, res) => {
     const applicationId = getSquareApplicationId();
-    // Detect sandbox mode by checking if Application ID starts with "sandbox-"
+    const locationId = getSquareLocationId();
     const isSandbox = applicationId.startsWith("sandbox-");
+    console.log(`[Square Config] AppID prefix: ${applicationId.substring(0, 12)}..., sandbox: ${isSandbox}, configured: ${isSquareConfigured()}`);
     res.json({
       applicationId,
-      locationId: getSquareLocationId(),
+      locationId,
       isConfigured: isSquareConfigured(),
       sandboxMode: isSandbox,
     });
