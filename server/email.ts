@@ -76,7 +76,7 @@ function emailLayout(title: string, preheader: string, bodyContent: string): str
 
           <!-- BODY -->
           <tr>
-            <td style="background-color: #1a1a1a; padding: 0;">
+            <td style="background-color: #1a1a1a; padding: 40px;">
               ${bodyContent}
             </td>
           </tr>
@@ -223,7 +223,6 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
   }
 
   const bodyContent = `
-    <td style="padding: 40px;">
       <span style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: #ffffff; display: block; margin-bottom: 8px;">Booking Confirmed</span>
       <span style="font-family: 'Inter', sans-serif; font-size: 14px; color: #888888; display: block; margin-bottom: 24px;">Hi ${data.memberName}, your session is booked!</span>
       
@@ -260,7 +259,6 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
       </table>
 
       <span style="font-family: 'Inter', sans-serif; font-size: 15px; color: #888888; display: block; margin-top: 24px;">See you at the gym!</span>
-    </td>
   `;
 
   const htmlContent = emailLayout(
@@ -315,7 +313,6 @@ export async function sendCancellationEmail(data: CancellationEmailData): Promis
   }
 
   const bodyContent = `
-    <td style="padding: 40px;">
       <span style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: #ffffff; display: block; margin-bottom: 8px;">Booking Cancelled</span>
       <span style="font-family: 'Inter', sans-serif; font-size: 14px; color: #888888; display: block; margin-bottom: 24px;">Hi ${data.memberName}, your booking has been cancelled as requested.</span>
       
@@ -330,7 +327,6 @@ export async function sendCancellationEmail(data: CancellationEmailData): Promis
 
       <span style="font-family: 'Inter', sans-serif; font-size: 15px; color: #888888; display: block; margin-top: 24px;">If you'd like to book another session, visit our website to view available classes.</span>
       <span style="font-family: 'Inter', sans-serif; font-size: 15px; color: #888888; display: block; margin-top: 8px;">Hope to see you soon!</span>
-    </td>
   `;
 
   const htmlContent = emailLayout(
@@ -371,7 +367,6 @@ export async function sendPasswordResetEmail(data: PasswordResetEmailData): Prom
   const resetLink = `${data.baseUrl}/reset-password?token=${data.resetToken}`;
 
   const bodyContent = `
-    <td style="padding: 40px;">
       <span style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: #ffffff; display: block; margin-bottom: 8px;">Reset Your Password</span>
       <span style="font-family: 'Inter', sans-serif; font-size: 14px; color: #888888; display: block; margin-bottom: 24px;">Hi ${data.memberName}, we received a request to reset the password for your Mill Town ABC account.</span>
       
@@ -386,7 +381,6 @@ export async function sendPasswordResetEmail(data: PasswordResetEmailData): Prom
         '<strong>This link expires in 1 hour.</strong> If you didn\'t request a password reset, you can safely ignore this email — your password won\'t be changed.',
         'warning'
       )}
-    </td>
   `;
 
   const htmlContent = emailLayout(
@@ -427,7 +421,6 @@ export async function sendVerificationEmail(data: VerificationEmailData): Promis
   const verificationLink = `${data.baseUrl}/verify-email?token=${data.verificationToken}`;
 
   const bodyContent = `
-    <td style="padding: 40px;">
       <span style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: #ffffff; display: block; margin-bottom: 8px;">Verify Your Email</span>
       <span style="font-family: 'Inter', sans-serif; font-size: 14px; color: #888888; display: block; margin-bottom: 24px;">Hi ${data.memberName}, thanks for registering with Mill Town ABC!</span>
       
@@ -444,7 +437,6 @@ export async function sendVerificationEmail(data: VerificationEmailData): Promis
       )}
 
       <span style="font-family: 'Inter', sans-serif; font-size: 15px; color: #888888; display: block; margin-top: 24px;">See you at the gym!</span>
-    </td>
   `;
 
   const htmlContent = emailLayout(
