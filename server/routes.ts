@@ -73,6 +73,22 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  app.get('/.well-known/apple-developer-merchantid-domain-association', (req, res) => {
+    const filePath = path.resolve(__dirname, 'public', '.well-known', 'apple-developer-merchantid-domain-association');
+    if (fs.existsSync(filePath)) {
+      res.setHeader('Content-Type', 'text/plain');
+      res.sendFile(filePath);
+    } else {
+      const devPath = path.resolve(process.cwd(), 'client', 'public', '.well-known', 'apple-developer-merchantid-domain-association');
+      if (fs.existsSync(devPath)) {
+        res.setHeader('Content-Type', 'text/plain');
+        res.sendFile(devPath);
+      } else {
+        res.status(404).send('Not found');
+      }
+    }
+  });
+
   app.use((req, res, next) => {
     const url = req.originalUrl;
     if (url !== "/" && url.endsWith("/") && !url.startsWith("/api/")) {
