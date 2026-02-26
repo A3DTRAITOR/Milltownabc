@@ -129,14 +129,17 @@ export function SquarePayment({ amount, onPaymentSuccess, onPaymentError, onCanc
             },
           });
           
+          console.log("[Square] Attempting Google Pay init...");
           googlePayInstance = await payments.googlePay(googlePayRequest);
+          console.log("[Square] Google Pay instance created:", !!googlePayInstance);
           if (googlePayInstance && googlePayContainerRef.current && mounted) {
             await googlePayInstance.attach(googlePayContainerRef.current);
             setGooglePay(googlePayInstance);
             setGooglePayAvailable(true);
+            console.log("[Square] Google Pay attached successfully");
           }
-        } catch (googleErr) {
-          console.log("Google Pay not available:", googleErr);
+        } catch (googleErr: any) {
+          console.log("[Square] Google Pay not available:", googleErr?.message || googleErr);
         }
 
         if (mounted) {
