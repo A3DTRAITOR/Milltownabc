@@ -461,7 +461,7 @@ export async function registerRoutes(
             date: dateStr,
             time: template.time,
             duration: template.duration || 60,
-            capacity: 12,
+            capacity: 9999,
             price: "5.00",
             isActive: true,
           });
@@ -617,7 +617,7 @@ export async function registerRoutes(
         date,
         time,
         duration: duration || 60,
-        capacity: capacity || 12,
+        capacity: 9999,
         price: price || "5.00",
         isActive: isActive !== false
       });
