@@ -695,7 +695,7 @@ export async function registerRoutes(
       }
       
       // Verify hCaptcha if provided and configured
-      const { hcaptchaToken, paymentToken, paymentMethod } = req.body;
+      const { hcaptchaToken, paymentToken, verificationToken, paymentMethod } = req.body;
       const isCashPayment = paymentMethod === "cash";
       // Only require captcha for free sessions (paid sessions go through payment instead)
       if (!paymentToken && !isCashPayment) {
@@ -806,6 +806,7 @@ export async function registerRoutes(
         console.log(`[Payment] Processing Square payment for member ${memberId}, class ${req.params.id}`);
         paymentResult = await createPayment({
           sourceId: paymentToken,
+          verificationToken: verificationToken || undefined,
           amount,
           currency: "GBP",
           note: `Mill Town ABC - ${boxingClass.title} on ${boxingClass.date}`,
@@ -814,7 +815,7 @@ export async function registerRoutes(
         if (!paymentResult.success) {
           console.error(`[Payment] Failed:`, paymentResult.error);
           return res.status(400).json({ 
-            message: paymentResult.error || "Payment failed. Please try again." 
+            message: "Payment failed. Please check your card details and try again." 
           });
         }
         console.log(`[Payment] Success! Payment ID: ${paymentResult.paymentId}`);
@@ -904,14 +905,10 @@ export async function registerRoutes(
       await storage.cancelBooking(req.params.id);
       await storage.decrementBookedCount(booking.classId);
 
-      // If this was a free session, only restore eligibility if cancelled more than 1 hour before
       let freeSessionRestored = false;
       if (booking.isFreeSession) {
-        if (!isWithinOneHour) {
-          await storage.updateMember(memberId, { hasUsedFreeSession: false });
-          freeSessionRestored = true;
-        }
-        // If within 1 hour, the free session is forfeited
+        await storage.updateMember(memberId, { hasUsedFreeSession: false });
+        freeSessionRestored = true;
       }
 
       // Send cancellation confirmation email
@@ -982,7 +979,7 @@ export async function registerRoutes(
         return res.status(401).json({ message: "Please log in" });
       }
 
-      const { bookingId, sourceId } = req.body;
+      const { bookingId, sourceId, verificationToken } = req.body;
       
       if (!bookingId || !sourceId) {
         return res.status(400).json({ message: "Missing booking ID or payment token" });
@@ -1012,6 +1009,7 @@ export async function registerRoutes(
       
       const paymentResult = await createPayment({
         sourceId,
+        verificationToken: verificationToken || undefined,
         amount,
         currency: "GBP",
         bookingId,
