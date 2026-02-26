@@ -769,9 +769,9 @@ export async function registerRoutes(
         }
       }
       
-      if (futureBookingCount >= 3) {
+      if (futureBookingCount >= 10) {
         return res.status(400).json({ 
-          message: "Maximum of 3 future bookings allowed. Please cancel an existing booking to book a new class." 
+          message: "Maximum of 10 future bookings allowed. Please cancel an existing booking to book a new class." 
         });
       }
 
