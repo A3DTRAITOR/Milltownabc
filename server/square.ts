@@ -15,8 +15,9 @@ const squareClient = new SquareClient({
 });
 
 export interface CreatePaymentParams {
-  sourceId: string; // Token from Square Web Payments SDK
-  amount: number; // Amount in pence (500 = £5.00)
+  sourceId: string;
+  verificationToken?: string;
+  amount: number;
   currency?: string;
   customerId?: string;
   note?: string;
@@ -24,20 +25,27 @@ export interface CreatePaymentParams {
 }
 
 export async function createPayment(params: CreatePaymentParams) {
-  const { sourceId, amount, currency = "GBP", customerId, note, bookingId } = params;
+  const { sourceId, verificationToken, amount, currency = "GBP", customerId, note, bookingId } = params;
   
   try {
-    const response = await squareClient.payments.create({
+    const paymentRequest: any = {
       sourceId,
       idempotencyKey: crypto.randomUUID(),
       amountMoney: {
-        amount: BigInt(amount), // Amount in smallest currency unit (pence for GBP)
+        amount: BigInt(amount),
         currency: currency as "GBP" | "USD" | "EUR",
       },
       customerId,
       note: note || `Mill Town ABC - Class Booking ${bookingId || ""}`,
       referenceId: bookingId,
-    });
+      locationId: (process.env.SQUARE_LOCATION_ID || "").trim(),
+    };
+
+    if (verificationToken) {
+      paymentRequest.verificationToken = verificationToken;
+    }
+
+    const response = await squareClient.payments.create(paymentRequest);
 
     if (response.payment) {
       return {
