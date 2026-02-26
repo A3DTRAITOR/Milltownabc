@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ChevronLeft, ChevronRight, Clock, Users, Loader2, Check, CreditCard, Banknote } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Loader2, Check, CreditCard, Banknote } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addWeeks, subWeeks, isToday, isBefore, startOfDay, addDays } from "date-fns";
 import { Link } from "wouter";
@@ -439,8 +439,6 @@ export default function Sessions() {
                 ) : (
                   <div className="space-y-3">
                     {classesForSelectedDate.map(boxingClass => {
-                      const spotsLeft = (boxingClass.capacity || 12) - (boxingClass.bookedCount || 0);
-                      const isFull = spotsLeft <= 0;
                       const isBooking = bookingClassId === boxingClass.id;
                       const isEligibleForFree = currentMember && !currentMember.hasUsedFreeSession;
 
@@ -460,11 +458,7 @@ export default function Sessions() {
                           
                           <h3 className="font-semibold text-foreground mb-2">{boxingClass.title}</h3>
                           
-                          <div className="flex items-center justify-between text-sm mb-4">
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <Users className="h-3.5 w-3.5" />
-                              {spotsLeft} spots left
-                            </span>
+                          <div className="flex items-center justify-end text-sm mb-4">
                             {isEligibleForFree ? (
                               <Badge variant="default" className="bg-green-600">FREE</Badge>
                             ) : (
@@ -476,12 +470,10 @@ export default function Sessions() {
                             <Button
                               className={`w-full ${isEligibleForFree ? 'bg-green-600' : ''}`}
                               onClick={() => handleBookClick(boxingClass.id, isEligibleForFree ?? false)}
-                              disabled={isFull || isBooking}
+                              disabled={isBooking}
                             >
                               {isBooking ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : isFull ? (
-                                "Class Full"
                               ) : isEligibleForFree ? (
                                 <span><Check className="h-4 w-4 mr-2 inline" />Book Free First Session</span>
                               ) : (
@@ -512,7 +504,6 @@ export default function Sessions() {
                 .slice(0, 10)
                 .map(boxingClass => {
                   const classDate = new Date(boxingClass.date + "T12:00:00");
-                  const spotsLeft = (boxingClass.capacity || 12) - (boxingClass.bookedCount || 0);
                   
                   return (
                     <Card 
@@ -532,7 +523,6 @@ export default function Sessions() {
                           <h3 className="font-semibold text-foreground">{boxingClass.title}</h3>
                           <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                             <span>{boxingClass.duration} min</span>
-                            <span>{spotsLeft} spots</span>
                           </div>
                         </div>
                         <div className="text-right">
@@ -573,8 +563,6 @@ export default function Sessions() {
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {classesForSelectedDate.map(boxingClass => {
-                    const spotsLeft = (boxingClass.capacity || 12) - (boxingClass.bookedCount || 0);
-                    const isFull = spotsLeft <= 0;
                     const isBooking = bookingClassId === boxingClass.id;
                     const isEligibleForFree = currentMember && !currentMember.hasUsedFreeSession;
 
@@ -594,11 +582,7 @@ export default function Sessions() {
                         
                         <h3 className="font-semibold text-foreground mb-2">{boxingClass.title}</h3>
                         
-                        <div className="flex items-center justify-between text-sm mb-4">
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            <Users className="h-3.5 w-3.5" />
-                            {spotsLeft} spots left
-                          </span>
+                        <div className="flex items-center justify-end text-sm mb-4">
                           {isEligibleForFree ? (
                             <Badge variant="default" className="bg-green-600" data-testid={`badge-free-${boxingClass.id}`}>
                               FREE
@@ -612,13 +596,11 @@ export default function Sessions() {
                           <Button
                             className={`w-full ${isEligibleForFree ? 'bg-green-600' : ''}`}
                             onClick={() => handleBookClick(boxingClass.id, isEligibleForFree ?? false)}
-                            disabled={isFull || isBooking}
+                            disabled={isBooking}
                             data-testid={`button-book-${boxingClass.id}`}
                           >
                             {isBooking ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : isFull ? (
-                              "Class Full"
                             ) : isEligibleForFree ? (
                               <span data-testid={`text-book-free-${boxingClass.id}`}>
                                 <Check className="h-4 w-4 mr-2 inline" />
