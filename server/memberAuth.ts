@@ -582,7 +582,7 @@ export function registerMemberRoutes(app: Express) {
         date,
         time,
         duration: duration || 60,
-        capacity: capacity || 12,
+        capacity: 9999,
         price: price || "15.00",
         isActive: isActive !== false,
       });
