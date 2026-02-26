@@ -738,12 +738,6 @@ export async function registerRoutes(
         return res.status(400).json({ message: "This class is not available for booking" });
       }
 
-      const capacity = boxingClass.capacity || 12;
-      const bookedCount = boxingClass.bookedCount || 0;
-      if (bookedCount >= capacity) {
-        return res.status(400).json({ message: "This class is fully booked" });
-      }
-
       // Check if already booked
       const existingBookings = await storage.getBookingsByMember(memberId);
       const alreadyBooked = existingBookings.some(b => b.classId === req.params.id && b.status !== "cancelled");
