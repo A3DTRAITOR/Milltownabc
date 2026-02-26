@@ -56,8 +56,7 @@ export default function Terms() {
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li>All boxing classes cost <strong className="text-foreground">£5 per session</strong>.</li>
               <li>Your <strong className="text-foreground">first session is FREE</strong>. This introductory offer is limited to one free session per person.</li>
-              <li>You may have a maximum of <strong className="text-foreground">3 future bookings</strong> at any time. Cancel an existing booking to make room for a new one.</li>
-              <li>Classes have limited capacity. Bookings are confirmed on a first-come, first-served basis.</li>
+              <li>You may have a maximum of <strong className="text-foreground">10 future bookings</strong> at any time. Cancel an existing booking to make room for a new one.</li>
               <li>You must be a registered, email-verified member to book a class.</li>
               <li>Sessions are held at Whitfield Community Centre, Ebenezer Street, Glossop, SK13 8JY.</li>
             </ul>
