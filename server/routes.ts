@@ -485,10 +485,22 @@ export async function registerRoutes(
     }
   }
 
+  async function grantAdminAccess() {
+    const adminEmails = ["milltownabc@gmail.com", "a3dtraitor@gmail.com", "mark.w.maintenance@gmail.com"];
+    for (const email of adminEmails) {
+      const member = await storage.getMemberByEmail(email);
+      if (member && !member.isAdmin) {
+        await storage.updateMember(member.id, { isAdmin: true });
+        console.log(`[Admin] Granted admin access to ${email}`);
+      }
+    }
+  }
+
   // Generate classes on server start (seed templates, cleanup, then generate 2 weeks)
   seedClassTemplates()
     .then(() => cleanupIncorrectClasses())
     .then(() => generateWeeklyClasses(2))
+    .then(() => grantAdminAccess())
     .catch(console.error);
 
   // Get all upcoming classes
