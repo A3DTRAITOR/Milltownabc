@@ -26,7 +26,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { User, Mail, Phone, Calendar, AlertTriangle, Trash2, Pencil, Loader2 } from "lucide-react";
+import { User, Mail, Phone, Calendar, AlertTriangle, Trash2, Pencil, Loader2, ChevronRight } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -47,6 +47,7 @@ export default function AdminMembers() {
   const { toast } = useToast();
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [memberToEdit, setMemberToEdit] = useState<Member | null>(null);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [editForm, setEditForm] = useState<Partial<Member>>({});
 
   const { data: members, isLoading } = useQuery<Member[]>({
@@ -65,6 +66,7 @@ export default function AdminMembers() {
         description: "The member has been removed. Payment records have been retained with personal info redacted." 
       });
       setMemberToDelete(null);
+      setSelectedMember(null);
     },
     onError: (error: any) => {
       toast({ 
@@ -106,6 +108,7 @@ export default function AdminMembers() {
   };
 
   const handleEditClick = (member: Member) => {
+    setSelectedMember(null);
     setMemberToEdit(member);
     setEditForm({
       name: member.name,
@@ -128,7 +131,7 @@ export default function AdminMembers() {
       <div className="mx-auto max-w-6xl space-y-4 sm:space-y-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-foreground">All Members</h2>
-          <p className="text-sm sm:text-base text-muted-foreground">View and manage club members.</p>
+          <p className="text-sm sm:text-base text-muted-foreground">Tap a member to view full details.</p>
         </div>
 
         {isLoading ? (
@@ -143,81 +146,31 @@ export default function AdminMembers() {
             <p className="text-muted-foreground">No members registered yet.</p>
           </Card>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {members.map((member) => (
-              <Card key={member.id} className="p-3 sm:p-4" data-testid={`card-member-${member.id}`}>
-                <div className="flex items-start justify-between gap-2 sm:gap-4">
-                  <div className="flex items-start gap-2 sm:gap-4 flex-1 min-w-0">
-                    <div className="rounded-full bg-primary/10 p-2 sm:p-3 text-primary shrink-0">
-                      <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="font-semibold text-foreground text-sm sm:text-base" data-testid={`text-member-name-${member.id}`}>
-                          {member.name}
-                        </h3>
-                        {member.isAdmin && <Badge variant="default" className="text-xs">Admin</Badge>}
-                        {member.experienceLevel && (
-                          <Badge variant="secondary" className="text-xs">{member.experienceLevel}</Badge>
-                        )}
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-1 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1 truncate">
-                          <Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                          <span className="truncate">{member.email}</span>
-                        </span>
-                        {member.phone && (
-                          <span className="flex items-center gap-1">
-                            <Phone className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                            {member.phone}
-                          </span>
-                        )}
-                        {member.age && (
-                          <span className="text-muted-foreground">
-                            Age: {member.age}
-                          </span>
-                        )}
-                        {member.createdAt && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                            {format(new Date(member.createdAt), "MMM d, yyyy")}
-                          </span>
-                        )}
-                      </div>
-                      {(member.emergencyContactName || member.emergencyContactPhone) && (
-                        <div className="mt-2 flex items-center gap-2 text-xs sm:text-sm">
-                          <AlertTriangle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-600 shrink-0" />
-                          <span className="text-muted-foreground truncate">
-                            Emergency: {member.emergencyContactName}
-                            {member.emergencyContactPhone && ` - ${member.emergencyContactPhone}`}
-                          </span>
-                        </div>
+              <Card
+                key={member.id}
+                className="p-3 sm:p-4 cursor-pointer hover:border-primary/40 transition-colors active:bg-muted/50"
+                onClick={() => setSelectedMember(member)}
+                data-testid={`card-member-${member.id}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-primary/10 p-2 sm:p-3 text-primary shrink-0">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-foreground text-sm sm:text-base" data-testid={`text-member-name-${member.id}`}>
+                        {member.name}
+                      </h3>
+                      {member.isAdmin && <Badge variant="default" className="text-xs">Admin</Badge>}
+                      {member.experienceLevel && (
+                        <Badge variant="secondary" className="text-xs">{member.experienceLevel}</Badge>
                       )}
                     </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{member.email}</p>
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleEditClick(member)}
-                      title="Edit member"
-                      data-testid={`button-edit-member-${member.id}`}
-                    >
-                      <Pencil className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleDeleteClick(member)}
-                      disabled={member.isAdmin}
-                      title={member.isAdmin ? "Cannot delete admin accounts" : "Delete member"}
-                      data-testid={`button-delete-member-${member.id}`}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                 </div>
               </Card>
             ))}
@@ -228,6 +181,108 @@ export default function AdminMembers() {
           Total: {members?.length || 0} members
         </div>
       </div>
+
+      <Dialog open={!!selectedMember} onOpenChange={(open) => { if (!open) setSelectedMember(null); }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              {selectedMember?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedMember && (
+            <div className="space-y-4 py-2">
+              <div className="flex flex-wrap gap-2">
+                {selectedMember.isAdmin && <Badge variant="default">Admin</Badge>}
+                {selectedMember.experienceLevel && (
+                  <Badge variant="secondary">{selectedMember.experienceLevel}</Badge>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                  <Mail className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="text-sm font-medium break-all">{selectedMember.email}</p>
+                  </div>
+                </div>
+
+                {selectedMember.phone && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                    <Phone className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Phone</p>
+                      <p className="text-sm font-medium">{selectedMember.phone}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedMember.age && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                    <User className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Age</p>
+                      <p className="text-sm font-medium">{selectedMember.age}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedMember.createdAt && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                    <Calendar className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Joined</p>
+                      <p className="text-sm font-medium">{format(new Date(selectedMember.createdAt), "d MMMM yyyy")}</p>
+                    </div>
+                  </div>
+                )}
+
+                {(selectedMember.emergencyContactName || selectedMember.emergencyContactPhone) && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+                    <AlertTriangle className="h-4 w-4 mt-0.5 text-amber-600 shrink-0" />
+                    <div>
+                      <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">Emergency Contact</p>
+                      {selectedMember.emergencyContactName && (
+                        <p className="text-sm font-medium">{selectedMember.emergencyContactName}</p>
+                      )}
+                      {selectedMember.emergencyContactPhone && (
+                        <p className="text-sm text-muted-foreground">{selectedMember.emergencyContactPhone}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => selectedMember && handleEditClick(selectedMember)}
+              data-testid="button-detail-edit"
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+            <Button
+              variant="destructive"
+              className="w-full sm:w-auto"
+              onClick={() => {
+                if (selectedMember) {
+                  setSelectedMember(null);
+                  handleDeleteClick(selectedMember);
+                }
+              }}
+              disabled={selectedMember?.isAdmin}
+              data-testid="button-detail-delete"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!memberToEdit} onOpenChange={(open) => { if (!open) { setMemberToEdit(null); setEditForm({}); } }}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
