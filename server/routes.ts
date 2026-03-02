@@ -486,7 +486,7 @@ export async function registerRoutes(
   }
 
   async function grantAdminAccess() {
-    const adminEmails = ["milltownabc@gmail.com", "a3dtraitor@gmail.com", "mark.w.maintenance@gmail.com"];
+    const adminEmails = ["milltownabc@gmail.com", "a3dtraitor@gmail.com", "mark.w.maintenance@gmail.com", "alexcleggy@gmail.com"];
     for (const email of adminEmails) {
       const member = await storage.getMemberByEmail(email);
       if (member && !member.isAdmin) {
