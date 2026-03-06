@@ -14,6 +14,16 @@ declare module "http" {
   }
 }
 
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    const host = req.headers.host || "";
+    if (host.startsWith("www.")) {
+      return res.redirect(301, `https://milltownabc.co.uk${req.originalUrl}`);
+    }
+    next();
+  });
+}
+
 app.use(
   express.json({
     verify: (req, _res, buf) => {
