@@ -2,42 +2,22 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 
-const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || "";
+const GA_MEASUREMENT_ID = "G-RFH0BDP2F5";
 
-if (typeof window !== "undefined" && GA_MEASUREMENT_ID) {
-  (window as any)[`ga-disable-${GA_MEASUREMENT_ID}`] = true;
-}
-
-function loadGoogleAnalytics() {
-  if (!GA_MEASUREMENT_ID || typeof window === "undefined") return;
-  if (document.getElementById("ga-script")) return;
-
-  (window as any)[`ga-disable-${GA_MEASUREMENT_ID}`] = false;
-
-  const script = document.createElement("script");
-  script.id = "ga-script";
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-  document.head.appendChild(script);
-
-  (window as any).dataLayer = (window as any).dataLayer || [];
-  function gtag(...args: any[]) {
-    (window as any).dataLayer.push(args);
-  }
-  gtag("js", new Date());
-  gtag("config", GA_MEASUREMENT_ID, { anonymize_ip: true });
-}
-
-function removeGoogleAnalytics() {
+function grantAnalytics() {
   if (typeof window === "undefined") return;
+  const gtag = (window as any).gtag;
+  if (gtag) {
+    gtag("consent", "update", { analytics_storage: "granted" });
+  }
+}
 
-  (window as any)[`ga-disable-${GA_MEASUREMENT_ID}`] = true;
-
-  const script = document.getElementById("ga-script");
-  if (script) script.remove();
-
-  (window as any).dataLayer = [];
-
+function denyAnalytics() {
+  if (typeof window === "undefined") return;
+  const gtag = (window as any).gtag;
+  if (gtag) {
+    gtag("consent", "update", { analytics_storage: "denied" });
+  }
   const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
     const name = cookie.split("=")[0].trim();
@@ -52,7 +32,7 @@ export function useInitAnalytics() {
   useEffect(() => {
     const consent = localStorage.getItem("cookie-consent");
     if (consent === "all") {
-      loadGoogleAnalytics();
+      grantAnalytics();
     }
   }, []);
 }
@@ -63,7 +43,7 @@ export function isAnalyticsConsented(): boolean {
 }
 
 export function revokeConsent() {
-  removeGoogleAnalytics();
+  denyAnalytics();
   localStorage.removeItem("cookie-consent");
   window.location.reload();
 }
@@ -82,13 +62,13 @@ export function CookieConsent() {
   const handleAcceptAll = () => {
     localStorage.setItem("cookie-consent", "all");
     setVisible(false);
-    loadGoogleAnalytics();
+    grantAnalytics();
   };
 
   const handleEssentialOnly = () => {
     localStorage.setItem("cookie-consent", "essential");
     setVisible(false);
-    removeGoogleAnalytics();
+    denyAnalytics();
   };
 
   if (!visible) return null;
